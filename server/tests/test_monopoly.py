@@ -6,6 +6,7 @@ from server.games.monopoly.game import (
     STARTING_CASH,
     PASS_GO_CASH,
     BAIL_AMOUNT,
+    SPACE_BY_ID,
 )
 from server.games.monopoly.presets import (
     DEFAULT_PRESET_ID,
@@ -406,6 +407,75 @@ def test_monopoly_mortgage_and_unmortgage_cycle():
     game.execute_action(host, "unmortgage_property", input_value="boardwalk")
     assert "boardwalk" not in game.mortgaged_space_ids
     assert host.cash == STARTING_CASH - 20
+
+
+def test_monopoly_build_house_obeys_even_building_rules():
+    game = _start_two_player_game()
+    host = game.current_player
+    assert host is not None
+
+    for space_id in ("mediterranean_avenue", "baltic_avenue"):
+        host.owned_space_ids.append(space_id)
+        game.property_owners[space_id] = host.id
+
+    house_cost = SPACE_BY_ID["mediterranean_avenue"].house_cost
+    starting_cash = host.cash
+
+    game.execute_action(host, "build_house", input_value="mediterranean_avenue")
+    assert game._building_level("mediterranean_avenue") == 1
+    assert game._building_level("baltic_avenue") == 0
+    assert host.cash == starting_cash - house_cost
+
+    # Cannot build a second level on the same property before the group is even.
+    game.execute_action(host, "build_house", input_value="mediterranean_avenue")
+    assert game._building_level("mediterranean_avenue") == 1
+    assert host.cash == starting_cash - house_cost
+
+    game.execute_action(host, "build_house", input_value="baltic_avenue")
+    assert game._building_level("baltic_avenue") == 1
+    assert host.cash == starting_cash - (house_cost * 2)
+
+
+def test_monopoly_sell_house_obeys_even_selling_rules():
+    game = _start_two_player_game()
+    host = game.current_player
+    assert host is not None
+
+    for space_id in ("mediterranean_avenue", "baltic_avenue"):
+        host.owned_space_ids.append(space_id)
+        game.property_owners[space_id] = host.id
+
+    game._set_building_level("mediterranean_avenue", 2)
+    game._set_building_level("baltic_avenue", 1)
+    sell_value = SPACE_BY_ID["mediterranean_avenue"].house_cost // 2
+    starting_cash = host.cash
+
+    # Cannot sell from the lower property while another in the group is higher.
+    game.execute_action(host, "sell_house", input_value="baltic_avenue")
+    assert game._building_level("mediterranean_avenue") == 2
+    assert game._building_level("baltic_avenue") == 1
+    assert host.cash == starting_cash
+
+    game.execute_action(host, "sell_house", input_value="mediterranean_avenue")
+    assert game._building_level("mediterranean_avenue") == 1
+    assert game._building_level("baltic_avenue") == 1
+    assert host.cash == starting_cash + sell_value
+
+
+def test_monopoly_cannot_mortgage_color_group_with_buildings():
+    game = _start_two_player_game()
+    host = game.current_player
+    assert host is not None
+
+    for space_id in ("mediterranean_avenue", "baltic_avenue"):
+        host.owned_space_ids.append(space_id)
+        game.property_owners[space_id] = host.id
+    game._set_building_level("mediterranean_avenue", 1)
+
+    assert game._options_for_mortgage_property(host) == []
+    game.execute_action(host, "mortgage_property", input_value="mediterranean_avenue")
+    assert game.mortgaged_space_ids == []
+    assert host.cash == STARTING_CASH
 
 
 def test_monopoly_mortgaged_property_charges_no_rent(monkeypatch):

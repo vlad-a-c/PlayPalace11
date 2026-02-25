@@ -57,17 +57,23 @@ monopoly-winner-by-bankruptcy = { $player } wins by bankruptcy with { $cash } ca
 monopoly-auction-property = Auction property
 monopoly-mortgage-property = Mortgage property
 monopoly-unmortgage-property = Unmortgage property
+monopoly-build-house = Build house or hotel
+monopoly-sell-house = Sell house or hotel
 monopoly-pay-bail = Pay bail
 monopoly-use-jail-card = Use get-out-of-jail card
 
 # Additional prompts
 monopoly-select-property-mortgage = Select a property to mortgage
 monopoly-select-property-unmortgage = Select a property to unmortgage
+monopoly-select-property-build = Select a property to build on
+monopoly-select-property-sell = Select a property to sell from
 
 # Additional validation
 monopoly-no-property-to-auction = There is no property to auction right now.
 monopoly-no-mortgage-options = You do not have properties available to mortgage.
 monopoly-no-unmortgage-options = You do not have mortgaged properties to unmortgage.
+monopoly-no-build-options = You do not have properties available to build on.
+monopoly-no-sell-options = You do not have properties with buildings available to sell.
 monopoly-not-in-jail = You are not in jail.
 monopoly-no-jail-card = You do not have a get-out-of-jail card.
 monopoly-roll-again-required = You rolled doubles and must roll again.
@@ -86,6 +92,8 @@ monopoly-auction-no-bids = No bids for { $property }. It remains unsold.
 monopoly-auction-won = { $player } won the auction for { $property } at { $amount } (cash: { $cash }).
 monopoly-property-mortgaged = { $player } mortgaged { $property } for { $amount } (cash: { $cash }).
 monopoly-property-unmortgaged = { $player } unmortgaged { $property } for { $amount } (cash: { $cash }).
+monopoly-house-built = { $player } built on { $property } for { $amount } (level: { $level }, cash: { $cash }).
+monopoly-house-sold = { $player } sold a building on { $property } for { $amount } (level: { $level }, cash: { $cash }).
 monopoly-mortgaged-no-rent = { $player } landed on mortgaged { $property }; no rent is due.
 
 # Card engine

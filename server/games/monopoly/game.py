@@ -507,6 +507,32 @@ class MonopolyGame(ActionGuardMixin, Game):
         )
         action_set.add(
             Action(
+                id="build_house",
+                label=Localization.get(locale, "monopoly-build-house"),
+                handler="_action_build_house",
+                is_enabled="_is_build_house_enabled",
+                is_hidden="_is_build_house_hidden",
+                input_request=MenuInput(
+                    prompt="monopoly-select-property-build",
+                    options="_options_for_build_house",
+                ),
+            )
+        )
+        action_set.add(
+            Action(
+                id="sell_house",
+                label=Localization.get(locale, "monopoly-sell-house"),
+                handler="_action_sell_house",
+                is_enabled="_is_sell_house_enabled",
+                is_hidden="_is_sell_house_hidden",
+                input_request=MenuInput(
+                    prompt="monopoly-select-property-sell",
+                    options="_options_for_sell_house",
+                ),
+            )
+        )
+        action_set.add(
+            Action(
                 id="pay_bail",
                 label=Localization.get(locale, "monopoly-pay-bail"),
                 handler="_action_pay_bail",
@@ -547,6 +573,8 @@ class MonopolyGame(ActionGuardMixin, Game):
             ["unmortgage_property"],
             state=KeybindState.ACTIVE,
         )
+        self.define_keybind("h", "Build house", ["build_house"], state=KeybindState.ACTIVE)
+        self.define_keybind("shift+h", "Sell house", ["sell_house"], state=KeybindState.ACTIVE)
         self.define_keybind("j", "Pay bail", ["pay_bail"], state=KeybindState.ACTIVE)
         self.define_keybind("e", "End turn", ["end_turn"], state=KeybindState.ACTIVE)
         self.define_keybind(
@@ -676,6 +704,24 @@ class MonopolyGame(ActionGuardMixin, Game):
         if not group_ids:
             return False
         return all(self.property_owners.get(space_id) == owner_id for space_id in group_ids)
+
+    def _group_space_ids(self, color_group: str) -> list[str]:
+        """Get all board space ids in one color group."""
+        return COLOR_GROUP_TO_SPACE_IDS.get(color_group, [])
+
+    def _group_levels(self, color_group: str) -> list[int]:
+        """Get all building levels for one color group."""
+        return [self._building_level(space_id) for space_id in self._group_space_ids(color_group)]
+
+    def _group_has_mortgage(self, color_group: str) -> bool:
+        """Return True if any property in the group is mortgaged."""
+        return any(
+            space_id in self.mortgaged_space_ids for space_id in self._group_space_ids(color_group)
+        )
+
+    def _group_has_any_buildings(self, color_group: str) -> bool:
+        """Return True if any property in the group has buildings."""
+        return any(self._building_level(space_id) > 0 for space_id in self._group_space_ids(color_group))
 
     def _count_owned_kind(self, owner_id: str, kind: str) -> int:
         """Count how many properties of a kind the owner controls."""
@@ -1212,14 +1258,19 @@ class MonopolyGame(ActionGuardMixin, Game):
     def _options_for_mortgage_property(self, player: Player) -> list[str]:
         """Menu options for unmortgaged owned properties."""
         mono_player: MonopolyPlayer = player  # type: ignore
-        return sorted(
-            [
-                space_id
-                for space_id in mono_player.owned_space_ids
-                if self.property_owners.get(space_id) == mono_player.id
-                and space_id not in self.mortgaged_space_ids
-            ]
-        )
+        options: list[str] = []
+        for space_id in mono_player.owned_space_ids:
+            if self.property_owners.get(space_id) != mono_player.id:
+                continue
+            if space_id in self.mortgaged_space_ids:
+                continue
+            space = SPACE_BY_ID.get(space_id)
+            if not space:
+                continue
+            if self._is_street_property(space) and self._group_has_any_buildings(space.color_group):
+                continue
+            options.append(space_id)
+        return sorted(options)
 
     def _options_for_unmortgage_property(self, player: Player) -> list[str]:
         """Menu options for mortgaged owned properties."""
@@ -1232,6 +1283,52 @@ class MonopolyGame(ActionGuardMixin, Game):
                 and space_id in self.mortgaged_space_ids
             ]
         )
+
+    def _options_for_build_house(self, player: Player) -> list[str]:
+        """Menu options for buildable street properties."""
+        mono_player: MonopolyPlayer = player  # type: ignore
+        options: list[str] = []
+        for space_id in mono_player.owned_space_ids:
+            if self.property_owners.get(space_id) != mono_player.id:
+                continue
+            space = SPACE_BY_ID.get(space_id)
+            if not space or not self._is_street_property(space):
+                continue
+            if space_id in self.mortgaged_space_ids:
+                continue
+            if not self._owner_has_full_color_set(mono_player.id, space.color_group):
+                continue
+            if self._group_has_mortgage(space.color_group):
+                continue
+            level = self._building_level(space_id)
+            if level >= 5:
+                continue
+            levels = self._group_levels(space.color_group)
+            if not levels or level != min(levels):
+                continue
+            if mono_player.cash < space.house_cost:
+                continue
+            options.append(space_id)
+        return sorted(options)
+
+    def _options_for_sell_house(self, player: Player) -> list[str]:
+        """Menu options for sellable street properties."""
+        mono_player: MonopolyPlayer = player  # type: ignore
+        options: list[str] = []
+        for space_id in mono_player.owned_space_ids:
+            if self.property_owners.get(space_id) != mono_player.id:
+                continue
+            space = SPACE_BY_ID.get(space_id)
+            if not space or not self._is_street_property(space):
+                continue
+            level = self._building_level(space_id)
+            if level <= 0:
+                continue
+            levels = self._group_levels(space.color_group)
+            if not levels or level != max(levels):
+                continue
+            options.append(space_id)
+        return sorted(options)
 
     def _is_mortgage_property_enabled(self, player: Player) -> str | None:
         """Enable mortgage action when player owns eligible properties."""
@@ -1267,6 +1364,46 @@ class MonopolyGame(ActionGuardMixin, Game):
         """Show unmortgage action only when options exist."""
         return self.turn_action_visibility(
             player, extra_condition=bool(self._options_for_unmortgage_property(player))
+        )
+
+    def _is_build_house_enabled(self, player: Player) -> str | None:
+        """Enable house-building when at least one valid build exists."""
+        error = self.guard_turn_action_enabled(player)
+        if error:
+            return error
+        if self.turn_pending_purchase_space_id:
+            return "monopoly-resolve-property-first"
+        mono_player: MonopolyPlayer = player  # type: ignore
+        if mono_player.bankrupt:
+            return "monopoly-bankrupt-player"
+        if not self._options_for_build_house(player):
+            return "monopoly-no-build-options"
+        return None
+
+    def _is_build_house_hidden(self, player: Player) -> Visibility:
+        """Show build action when options exist."""
+        return self.turn_action_visibility(
+            player, extra_condition=bool(self._options_for_build_house(player))
+        )
+
+    def _is_sell_house_enabled(self, player: Player) -> str | None:
+        """Enable house selling when at least one valid sell exists."""
+        error = self.guard_turn_action_enabled(player)
+        if error:
+            return error
+        if self.turn_pending_purchase_space_id:
+            return "monopoly-resolve-property-first"
+        mono_player: MonopolyPlayer = player  # type: ignore
+        if mono_player.bankrupt:
+            return "monopoly-bankrupt-player"
+        if not self._options_for_sell_house(player):
+            return "monopoly-no-sell-options"
+        return None
+
+    def _is_sell_house_hidden(self, player: Player) -> Visibility:
+        """Show sell action when options exist."""
+        return self.turn_action_visibility(
+            player, extra_condition=bool(self._options_for_sell_house(player))
         )
 
     def _is_pay_bail_enabled(self, player: Player) -> str | None:
@@ -1539,6 +1676,63 @@ class MonopolyGame(ActionGuardMixin, Game):
             player=mono_player.name,
             property=space.name,
             amount=cost,
+            cash=mono_player.cash,
+        )
+
+        self._sync_cash_scores()
+        self.rebuild_all_menus()
+
+    def _action_build_house(self, player: Player, space_id: str, action_id: str) -> None:
+        """Build one house/hotel on an owned eligible street property."""
+        mono_player: MonopolyPlayer = player  # type: ignore
+        if space_id not in self._options_for_build_house(player):
+            return
+        space = SPACE_BY_ID.get(space_id)
+        if not space or not self._is_street_property(space):
+            return
+
+        cost = max(0, space.house_cost)
+        if mono_player.cash < cost:
+            return
+
+        mono_player.cash -= cost
+        new_level = self._building_level(space_id) + 1
+        self._set_building_level(space_id, new_level)
+        self.broadcast_l(
+            "monopoly-house-built",
+            player=mono_player.name,
+            property=space.name,
+            amount=cost,
+            level=new_level,
+            cash=mono_player.cash,
+        )
+
+        self._sync_cash_scores()
+        self.rebuild_all_menus()
+
+    def _action_sell_house(self, player: Player, space_id: str, action_id: str) -> None:
+        """Sell one house/hotel from an owned eligible street property."""
+        mono_player: MonopolyPlayer = player  # type: ignore
+        if space_id not in self._options_for_sell_house(player):
+            return
+        space = SPACE_BY_ID.get(space_id)
+        if not space or not self._is_street_property(space):
+            return
+
+        current_level = self._building_level(space_id)
+        if current_level <= 0:
+            return
+
+        value = max(0, space.house_cost // 2)
+        self._set_building_level(space_id, current_level - 1)
+        new_level = self._building_level(space_id)
+        mono_player.cash += value
+        self.broadcast_l(
+            "monopoly-house-sold",
+            player=mono_player.name,
+            property=space.name,
+            amount=value,
+            level=new_level,
             cash=mono_player.cash,
         )
 
