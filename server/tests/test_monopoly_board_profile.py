@@ -14,7 +14,7 @@ def test_resolve_board_plan_keeps_compatible_preset():
 
 def test_resolve_board_plan_autofixes_incompatible_preset():
     plan = resolve_board_plan("classic_standard", "junior_super_mario", "auto")
-    assert plan.effective_preset_id == "junior"
+    assert plan.effective_preset_id == "junior_modern"
     assert plan.auto_fixed_from_preset_id == "classic_standard"
 
 

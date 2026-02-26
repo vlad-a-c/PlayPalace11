@@ -46,7 +46,7 @@ def test_board_rules_auto_applies_pass_go_override(monkeypatch):
         ("mario_kart", "classic_standard"),
         ("mario_celebration", "classic_standard"),
         ("mario_movie", "classic_standard"),
-        ("junior_super_mario", "junior"),
+        ("junior_super_mario", "junior_modern"),
     ),
 )
 def test_wave1_board_starts_with_resolved_mode(board_id: str, preset_id: str):

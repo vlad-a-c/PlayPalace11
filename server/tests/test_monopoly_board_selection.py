@@ -21,7 +21,7 @@ def test_board_selection_sets_active_board_fields():
 
 def test_incompatible_board_autofixes_preset():
     game = _start(MonopolyOptions(preset_id="classic_standard", board_id="junior_super_mario"))
-    assert game.active_preset_id == "junior"
+    assert game.active_preset_id == "junior_modern"
 
 
 def test_board_autofix_emits_announcement(monkeypatch):

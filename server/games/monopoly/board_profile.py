@@ -105,7 +105,7 @@ BOARD_PROFILES: dict[str, BoardProfile] = {
         label_key="monopoly-board-junior-super-mario",
         anchor_edition_id="monopoly-f4817",
         compatible_preset_ids=("junior", "junior_modern", "junior_legacy"),
-        fallback_preset_id="junior",
+        fallback_preset_id="junior_modern",
         rule_pack_id="junior_super_mario",
         rule_pack_status="partial",
     ),
