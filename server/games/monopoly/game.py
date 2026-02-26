@@ -23,6 +23,8 @@ from .banking_sim import (
     init_accounts as init_bank_accounts,
     transfer as bank_transfer,
 )
+from .cheaters_engine import CheatersEngine
+from .cheaters_profile import CheatersProfile, resolve_cheaters_profile
 from .electronic_banking_profile import resolve_electronic_banking_profile
 from .junior_rules import (
     JuniorRuleset,
@@ -508,6 +510,8 @@ class MonopolyGame(ActionGuardMixin, Game):
     active_edition_ids: list[str] = field(default_factory=list)
     active_anchor_edition_id: str = ""
     junior_ruleset: JuniorRuleset | None = None
+    cheaters_profile: CheatersProfile | None = None
+    cheaters_engine: CheatersEngine | None = None
     voice_banking_profile: VoiceBankingProfile | None = None
     banking_profile: ElectronicBankingProfile | None = None
     banking_state: BankingState | None = None
@@ -4020,6 +4024,16 @@ class MonopolyGame(ActionGuardMixin, Game):
         self.junior_ruleset = (
             get_junior_ruleset(self.active_preset_id)
             if is_junior_ruleset_preset(self.active_preset_id)
+            else None
+        )
+        self.cheaters_profile = (
+            resolve_cheaters_profile(self.active_preset_id)
+            if self.active_preset_id == "cheaters"
+            else None
+        )
+        self.cheaters_engine = (
+            CheatersEngine(self.cheaters_profile)
+            if self.cheaters_profile is not None
             else None
         )
         self.voice_banking_profile = (
