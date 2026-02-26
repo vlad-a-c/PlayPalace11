@@ -23,6 +23,8 @@ from .banking_sim import (
     init_accounts as init_bank_accounts,
     transfer as bank_transfer,
 )
+from .city_engine import CityEngine
+from .city_profile import CityProfile, resolve_city_profile
 from .cheaters_engine import CheaterOutcome, CheatersEngine
 from .cheaters_profile import CheatersProfile, resolve_cheaters_profile
 from .electronic_banking_profile import resolve_electronic_banking_profile
@@ -512,6 +514,8 @@ class MonopolyGame(ActionGuardMixin, Game):
     junior_ruleset: JuniorRuleset | None = None
     cheaters_profile: CheatersProfile | None = None
     cheaters_engine: CheatersEngine | None = None
+    city_profile: CityProfile | None = None
+    city_engine: CityEngine | None = None
     voice_banking_profile: VoiceBankingProfile | None = None
     banking_profile: ElectronicBankingProfile | None = None
     banking_state: BankingState | None = None
@@ -921,6 +925,10 @@ class MonopolyGame(ActionGuardMixin, Game):
     def _is_electronic_banking_preset(self) -> bool:
         """Return True when active preset uses simulator-backed banking."""
         return self.active_preset_id in {"electronic_banking", "voice_banking"}
+
+    def _is_city_preset(self) -> bool:
+        """Return True when active preset uses Monopoly City rules."""
+        return self.active_preset_id == "city"
 
     def _sync_player_cash_from_banking(self, player: MonopolyPlayer) -> int:
         """Mirror simulator balance into player.cash for compatibility checks."""
@@ -2037,6 +2045,19 @@ class MonopolyGame(ActionGuardMixin, Game):
             return
         self.cheaters_engine.on_turn_start(turn_player.id, turn_index=self.turn_index)
 
+    def _start_city_turn(self, player: Player | None = None) -> None:
+        """Initialize per-turn City engine state for the active player."""
+        if self.city_engine is None:
+            return
+        turn_player: MonopolyPlayer | None = None
+        if isinstance(player, MonopolyPlayer):
+            turn_player = player
+        elif isinstance(self.current_player, MonopolyPlayer):
+            turn_player = self.current_player
+        if turn_player is None or turn_player.bankrupt:
+            return
+        self.city_engine.on_turn_start(turn_player.id, turn_index=self.turn_index)
+
     def _apply_cheaters_outcome(
         self,
         player: MonopolyPlayer,
@@ -2386,6 +2407,7 @@ class MonopolyGame(ActionGuardMixin, Game):
         self.turn_index = old_index % len(remaining)
         self._reset_turn_state()
         self._start_cheaters_turn(self.current_player)
+        self._start_city_turn(self.current_player)
         self.announce_turn(turn_sound="game_pig/turn.ogg")
         current = self.current_player
         if current and current.is_bot:
@@ -4115,6 +4137,7 @@ class MonopolyGame(ActionGuardMixin, Game):
         self._reset_turn_state()
         next_player = self.advance_turn(announce=True)
         self._start_cheaters_turn(next_player)
+        self._start_city_turn(next_player)
         if self._is_junior_preset() and self._check_junior_endgame():
             self.rebuild_all_menus()
             return
@@ -4245,6 +4268,16 @@ class MonopolyGame(ActionGuardMixin, Game):
             if self.cheaters_profile is not None
             else None
         )
+        self.city_profile = (
+            resolve_city_profile(self.active_preset_id)
+            if self._is_city_preset()
+            else None
+        )
+        self.city_engine = (
+            CityEngine(self.city_profile)
+            if self.city_profile is not None
+            else None
+        )
         self.voice_banking_profile = (
             resolve_voice_banking_profile(self.active_preset_id)
             if self.active_preset_id == "voice_banking"
@@ -4312,6 +4345,7 @@ class MonopolyGame(ActionGuardMixin, Game):
 
         self._sync_cash_scores()
         self._start_cheaters_turn(self.current_player)
+        self._start_city_turn(self.current_player)
 
         self.broadcast_l(
             "monopoly-scaffold-started",

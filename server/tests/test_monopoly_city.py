@@ -1,0 +1,27 @@
+"""Integration tests for Monopoly City preset behavior."""
+
+from server.games.monopoly.game import MonopolyGame, MonopolyOptions
+from server.users.test_user import MockUser
+
+
+def _create_two_player_game(options: MonopolyOptions | None = None) -> MonopolyGame:
+    game = MonopolyGame(options=options or MonopolyOptions())
+    host_user = MockUser("Host")
+    guest_user = MockUser("Guest")
+    game.add_player("Host", host_user)
+    game.add_player("Guest", guest_user)
+    game.host = "Host"
+    return game
+
+
+def _start_two_player_city_game() -> MonopolyGame:
+    game = _create_two_player_game(MonopolyOptions(preset_id="city"))
+    game.on_start()
+    return game
+
+
+def test_city_on_start_initializes_profile_and_engine():
+    game = _start_two_player_city_game()
+    assert game.city_profile is not None
+    assert game.city_engine is not None
+    assert game.city_profile.anchor_edition_id == "monopoly-1790"
