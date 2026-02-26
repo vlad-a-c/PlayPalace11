@@ -45,6 +45,8 @@
 ## Wave 5 Promotions
 - `mario_collectors`: added `card_id_remap` and `card_cash_override` behavior (partial_rules+).
 
+## Wave 6 Promotions
+- `mario_celebration`: added `card_id_remap` and `card_cash_override` behavior (partial_rules+).
+
 ## Next Mario Targets
-1. Promote `mario_celebration` with one card capability.
-2. Define Junior-safe mechanic plan for `junior_super_mario`.
+1. Define Junior-safe mechanic plan for `junior_super_mario`.
