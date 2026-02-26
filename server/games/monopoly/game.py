@@ -23,6 +23,12 @@ from .banking_sim import (
     init_accounts as init_bank_accounts,
     transfer as bank_transfer,
 )
+from .board_profile import (
+    DEFAULT_BOARD_ID,
+    DEFAULT_BOARD_RULES_MODE,
+    get_available_board_ids as _board_profile_ids,
+    get_available_board_rules_modes as _board_rules_modes,
+)
 from .city_engine import CityEngine
 from .city_profile import CityProfile, resolve_city_profile
 from .cheaters_engine import CheaterOutcome, CheatersEngine
@@ -63,6 +69,18 @@ PRESET_LABEL_KEYS = {
     "deal_card_game": "monopoly-preset-deal-card-game",
     "knockout": "monopoly-preset-knockout",
     "free_parking_jackpot": "monopoly-preset-free-parking-jackpot",
+}
+BOARD_LABEL_KEYS = {
+    "classic_default": "monopoly-board-classic-default",
+    "mario_collectors": "monopoly-board-mario-collectors",
+    "mario_kart": "monopoly-board-mario-kart",
+    "mario_celebration": "monopoly-board-mario-celebration",
+    "mario_movie": "monopoly-board-mario-movie",
+    "junior_super_mario": "monopoly-board-junior-super-mario",
+}
+BOARD_RULES_MODE_LABEL_KEYS = {
+    "auto": "monopoly-board-rules-mode-auto",
+    "skin_only": "monopoly-board-rules-mode-skin-only",
 }
 JUNIOR_MODERN_PRESET_ID = "junior_modern"
 JUNIOR_LEGACY_PRESET_ID = "junior_legacy"
@@ -492,6 +510,28 @@ class MonopolyOptions(GameOptions):
             change_msg="monopoly-option-changed-preset",
         )
     )
+    board_id: str = option_field(
+        MenuOption(
+            default=DEFAULT_BOARD_ID,
+            choices=lambda game, player: game.get_available_board_ids(),
+            value_key="board",
+            choice_labels=BOARD_LABEL_KEYS,
+            label="monopoly-set-board",
+            prompt="monopoly-select-board",
+            change_msg="monopoly-option-changed-board",
+        )
+    )
+    board_rules_mode: str = option_field(
+        MenuOption(
+            default=DEFAULT_BOARD_RULES_MODE,
+            choices=lambda game, player: game.get_available_board_rules_modes(),
+            value_key="mode",
+            choice_labels=BOARD_RULES_MODE_LABEL_KEYS,
+            label="monopoly-set-board-rules-mode",
+            prompt="monopoly-select-board-rules-mode",
+            change_msg="monopoly-option-changed-board-rules-mode",
+        )
+    )
 
 
 @dataclass
@@ -858,6 +898,14 @@ class MonopolyGame(ActionGuardMixin, Game):
             if preset_id not in preset_ids:
                 preset_ids.append(preset_id)
         return preset_ids
+
+    def get_available_board_ids(self) -> list[str]:
+        """Return selectable board ids from board profile registry."""
+        return _board_profile_ids()
+
+    def get_available_board_rules_modes(self) -> list[str]:
+        """Return selectable board rules mode ids."""
+        return _board_rules_modes()
 
     def _fallback_preset(self) -> MonopolyPreset:
         """Return a safe fallback preset if artifacts are missing."""

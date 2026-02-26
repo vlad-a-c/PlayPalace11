@@ -165,3 +165,23 @@ monopoly-card-bank-error-200 = Bank error in your favor, collect 200
 monopoly-card-doctor-fee-50 = Doctor's fee, pay 50
 monopoly-card-tax-refund-20 = Income tax refund, collect 20
 monopoly-card-get-out-of-jail = Get out of jail free
+
+# Board profile options
+monopoly-set-board = Board: { $board }
+monopoly-select-board = Select a Monopoly board
+monopoly-option-changed-board = Board set to { $board }.
+monopoly-set-board-rules-mode = Board rules mode: { $mode }
+monopoly-select-board-rules-mode = Select board rules mode
+monopoly-option-changed-board-rules-mode = Board rules mode set to { $mode }.
+
+# Board labels
+monopoly-board-classic-default = Classic Default
+monopoly-board-mario-collectors = Super Mario Bros. Collector's Edition
+monopoly-board-mario-kart = Monopoly Gamer Mario Kart
+monopoly-board-mario-celebration = Super Mario Celebration
+monopoly-board-mario-movie = Super Mario Bros. Movie Edition
+monopoly-board-junior-super-mario = Junior Super Mario Edition
+
+# Board rules mode labels
+monopoly-board-rules-mode-auto = Auto
+monopoly-board-rules-mode-skin-only = Skin only
