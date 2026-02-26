@@ -31,6 +31,7 @@ from .board_profile import (
     get_available_board_rules_modes as _board_rules_modes,
     resolve_board_plan,
 )
+from .board_rules_registry import get_pass_go_credit_override, supports_capability
 from .city_engine import CityEngine
 from .city_profile import CityProfile, resolve_city_profile
 from .cheaters_engine import CheaterOutcome, CheatersEngine
@@ -2175,6 +2176,20 @@ class MonopolyGame(ActionGuardMixin, Game):
         self.turn_can_roll_again = False
         self.broadcast_l("monopoly-roll-again", player=player.name)
 
+    def _resolve_board_pass_go_credit(self, base_credit: int) -> int:
+        """Resolve pass-GO credit with board rule-pack override when active."""
+        if self.active_board_effective_mode != "board_rules":
+            return max(0, base_credit)
+        rule_pack_id = self.active_board_rule_pack_id
+        if not rule_pack_id:
+            return max(0, base_credit)
+        if not supports_capability(rule_pack_id, "pass_go_credit_override"):
+            return max(0, base_credit)
+        override = get_pass_go_credit_override(rule_pack_id)
+        if override is None:
+            return max(0, base_credit)
+        return max(0, override)
+
     def _move_player(
         self, player: MonopolyPlayer, steps: int, *, collect_pass_go: bool
     ) -> MonopolySpace:
@@ -2187,6 +2202,7 @@ class MonopolyGame(ActionGuardMixin, Game):
             pass_go_cash = max(0, self.rule_profile.pass_go_cash)
             if self._is_electronic_banking_preset() and self.banking_profile:
                 pass_go_cash = max(0, self.banking_profile.pass_go_credit)
+            pass_go_cash = self._resolve_board_pass_go_credit(pass_go_cash)
             credited = self._credit_player(player, pass_go_cash, "pass_go")
             if self.city_engine is not None and credited > 0:
                 self.city_engine.record_progress(player.id, credited)
