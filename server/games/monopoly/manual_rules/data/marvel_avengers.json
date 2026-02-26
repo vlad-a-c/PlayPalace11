@@ -35,7 +35,7 @@
       {
         "position": 2,
         "space_id": "community_chest_1",
-        "name": "Community Chest",
+        "name": "Infinity Gauntlet",
         "kind": "community_chest",
         "price": 0,
         "rent": 0,
@@ -64,7 +64,7 @@
       {
         "position": 4,
         "space_id": "income_tax",
-        "name": "Income Tax",
+        "name": "Ultron",
         "kind": "tax",
         "price": 0,
         "rent": 0,
@@ -104,7 +104,7 @@
       {
         "position": 7,
         "space_id": "chance_1",
-        "name": "Chance",
+        "name": "Stark Industries",
         "kind": "chance",
         "price": 0,
         "rent": 0,
@@ -256,7 +256,7 @@
       {
         "position": 17,
         "space_id": "community_chest_2",
-        "name": "Community Chest",
+        "name": "Infinity Gauntlet",
         "kind": "community_chest",
         "price": 0,
         "rent": 0,
@@ -332,7 +332,7 @@
       {
         "position": 22,
         "space_id": "chance_2",
-        "name": "Chance",
+        "name": "Stark Industries",
         "kind": "chance",
         "price": 0,
         "rent": 0,
@@ -502,7 +502,7 @@
       {
         "position": 33,
         "space_id": "community_chest_3",
-        "name": "Community Chest",
+        "name": "Infinity Gauntlet",
         "kind": "community_chest",
         "price": 0,
         "rent": 0,
@@ -542,7 +542,7 @@
       {
         "position": 36,
         "space_id": "chance_3",
-        "name": "Chance",
+        "name": "Stark Industries",
         "kind": "chance",
         "price": 0,
         "rent": 0,
@@ -571,7 +571,7 @@
       {
         "position": 38,
         "space_id": "luxury_tax",
-        "name": "Luxury Tax",
+        "name": "Hela",
         "kind": "tax",
         "price": 0,
         "rent": 0,
@@ -984,6 +984,10 @@
     "taxes": {
       "income_tax": 200,
       "luxury_tax": 100
+    },
+    "tax_labels": {
+      "income_tax": "Ultron",
+      "luxury_tax": "Hela"
     }
   },
   "cards": {
@@ -1069,12 +1073,27 @@
     ]
   },
   "mechanics": {
-    "mode": "disney_marvel_family_manual_payload_v1",
+    "mode": "manual_authentic_phase1",
     "rule_pack_id": "marvel_avengers",
-    "hardware_capability_ids": []
+    "decks": {
+      "chance": "Stark Industries",
+      "community_chest": "Infinity Gauntlet"
+    },
+    "special_spaces": {
+      "taxes": [
+        "Ultron",
+        "Hela"
+      ],
+      "battle_spaces": "Children of Thanos"
+    },
+    "manual_source": {
+      "instruction_url": "https://instructions.hasbro.com/en-us/instruction/Monopoly--Marvel-Avengers-Edition-Board-Game",
+      "converted_pdf_url": "https://manuals.plus/m/6914cdcafb7997fcc5078c22c1c1d828e52f2603563a148984a1c6e78d785dd8"
+    }
   },
   "win_condition": {
-    "type": "bankruptcy"
+    "type": "bankruptcy",
+    "label": "last_player_with_money"
   },
   "citations": [
     {
@@ -1106,6 +1125,36 @@
       "edition_id": "monopoly-e6504",
       "page_ref": "p.11",
       "confidence": "high"
+    },
+    {
+      "rule_path": "board.spaces.chance.name",
+      "edition_id": "monopoly-e6504",
+      "page_ref": "converted_manual:l88-l93",
+      "confidence": "medium"
+    },
+    {
+      "rule_path": "board.spaces.community_chest.name",
+      "edition_id": "monopoly-e6504",
+      "page_ref": "converted_manual:l88-l93",
+      "confidence": "medium"
+    },
+    {
+      "rule_path": "board.spaces.tax.name",
+      "edition_id": "monopoly-e6504",
+      "page_ref": "converted_manual:l92-l93",
+      "confidence": "medium"
+    },
+    {
+      "rule_path": "mechanics.decks",
+      "edition_id": "monopoly-e6504",
+      "page_ref": "converted_manual:l88-l93",
+      "confidence": "medium"
+    },
+    {
+      "rule_path": "mechanics.special_spaces.battle_spaces",
+      "edition_id": "monopoly-e6504",
+      "page_ref": "converted_manual:l89-l90",
+      "confidence": "medium"
     }
   ]
 }
