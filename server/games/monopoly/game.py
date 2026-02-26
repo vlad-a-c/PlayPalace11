@@ -2514,14 +2514,32 @@ class MonopolyGame(ActionGuardMixin, Game):
         """Return purchasable property count for junior completion checks."""
         return sum(1 for space in CLASSIC_STANDARD_BOARD if space.kind in PURCHASABLE_KINDS)
 
+    def _owned_property_count(self, player: MonopolyPlayer) -> int:
+        """Return how many currently owned board spaces belong to a player."""
+        return sum(
+            1
+            for owner_id in self.property_owners.values()
+            if owner_id == player.id
+        )
+
     def _finish_junior_game_by_cash(self, contenders: list[MonopolyPlayer]) -> bool:
         """Finish junior game selecting highest-cash player as winner."""
         if not contenders:
             return False
-        winner = max(
-            contenders,
-            key=lambda item: (self._current_liquid_balance(item), -item.position, item.name),
-        )
+        if self._is_junior_super_mario_manual_core_active():
+            winner = max(
+                contenders,
+                key=lambda item: (
+                    self._current_liquid_balance(item),
+                    self._owned_property_count(item),
+                    item.name,
+                ),
+            )
+        else:
+            winner = max(
+                contenders,
+                key=lambda item: (self._current_liquid_balance(item), -item.position, item.name),
+            )
         self.status = "finished"
         self.game_active = False
         self.set_turn_players([winner])
@@ -2555,7 +2573,10 @@ class MonopolyGame(ActionGuardMixin, Game):
             if self.junior_ruleset.game_end_mode == "property_pool_exhausted":
                 if len(self.property_owners) >= self._junior_property_pool_limit():
                     return self._finish_junior_game_by_cash(contenders)
-                if self.round >= self.junior_ruleset.max_rounds:
+                if (
+                    not self._is_junior_super_mario_manual_core_active()
+                    and self.round >= self.junior_ruleset.max_rounds
+                ):
                     return self._finish_junior_game_by_cash(contenders)
             return False
         finally:

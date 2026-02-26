@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from server.games.monopoly.game import MonopolyGame, MonopolyOptions
+from server.games.monopoly.game import (
+    CLASSIC_STANDARD_BOARD,
+    PURCHASABLE_KINDS,
+    MonopolyGame,
+    MonopolyOptions,
+)
 from server.users.test_user import MockUser
 
 
@@ -163,3 +168,41 @@ def test_junior_super_mario_card_fee_partial_pay_does_not_bankrupt(monkeypatch):
 
     assert host.bankrupt is False
     assert host.cash == 0
+
+
+def test_junior_super_mario_finishes_when_all_properties_owned():
+    game = _start_manual_board_game(2)
+    host = game.players[0]
+
+    for space in CLASSIC_STANDARD_BOARD:
+        if space.kind not in PURCHASABLE_KINDS:
+            continue
+        game.property_owners[space.space_id] = host.id
+        if space.space_id not in host.owned_space_ids:
+            host.owned_space_ids.append(space.space_id)
+
+    assert game._check_junior_endgame() is True
+    assert game.status == "finished"
+    assert game.game_active is False
+
+
+def test_junior_super_mario_tie_break_uses_property_count():
+    game = _start_manual_board_game(2)
+    host = game.players[0]
+    guest = game.players[1]
+
+    host.cash = 10
+    guest.cash = 10
+    host.position = 30
+    guest.position = 0
+
+    purchasable = [space for space in CLASSIC_STANDARD_BOARD if space.kind in PURCHASABLE_KINDS]
+    for index, space in enumerate(purchasable):
+        owner = host if index != len(purchasable) - 1 else guest
+        game.property_owners[space.space_id] = owner.id
+        if space.space_id not in owner.owned_space_ids:
+            owner.owned_space_ids.append(space.space_id)
+
+    assert game._check_junior_endgame() is True
+    assert game.current_player is not None
+    assert game.current_player.name == "P1"
