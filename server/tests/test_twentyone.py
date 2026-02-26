@@ -590,6 +590,18 @@ def test_twentyone_play_modifier_options_are_one_based() -> None:
     assert options[1].startswith("2:")
 
 
+def test_twentyone_play_modifier_option_reads_name_once() -> None:
+    game, p1, _ = setup_game()
+    p1.modifiers = [MODIFIER_RAISE_1]
+
+    options = game._options_for_play_modifier(p1)
+    label = Localization.get("en", MODIFIER_LABELS[MODIFIER_RAISE_1])
+
+    assert len(options) == 1
+    assert f"{label.lower()} - {label.lower()}:" not in options[0].lower()
+    assert "increase opponent damage by 1" in options[0].lower()
+
+
 def test_twentyone_action_input_menu_selection_index_fallback_plays_choice() -> None:
     game, p1, p2 = setup_game()
     game.status = "playing"

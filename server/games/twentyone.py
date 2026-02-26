@@ -494,6 +494,14 @@ class TwentyOneGame(ActionGuardMixin, Game):
         help_text = Localization.get(locale, key)
         return "" if help_text == key else help_text
 
+    @staticmethod
+    def _menu_help_text(label: str, description: str) -> str:
+        """Drop duplicate "<label>:" prefix so menus speak the card name once."""
+        prefix, separator, remainder = description.partition(":")
+        if separator and prefix.strip().casefold() == label.strip().casefold():
+            return remainder.strip()
+        return description
+
     def _options_for_play_modifier(self, player: Player) -> list[str]:
         p = player if isinstance(player, TwentyOnePlayer) else None
         if not p:
@@ -504,6 +512,7 @@ class TwentyOneGame(ActionGuardMixin, Game):
             label = self._modifier_label(locale, modifier)
             description = self._modifier_help(locale, modifier)
             if description:
+                description = self._menu_help_text(label, description)
                 options.append(f"{display_index}:{label} - {description}")
             else:
                 options.append(f"{display_index}:{label}")
