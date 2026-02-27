@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/lord_of_the_rings.txt",
       "text_sha256": "1a69d915dc030c3768193c4d0239fe0b50ca1e14b6463163dd8384e0a037564b",
+      "text_char_count": 16863,
       "pdf_sha256": "2988da9be0aaea68d6a553ae9b2c54f199c998a84132e20b78a6b9b27e0e3c85",
       "pdf_size_bytes": 30051703,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/lord_of_the_rings.txt",
+      "raw_text_sha256": "1a69d915dc030c3768193c4d0239fe0b50ca1e14b6463163dd8384e0a037564b",
+      "raw_text_char_count": 16863,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Quest",

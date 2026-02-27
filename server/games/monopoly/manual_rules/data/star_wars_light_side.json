@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_light_side.txt",
       "text_sha256": "d3209d74e5afc0dadb55cdcd744d9f1ee6de5db891dfbdfbf898daf5015392d3",
+      "text_char_count": 20226,
       "pdf_sha256": "29a34681bb3ad8bdb9ebd5df34eac94965d54090fe48e317da653b6d9441be20",
       "pdf_size_bytes": 101402699,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_light_side.txt",
+      "raw_text_sha256": "d3209d74e5afc0dadb55cdcd744d9f1ee6de5db891dfbdfbf898daf5015392d3",
+      "raw_text_char_count": 20226,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "The Force",

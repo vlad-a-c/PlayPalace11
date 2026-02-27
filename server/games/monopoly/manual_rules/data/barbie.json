@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/barbie.txt",
       "text_sha256": "ac2306598d79169647eccc5c1b25427b4783e09f941a8c7115bb3697a4a82352",
+      "text_char_count": 16702,
       "pdf_sha256": "a98e506ba93eb01951f9a79857e9fc06051651c76791c57e13cf4ca6b4258f72",
       "pdf_size_bytes": 161901983,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/barbie.txt",
+      "raw_text_sha256": "ac2306598d79169647eccc5c1b25427b4783e09f941a8c7115bb3697a4a82352",
+      "raw_text_char_count": 16702,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Dream Career",

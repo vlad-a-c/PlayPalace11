@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/fortnite.txt",
       "text_sha256": "411112ad8f2f79bc5e14fa51dba5a5a76502a97c4a4bcedbca454b30274e155e",
+      "text_char_count": 14231,
       "pdf_sha256": "dec6382e8b1f52b316b13403a1b499c4cff359544b1d74d7ba61f47a4a9b8aa4",
       "pdf_size_bytes": 35067756,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/fortnite.txt",
+      "raw_text_sha256": "411112ad8f2f79bc5e14fa51dba5a5a76502a97c4a4bcedbca454b30274e155e",
+      "raw_text_char_count": 14231,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Storm",

@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/game_of_thrones.txt",
       "text_sha256": "d74a7ec4eb58277fe4ec4bf23b4b5da55060fd48f4916c8fd61eec19d6d1e358",
+      "text_char_count": 12308,
       "pdf_sha256": "fd7ab12af498f8e0fc80b76ea962c9404b26c7a1603ee4bf5989c07c38ea334f",
       "pdf_size_bytes": 18610430,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/game_of_thrones.txt",
+      "raw_text_sha256": "d74a7ec4eb58277fe4ec4bf23b4b5da55060fd48f4916c8fd61eec19d6d1e358",
+      "raw_text_char_count": 12308,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Chance Cards",

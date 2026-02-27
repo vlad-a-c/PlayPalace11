@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/mario_kart.txt",
       "text_sha256": "9bad9146f34f43b3f5c035e30028e6ea2615625757ecd44fa583c7b8bed3a459",
+      "text_char_count": 13853,
       "pdf_sha256": "72ebb15fdd42975e5415020e5ff69b78b9fa2ecf3da1cc26ad6ef08554557138",
       "pdf_size_bytes": 10421782,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/mario_kart.txt",
+      "raw_text_sha256": "9bad9146f34f43b3f5c035e30028e6ea2615625757ecd44fa583c7b8bed3a459",
+      "raw_text_char_count": 13853,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Power-Up",

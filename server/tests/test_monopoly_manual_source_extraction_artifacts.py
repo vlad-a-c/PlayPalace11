@@ -11,6 +11,14 @@ ANCHOR_INDEX_PATH = REPO_ROOT / "server/games/monopoly/catalog/special_board_anc
 EXPECTED_FALLBACK_MODES = {
     "marvel_flip": "strings_fallback",
 }
+EXPECTED_OCR_SIDECAR_BOARDS = {
+    "disney_the_edition",
+    "lord_of_the_rings_trilogy",
+    "marvel_avengers_legacy",
+    "marvel_flip",
+    "star_wars_saga",
+}
+EXPECTED_OCR_PREFERRED_BOARDS = EXPECTED_OCR_SIDECAR_BOARDS - {"marvel_flip"}
 
 
 def _load_json(path: Path):
@@ -53,6 +61,29 @@ def test_manifest_entries_are_valid_or_known_exceptions() -> None:
         text_content = text_path.read_text(encoding="utf-8")
         assert "=== Page 1 ===" in text_content
         assert len(text_content) >= row["text_char_count"]
+
+        preferred_text_path = Path(str(row.get("preferred_text_path", row["text_path"])))
+        if not preferred_text_path.is_absolute():
+            preferred_text_path = REPO_ROOT / preferred_text_path
+        assert preferred_text_path.exists(), f"missing preferred extracted text for {board_id}"
+        preferred_text_content = preferred_text_path.read_text(encoding="utf-8")
+        assert len(preferred_text_content) >= row.get("preferred_text_char_count", row["text_char_count"])
+        assert row.get("preferred_text_sha256")
+        assert row.get("preferred_text_source")
+
+        ocr_text_path = row.get("ocr_text_path")
+        if board_id in EXPECTED_OCR_SIDECAR_BOARDS:
+            assert isinstance(ocr_text_path, str) and ocr_text_path
+        if board_id in EXPECTED_OCR_PREFERRED_BOARDS:
+            assert row.get("preferred_text_source") == "ocr_sidecar"
+        if ocr_text_path:
+            resolved_ocr_path = Path(str(ocr_text_path))
+            if not resolved_ocr_path.is_absolute():
+                resolved_ocr_path = REPO_ROOT / resolved_ocr_path
+            assert resolved_ocr_path.exists(), f"missing OCR sidecar text for {board_id}"
+            ocr_text_content = resolved_ocr_path.read_text(encoding="utf-8")
+            assert len(ocr_text_content) >= row.get("ocr_text_char_count", 0)
+            assert row.get("ocr_text_sha256")
 
         meta_path = EXTRACTED_DIR / f"{board_id}.json"
         assert meta_path.exists(), f"missing metadata for {board_id}"

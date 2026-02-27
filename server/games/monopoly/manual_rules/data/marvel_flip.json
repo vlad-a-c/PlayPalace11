@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_flip.txt",
       "text_sha256": "1d11e2523f13d34afbf7ab2855489ea504bf5dce6d99ae1bbe557943018a3a52",
+      "text_char_count": 120704,
       "pdf_sha256": "0ffff478e92c280e97aba40cd6d1d8cb06f90b1e61fc61bb4733c41e1c3e0dcb",
       "pdf_size_bytes": 204352952,
-      "page_count": 1
+      "page_count": 1,
+      "preferred_text_source": "strings_fallback",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_flip.txt",
+      "raw_text_sha256": "1d11e2523f13d34afbf7ab2855489ea504bf5dce6d99ae1bbe557943018a3a52",
+      "raw_text_char_count": 120704,
+      "ocr_text_path": "server/games/monopoly/manual_rules/extracted/marvel_flip.ocr.txt",
+      "ocr_text_sha256": "687cf2a9848b468e7b0fe5dfb9c4f90689431ddc456b4afc1d68bc196df6c9f2",
+      "ocr_text_char_count": 15757
     },
     "decks": {
       "chance": "Event",

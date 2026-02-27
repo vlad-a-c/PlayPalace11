@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/animal_crossing.txt",
       "text_sha256": "d31d291db5f9c5a21a2d1a96cf30352f15e8f1b90f77abfecba69a227596ce8b",
+      "text_char_count": 12007,
       "pdf_sha256": "933ac0cfb18f9aae4526da0dc12c7730cb01f1fb65f58e5d99d99ebf710ae467",
       "pdf_size_bytes": 20766388,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/animal_crossing.txt",
+      "raw_text_sha256": "d31d291db5f9c5a21a2d1a96cf30352f15e8f1b90f77abfecba69a227596ce8b",
+      "raw_text_char_count": 12007,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Chance",

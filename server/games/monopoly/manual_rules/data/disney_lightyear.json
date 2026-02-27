@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_lightyear.txt",
       "text_sha256": "53f02203cb89c05c7b4b86d7c618266c749f8944c369819f5ad8e0dfd39f3f88",
+      "text_char_count": 278325,
       "pdf_sha256": "7affd8e3b1d5683d53526e55b5f434f34f723b9a51be9707f90f66c07d05676b",
       "pdf_size_bytes": 56176397,
-      "page_count": 55
+      "page_count": 55,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_lightyear.txt",
+      "raw_text_sha256": "53f02203cb89c05c7b4b86d7c618266c749f8944c369819f5ad8e0dfd39f3f88",
+      "raw_text_char_count": 278325,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Hyperspeed",

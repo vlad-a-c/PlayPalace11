@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/stranger_things.txt",
       "text_sha256": "c1d198c443f6553268768e4913d2892ffacb5332e496effc2c7655d97c59b05f",
+      "text_char_count": 10537,
       "pdf_sha256": "b9cfb79f7c53ed4d5d84c99053765d2b2563dd09de09914271936489724d6164",
       "pdf_size_bytes": 5924630,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/stranger_things.txt",
+      "raw_text_sha256": "c1d198c443f6553268768e4913d2892ffacb5332e496effc2c7655d97c59b05f",
+      "raw_text_char_count": 10537,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Walkie-Talkie",

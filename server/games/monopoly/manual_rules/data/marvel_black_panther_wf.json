@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_black_panther_wf.txt",
       "text_sha256": "77a3a0d3ffd22d26af239646db7915210fb78a8d72bad3b7743e119d6236cead",
+      "text_char_count": 17481,
       "pdf_sha256": "a1e9ec2cbc4a24329dcc8181c9954cdfbdeb3b05b14f7c5e7d6fce1dc671cb64",
       "pdf_size_bytes": 54786868,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_black_panther_wf.txt",
+      "raw_text_sha256": "77a3a0d3ffd22d26af239646db7915210fb78a8d72bad3b7743e119d6236cead",
+      "raw_text_char_count": 17481,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Wakandan",

@@ -79,6 +79,42 @@ def _extract_text_strings_fallback(pdf_bytes: bytes, *, max_lines: int = 12_000)
     return "\n".join(lines).strip()
 
 
+def _attach_preferred_text_metadata(meta: dict[str, Any], output_dir: Path) -> dict[str, Any]:
+    """Attach OCR-aware preferred text metadata for one extracted board row."""
+    board_id = str(meta.get("board_id", ""))
+    text_path_value = str(meta.get("text_path", ""))
+    text_sha = str(meta.get("text_sha256", ""))
+    text_char_count = int(meta.get("text_char_count", 0) or 0)
+    extraction_mode = str(meta.get("extraction_mode", "pypdf"))
+
+    preferred_text_path = text_path_value
+    preferred_text_sha = text_sha
+    preferred_text_char_count = text_char_count
+    preferred_text_source = extraction_mode
+
+    ocr_path = output_dir / f"{board_id}.ocr.txt"
+    if ocr_path.exists():
+        ocr_text = ocr_path.read_text(encoding="utf-8")
+        ocr_char_count = len(ocr_text)
+        ocr_sha = hashlib.sha256(ocr_text.encode("utf-8")).hexdigest()
+        meta["ocr_text_path"] = str(ocr_path)
+        meta["ocr_text_sha256"] = ocr_sha
+        meta["ocr_text_char_count"] = ocr_char_count
+
+        # Prefer OCR text only when it is richer than base extraction.
+        if ocr_char_count > text_char_count:
+            preferred_text_path = str(ocr_path)
+            preferred_text_sha = ocr_sha
+            preferred_text_char_count = ocr_char_count
+            preferred_text_source = "ocr_sidecar"
+
+    meta["preferred_text_path"] = preferred_text_path
+    meta["preferred_text_sha256"] = preferred_text_sha
+    meta["preferred_text_char_count"] = preferred_text_char_count
+    meta["preferred_text_source"] = preferred_text_source
+    return meta
+
+
 def _extract_pages_with_fallback(
     board_id: str,
     pdf_bytes: bytes,
@@ -252,10 +288,12 @@ def run_extraction(
             "zlib_limit_used": used_zlib_limit,
             "extraction_mode": extraction_mode,
         }
+        meta = _attach_preferred_text_metadata(meta, output_dir=output_dir)
         _stable_dump(output_dir / f"{board_id}.json", meta)
         manifest_rows.append(meta)
         print(f"[ok] {board_id}: pages={len(pages)} chars={text_char_count}")
 
+    manifest_rows = [_attach_preferred_text_metadata(dict(row), output_dir=output_dir) for row in manifest_rows]
     manifest_rows.sort(key=lambda item: str(item.get("board_id", "")))
     _stable_dump(output_dir / "manifest.json", manifest_rows)
 

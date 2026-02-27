@@ -1101,9 +1101,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers.txt",
       "text_sha256": "cf0f70402e133e676bee4dfe3878d22b1e542e9629f68e8dadca85f458808dc9",
+      "text_char_count": 10538,
       "pdf_sha256": "fd9d5213371993b18a9b05898695343418e1b16a9393c0f00bd4f23557eeb486",
       "pdf_size_bytes": 31254830,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers.txt",
+      "raw_text_sha256": "cf0f70402e133e676bee4dfe3878d22b1e542e9629f68e8dadca85f458808dc9",
+      "raw_text_char_count": 10538,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     }
   },
   "win_condition": {

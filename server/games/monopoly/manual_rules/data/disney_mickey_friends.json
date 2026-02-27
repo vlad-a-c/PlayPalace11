@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_mickey_friends.txt",
       "text_sha256": "f0ce17a1fb008896f69efd639cdb22762f8b424c2cbf50bd2a17299202a74f2e",
+      "text_char_count": 24264,
       "pdf_sha256": "24009d89884b77646419c0a960c0c1802696ea586d3d282329484f23d227f5fd",
       "pdf_size_bytes": 31348246,
-      "page_count": 11
+      "page_count": 11,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_mickey_friends.txt",
+      "raw_text_sha256": "f0ce17a1fb008896f69efd639cdb22762f8b424c2cbf50bd2a17299202a74f2e",
+      "raw_text_char_count": 24264,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Friendship",

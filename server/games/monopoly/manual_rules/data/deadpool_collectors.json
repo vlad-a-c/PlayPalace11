@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/deadpool_collectors.txt",
       "text_sha256": "fbad8c373f40fdc7797829d98f72944363cace81bbb50d2ef3b747802c8b66a7",
+      "text_char_count": 14641,
       "pdf_sha256": "ca25c5aaf8fd6bac93f424253faf613751595099834c7a991605f0d73272613b",
       "pdf_size_bytes": 22319354,
-      "page_count": 6
+      "page_count": 6,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/deadpool_collectors.txt",
+      "raw_text_sha256": "fbad8c373f40fdc7797829d98f72944363cace81bbb50d2ef3b747802c8b66a7",
+      "raw_text_char_count": 14641,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Dumb Luck",

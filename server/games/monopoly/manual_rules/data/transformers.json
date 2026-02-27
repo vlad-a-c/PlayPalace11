@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/transformers.txt",
       "text_sha256": "773c0bdedd0da7d1f090c2d132e291f9628c84ce7ad0a98cc6a88a0be3945861",
+      "text_char_count": 11941,
       "pdf_sha256": "8db55ee4eb184b9ce815f50ab93450488baf363fb7ed36109ff4cb66bf2385bb",
       "pdf_size_bytes": 64691322,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/transformers.txt",
+      "raw_text_sha256": "773c0bdedd0da7d1f090c2d132e291f9628c84ce7ad0a98cc6a88a0be3945861",
+      "raw_text_char_count": 11941,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Autobot",

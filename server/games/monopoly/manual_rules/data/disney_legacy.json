@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_legacy.txt",
       "text_sha256": "9ca96a822a93a77836161ec88e30b51ef26951943dd239d01ab68469f2721ead",
+      "text_char_count": 17373,
       "pdf_sha256": "427a65ab9d2a4f2624e1e64b0561e3422981a07bc350f5f58f13d5d86abc9fce",
       "pdf_size_bytes": 11625762,
-      "page_count": 8
+      "page_count": 8,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_legacy.txt",
+      "raw_text_sha256": "9ca96a822a93a77836161ec88e30b51ef26951943dd239d01ab68469f2721ead",
+      "raw_text_char_count": 17373,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Show Time",

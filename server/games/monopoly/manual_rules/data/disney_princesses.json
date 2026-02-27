@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_princesses.txt",
       "text_sha256": "ebb6322e361252cdb52f9fa060ac4560b6ecf953a0e0777ccf274e9a3035ef28",
+      "text_char_count": 8915,
       "pdf_sha256": "6ca88cb5d12c50d0fb91624a151bad42f2ac80f3eeb9d6729ef9a980e2973fb2",
       "pdf_size_bytes": 30980660,
-      "page_count": 4
+      "page_count": 4,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_princesses.txt",
+      "raw_text_sha256": "ebb6322e361252cdb52f9fa060ac4560b6ecf953a0e0777ccf274e9a3035ef28",
+      "raw_text_char_count": 8915,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Sorte",

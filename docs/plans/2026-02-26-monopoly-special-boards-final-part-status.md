@@ -27,6 +27,7 @@ Head: `98c6150` (plus working-tree updates)
 - Added extracted artifacts:
   - `server/games/monopoly/manual_rules/extracted/manifest.json`
   - `server/games/monopoly/manual_rules/extracted/*.txt`
+  - `server/games/monopoly/manual_rules/extracted/*.ocr.txt` (image-heavy manual sidecars)
   - `server/games/monopoly/manual_rules/extracted/*.json`
 - Added coverage test:
   - `server/tests/test_monopoly_manual_source_extraction_artifacts.py`
@@ -34,6 +35,9 @@ Head: `98c6150` (plus working-tree updates)
   - selected boards: `55`
   - extracted successfully: `55`
   - `marvel_flip` uses `strings_fallback` mode after bounded `pypdf` retry.
+  - Preferred extraction metadata now records:
+    - `preferred_text_path` / `preferred_text_sha256` / `preferred_text_source`
+    - `ocr_text_path` / `ocr_text_sha256` when OCR sidecars are present.
 - Rerun command:
   - `./.venv/bin/python server/scripts/monopoly/extract_manual_text.py --family ...` (all families from anchor index)
 
@@ -41,7 +45,8 @@ Head: `98c6150` (plus working-tree updates)
 
 - Added seed applier: `server/scripts/monopoly/apply_manual_extraction_seed.py`
 - Applied extraction-backed metadata into all `55` special-board payloads:
-  - `mechanics.manual_extraction` now records extraction mode, checksums, page count, and text artifact path.
+  - `mechanics.manual_extraction` now records extraction mode, checksums, page count, and preferred/manual text artifact path.
+  - `mechanics.manual_extraction` keeps raw and OCR-aware traceability fields (`raw_text_*`, `ocr_text_*`, `preferred_text_source`).
   - `citations` now include `mechanics.manual_extraction`.
 - Applied manual-derived Star Wars action labels:
   - `star_wars_classic_edition`, `star_wars_legacy`: `Use the Force`, `Hyperspace`, `Galactic Empire Tax`

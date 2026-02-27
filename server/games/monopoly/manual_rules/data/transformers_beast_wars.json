@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/transformers_beast_wars.txt",
       "text_sha256": "c952b5f9887dc71bf9fba5684915a1820e2680268f5ac8602aa73d57f8d44d2f",
+      "text_char_count": 17844,
       "pdf_sha256": "588e5c371b1715ef521ee0a423e3802ac16c156c221a38d92673917e6f255a39",
       "pdf_size_bytes": 65757000,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/transformers_beast_wars.txt",
+      "raw_text_sha256": "c952b5f9887dc71bf9fba5684915a1820e2680268f5ac8602aa73d57f8d44d2f",
+      "raw_text_char_count": 17844,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Maximal",

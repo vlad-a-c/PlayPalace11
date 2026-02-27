@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/harry_potter.txt",
       "text_sha256": "b9d154b98c81922b67d76f5b9333b1dba1420f85e574cee537a1afe5375f8c80",
+      "text_char_count": 20887,
       "pdf_sha256": "bdbfcdbb608d10546dcbdc39e2ad4e8a8b8d28dc4f24e234759f2e70ad6564d4",
       "pdf_size_bytes": 578365856,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/harry_potter.txt",
+      "raw_text_sha256": "b9d154b98c81922b67d76f5b9333b1dba1420f85e574cee537a1afe5375f8c80",
+      "raw_text_char_count": 20887,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Owl Post",

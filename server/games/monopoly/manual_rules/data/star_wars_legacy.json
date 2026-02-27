@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_legacy.txt",
       "text_sha256": "c2d2af5d241e81abd00a633a01783c9501be4400d2707174c068fe9c45b54eda",
+      "text_char_count": 13140,
       "pdf_sha256": "9b283609c30984cc5f5cfa18db4b7ee701f0f73e5349bf0cf472f8bda46c2dd3",
       "pdf_size_bytes": 12085144,
-      "page_count": 6
+      "page_count": 6,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_legacy.txt",
+      "raw_text_sha256": "c2d2af5d241e81abd00a633a01783c9501be4400d2707174c068fe9c45b54eda",
+      "raw_text_char_count": 13140,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Use the Force",

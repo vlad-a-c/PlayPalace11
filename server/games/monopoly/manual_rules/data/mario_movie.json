@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/mario_movie.txt",
       "text_sha256": "86c861d968b83de6492b23ea81c8fdde46a693a13af29e0b63dba0f8cadc57cb",
+      "text_char_count": 29564,
       "pdf_sha256": "eaed985139d1c235c54129a3f8a927e7f634ae29aadc2514fb096c0c55ac8278",
       "pdf_size_bytes": 34210074,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/mario_movie.txt",
+      "raw_text_sha256": "86c861d968b83de6492b23ea81c8fdde46a693a13af29e0b63dba0f8cadc57cb",
+      "raw_text_char_count": 29564,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Question Block",

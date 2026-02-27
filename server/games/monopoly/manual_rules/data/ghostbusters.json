@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/ghostbusters.txt",
       "text_sha256": "0ad4f2fa354af80e77e85cbf49ec7f3fc6c2f4f3d02ffa87d0458bd89fdb43d8",
+      "text_char_count": 12957,
       "pdf_sha256": "a288a28ff6635361b4f0ab4cb946f19381f7a58b548b0195f5d2dae0c1b3d4ce",
       "pdf_size_bytes": 12975114,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/ghostbusters.txt",
+      "raw_text_sha256": "0ad4f2fa354af80e77e85cbf49ec7f3fc6c2f4f3d02ffa87d0458bd89fdb43d8",
+      "raw_text_char_count": 12957,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Roaming Vapor",

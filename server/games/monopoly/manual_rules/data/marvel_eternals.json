@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_eternals.txt",
       "text_sha256": "fdef7d0e587ce4826fc761a6c0566a8f949c687f0ccee71453f8971e07ed03f4",
+      "text_char_count": 13195,
       "pdf_sha256": "812613ffd2cd6e530a6c9a855ea2d2ea9f704948fc7c4c45762bdace1c53ef33",
       "pdf_size_bytes": 704380052,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_eternals.txt",
+      "raw_text_sha256": "fdef7d0e587ce4826fc761a6c0566a8f949c687f0ccee71453f8971e07ed03f4",
+      "raw_text_char_count": 13195,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Uni-Mind",

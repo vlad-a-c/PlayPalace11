@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/jurassic_park.txt",
       "text_sha256": "cfa62964571b06cd6a990c304153d54ccf8159a73737c872cc8dd283e02ab76c",
+      "text_char_count": 16917,
       "pdf_sha256": "738d5adc3ebe0a3cd36c3ed6983c9c1547edf37c19246f43555056d17bcf201c",
       "pdf_size_bytes": 56741135,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/jurassic_park.txt",
+      "raw_text_sha256": "cfa62964571b06cd6a990c304153d54ccf8159a73737c872cc8dd283e02ab76c",
+      "raw_text_char_count": 16917,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Impact Tremor",

@@ -1087,9 +1087,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_mandalorian.txt",
       "text_sha256": "bf0e29faeff090ac3e34f4ce0faa3db78785affd973c2f628377e862e1b5a3cf",
+      "text_char_count": 15262,
       "pdf_sha256": "3a992db7ecf7fa25d1de9cf327a582c3f4bdfb613c0973104a8921f4900b2922",
       "pdf_size_bytes": 24520996,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_mandalorian.txt",
+      "raw_text_sha256": "bf0e29faeff090ac3e34f4ce0faa3db78785affd973c2f628377e862e1b5a3cf",
+      "raw_text_char_count": 15262,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Signet",

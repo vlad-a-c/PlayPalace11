@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_lion_king.txt",
       "text_sha256": "19a8fd8c90bc653462e9f65d98d534d4458a447498d23bfaed8c0d06f240d0da",
+      "text_char_count": 11203,
       "pdf_sha256": "4dc8686ae1ccc26d9b7f1bb2ff1c1ec01d201e7bc7f8b165ac41f93fac13eb71",
       "pdf_size_bytes": 45623154,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_lion_king.txt",
+      "raw_text_sha256": "19a8fd8c90bc653462e9f65d98d534d4458a447498d23bfaed8c0d06f240d0da",
+      "raw_text_char_count": 11203,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Destiny",

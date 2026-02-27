@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_star_wars_dark_side.txt",
       "text_sha256": "0a890afe4b528e1fe7764e99b9bbb2ccb1f10af2dd2047ed677129b72e03c8f7",
+      "text_char_count": 334217,
       "pdf_sha256": "681c249e63b6ee0e1784e972a606af8af132f7a732661c12a132dd44c891c013",
       "pdf_size_bytes": 61707425,
-      "page_count": 55
+      "page_count": 55,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_star_wars_dark_side.txt",
+      "raw_text_sha256": "0a890afe4b528e1fe7764e99b9bbb2ccb1f10af2dd2047ed677129b72e03c8f7",
+      "raw_text_char_count": 334217,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "The Empire",

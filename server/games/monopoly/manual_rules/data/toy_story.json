@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/toy_story.txt",
       "text_sha256": "5a5e6a6558341dcbce5c685ce6876b4ccfa8ad7b9efeebc3b5696eb11626dabb",
+      "text_char_count": 21276,
       "pdf_sha256": "f41ffbe1858b9fa24c429f62db0c7832fd9e865c4e14713968f9052c2ef37bab",
       "pdf_size_bytes": 17886676,
-      "page_count": 4
+      "page_count": 4,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/toy_story.txt",
+      "raw_text_sha256": "5a5e6a6558341dcbce5c685ce6876b4ccfa8ad7b9efeebc3b5696eb11626dabb",
+      "raw_text_char_count": 21276,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Toy Chest",

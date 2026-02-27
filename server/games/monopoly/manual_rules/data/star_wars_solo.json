@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_solo.txt",
       "text_sha256": "e081f4fd5fb41493b10c30d9eb1195858a6f4a8b597c1c435bf2398e56b2b34f",
+      "text_char_count": 11035,
       "pdf_sha256": "fe05f08f8915687091ae0dcb0250c7a71b9adfb2ea0351c687397149ec65afab",
       "pdf_size_bytes": 8165156,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_solo.txt",
+      "raw_text_sha256": "e081f4fd5fb41493b10c30d9eb1195858a6f4a8b597c1c435bf2398e56b2b34f",
+      "raw_text_char_count": 11035,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Scoundrel",

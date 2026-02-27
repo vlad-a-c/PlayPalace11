@@ -37,11 +37,22 @@ def test_special_board_rules_include_extraction_seed_metadata() -> None:
 
         manual_extraction = mechanics.get("manual_extraction")
         assert isinstance(manual_extraction, dict), board_id
+        expected_text_path = row.get("preferred_text_path", row.get("text_path"))
+        expected_text_sha = row.get("preferred_text_sha256", row.get("text_sha256"))
+        expected_text_char_count = row.get("preferred_text_char_count", row.get("text_char_count"))
         assert manual_extraction.get("status") == "seeded_from_extracted_manual_text"
-        assert manual_extraction.get("text_sha256") == row.get("text_sha256")
+        assert manual_extraction.get("text_path") == expected_text_path
+        assert manual_extraction.get("text_sha256") == expected_text_sha
+        assert manual_extraction.get("text_char_count") == expected_text_char_count
         assert manual_extraction.get("pdf_sha256") == row.get("pdf_sha256")
         assert manual_extraction.get("page_count") == row.get("page_count")
         assert manual_extraction.get("extraction_mode") == row.get("extraction_mode", "pypdf")
+        assert manual_extraction.get("raw_text_path") == row.get("text_path")
+        assert manual_extraction.get("raw_text_sha256") == row.get("text_sha256")
+        assert manual_extraction.get("preferred_text_source") == row.get(
+            "preferred_text_source",
+            row.get("extraction_mode", "pypdf"),
+        )
 
         citation_paths = {citation.rule_path for citation in rule_set.citations}
         assert "mechanics.manual_extraction" in citation_paths

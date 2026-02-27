@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_deadpool.txt",
       "text_sha256": "1c51c0d74ff4b14cac91a9365f511ed2fac641955504f23b68f4e12516272535",
+      "text_char_count": 12738,
       "pdf_sha256": "930c80c7d6ff2caf2e15d6c1a2f8b2006c9c2bf3bc2c1d6a5926faf6d6df4ec1",
       "pdf_size_bytes": 1437325,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_deadpool.txt",
+      "raw_text_sha256": "1c51c0d74ff4b14cac91a9365f511ed2fac641955504f23b68f4e12516272535",
+      "raw_text_char_count": 12738,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Dumb Luck",

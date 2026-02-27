@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_complete_saga.txt",
       "text_sha256": "f51c3ac1fd41c9ceb49faf2ecb99f268097f051105a20b49b92f918da4fd0d6c",
+      "text_char_count": 9090,
       "pdf_sha256": "54a772eac2cf3fcb30522912a8b6c795da42628a870622a8dde6c1b0a89d318b",
       "pdf_size_bytes": 35348418,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_complete_saga.txt",
+      "raw_text_sha256": "f51c3ac1fd41c9ceb49faf2ecb99f268097f051105a20b49b92f918da4fd0d6c",
+      "raw_text_char_count": 9090,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Holocron",

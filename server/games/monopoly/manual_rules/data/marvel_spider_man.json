@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_spider_man.txt",
       "text_sha256": "9da3582fb9bcb74212a698f53408b1230f4d25b6b6050a78a867645493b294ee",
+      "text_char_count": 11212,
       "pdf_sha256": "9a2a039ede525761dad0feef66b3c21552cc50972eec95c3c1ba9af8320fdf82",
       "pdf_size_bytes": 3800839,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_spider_man.txt",
+      "raw_text_sha256": "9da3582fb9bcb74212a698f53408b1230f4d25b6b6050a78a867645493b294ee",
+      "raw_text_char_count": 11212,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Daily Bugle",

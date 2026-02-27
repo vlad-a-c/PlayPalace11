@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_the_child.txt",
       "text_sha256": "963e71db89e7a00fde93a3b8b16f3ede4be15d597515866a3ec513e23515edd8",
+      "text_char_count": 9628,
       "pdf_sha256": "e8051cfb570bdc307da7ccceb9dc68baaa085e6747c12e1ba634e7fd3bf7ac52",
       "pdf_size_bytes": 32384035,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_the_child.txt",
+      "raw_text_sha256": "963e71db89e7a00fde93a3b8b16f3ede4be15d597515866a3ec513e23515edd8",
+      "raw_text_char_count": 9628,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Bounty Puck",

@@ -1083,11 +1083,19 @@
       "status": "seeded_from_extracted_manual_text",
       "extraction_mode": "pypdf",
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
-      "text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers_legacy.txt",
-      "text_sha256": "1fbe1dbef89d794f689825b19860afb4ebef22103a5202c0be8c300f89f90793",
+      "text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers_legacy.ocr.txt",
+      "text_sha256": "b445cfa4d0cc31f371a404316b5c51316df4fec8c64cc18bbdb99dc528a05122",
+      "text_char_count": 11385,
       "pdf_sha256": "32f541dbf34507e2ad771e10494c5f59f0cc9b88ce1b064a041dcb2a4d718c34",
       "pdf_size_bytes": 6396088,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "ocr_sidecar",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers_legacy.txt",
+      "raw_text_sha256": "1fbe1dbef89d794f689825b19860afb4ebef22103a5202c0be8c300f89f90793",
+      "raw_text_char_count": 32,
+      "ocr_text_path": "server/games/monopoly/manual_rules/extracted/marvel_avengers_legacy.ocr.txt",
+      "ocr_text_sha256": "b445cfa4d0cc31f371a404316b5c51316df4fec8c64cc18bbdb99dc528a05122",
+      "ocr_text_char_count": 11385
     },
     "decks": {
       "chance": "S.H.I.E.L.D.",

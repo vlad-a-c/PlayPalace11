@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/star_wars_boba_fett.txt",
       "text_sha256": "671bc14ef31ff27dca0aeeebab9992ef2c50543482b0fc754400bec6a2795cf8",
+      "text_char_count": 18930,
       "pdf_sha256": "aa0a2b22184bfd1f5dae4e0a72c5dd424cd153b4d7c505918409be1bb999c438",
       "pdf_size_bytes": 61087979,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/star_wars_boba_fett.txt",
+      "raw_text_sha256": "671bc14ef31ff27dca0aeeebab9992ef2c50543482b0fc754400bec6a2795cf8",
+      "raw_text_char_count": 18930,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Bounty Hunter",

@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/stranger_things_netflix.txt",
       "text_sha256": "52d846bd1ec2b6499da7632b28e795ad4f1b2befe6bbc47689ecd48b6154ccc0",
+      "text_char_count": 360122,
       "pdf_sha256": "ff2cd852dfe655c14d1a1369a891dcd176ffa63957834cbffcd997971ebdeb50",
       "pdf_size_bytes": 53577831,
-      "page_count": 55
+      "page_count": 55,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/stranger_things_netflix.txt",
+      "raw_text_sha256": "52d846bd1ec2b6499da7632b28e795ad4f1b2befe6bbc47689ecd48b6154ccc0",
+      "raw_text_char_count": 360122,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Cerebro",

@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_villains.txt",
       "text_sha256": "1c15a4884e94e13bbc06ade10c475b0310bab31d487821947436cae5e5c840c8",
+      "text_char_count": 10850,
       "pdf_sha256": "6e943b34785c06a15ada83139fc9e6d2a3585975fea137dd765a2ffd9cbd9319",
       "pdf_size_bytes": 83220838,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_villains.txt",
+      "raw_text_sha256": "1c15a4884e94e13bbc06ade10c475b0310bab31d487821947436cae5e5c840c8",
+      "raw_text_char_count": 10850,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Chance",

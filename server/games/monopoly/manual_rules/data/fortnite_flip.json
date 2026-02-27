@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/fortnite_flip.txt",
       "text_sha256": "0cfe5254cd4328704414f3eb8533114e878b186aae0c30d6ccebf4a0c2f22b6d",
+      "text_char_count": 17025,
       "pdf_sha256": "468f3b1ddf0fb9ac10ffa4bcbc30fb2dbfff181f18930373da3ed3369af6cb85",
       "pdf_size_bytes": 58788278,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/fortnite_flip.txt",
+      "raw_text_sha256": "0cfe5254cd4328704414f3eb8533114e878b186aae0c30d6ccebf4a0c2f22b6d",
+      "raw_text_char_count": 17025,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Game Mode",

@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/pokemon.txt",
       "text_sha256": "73fd30112e06437379114b2831e0e60a6e1afe4d03448c3ea1d9d8e78f7ee6cd",
+      "text_char_count": 28384,
       "pdf_sha256": "0c57ef5aab9211035c47200f9aa5ded50946dbc571a3cb1eed7ba27e6a9c3bd5",
       "pdf_size_bytes": 24325912,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/pokemon.txt",
+      "raw_text_sha256": "73fd30112e06437379114b2831e0e60a6e1afe4d03448c3ea1d9d8e78f7ee6cd",
+      "raw_text_char_count": 28384,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Adventure",

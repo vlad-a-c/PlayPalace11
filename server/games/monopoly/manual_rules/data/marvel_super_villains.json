@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_super_villains.txt",
       "text_sha256": "d9c33aa3e5b788af4dafffa441ffbc0570bb9e5cbd2927f2992cc6ab3fd767ee",
+      "text_char_count": 18669,
       "pdf_sha256": "5557222bfd03e11c92399c5382af16c75b90872086ea5573d73bf199321d86fb",
       "pdf_size_bytes": 101489368,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_super_villains.txt",
+      "raw_text_sha256": "d9c33aa3e5b788af4dafffa441ffbc0570bb9e5cbd2927f2992cc6ab3fd767ee",
+      "raw_text_char_count": 18669,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Chance",

@@ -895,15 +895,30 @@ def run_seed(
             payload["mechanics"] = mechanics
 
         extraction_mode = str(row.get("extraction_mode", "pypdf"))
+        preferred_text_path = row.get("preferred_text_path") or row.get("text_path")
+        preferred_text_sha = row.get("preferred_text_sha256") or row.get("text_sha256")
+        preferred_text_char_count = (
+            row.get("preferred_text_char_count")
+            if row.get("preferred_text_char_count") is not None
+            else row.get("text_char_count")
+        )
         mechanics["manual_extraction"] = {
             "status": "seeded_from_extracted_manual_text",
             "extraction_mode": extraction_mode,
             "manifest_path": str(manifest_path),
-            "text_path": row.get("text_path"),
-            "text_sha256": row.get("text_sha256"),
+            "text_path": preferred_text_path,
+            "text_sha256": preferred_text_sha,
+            "text_char_count": preferred_text_char_count,
             "pdf_sha256": row.get("pdf_sha256"),
             "pdf_size_bytes": row.get("pdf_size_bytes"),
             "page_count": row.get("page_count"),
+            "preferred_text_source": row.get("preferred_text_source", extraction_mode),
+            "raw_text_path": row.get("text_path"),
+            "raw_text_sha256": row.get("text_sha256"),
+            "raw_text_char_count": row.get("text_char_count"),
+            "ocr_text_path": row.get("ocr_text_path"),
+            "ocr_text_sha256": row.get("ocr_text_sha256"),
+            "ocr_text_char_count": row.get("ocr_text_char_count"),
         }
 
         _apply_action_space_name_overrides(payload, board_id)

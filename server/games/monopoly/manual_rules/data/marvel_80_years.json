@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/marvel_80_years.txt",
       "text_sha256": "0001d8724ef9b889e4b9095294e2ccdd3a279727447f1cfbdf531d2f1111a9dd",
+      "text_char_count": 9114,
       "pdf_sha256": "e728ec0e4828e3d806cd9e9ce82fe54a002824a0ac279ab517700fc83ca93b0f",
       "pdf_size_bytes": 19639810,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/marvel_80_years.txt",
+      "raw_text_sha256": "0001d8724ef9b889e4b9095294e2ccdd3a279727447f1cfbdf531d2f1111a9dd",
+      "raw_text_char_count": 9114,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Catalog",

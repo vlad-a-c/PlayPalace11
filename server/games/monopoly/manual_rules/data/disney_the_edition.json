@@ -1083,11 +1083,19 @@
       "status": "seeded_from_extracted_manual_text",
       "extraction_mode": "pypdf",
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
-      "text_path": "server/games/monopoly/manual_rules/extracted/disney_the_edition.txt",
-      "text_sha256": "b3f2fd5e6ee6137054a2111f17f194c0eaa311594f19553a25d72af30a1598e1",
+      "text_path": "server/games/monopoly/manual_rules/extracted/disney_the_edition.ocr.txt",
+      "text_sha256": "fb65596381d1413dd6587b193efc38a27e9372a97457d6069bd24297d20ea662",
+      "text_char_count": 22838,
       "pdf_sha256": "daa2b36ef1cfed51bdcd6fc07f77645551fd043dfd98b142b408b43bcb52294e",
       "pdf_size_bytes": 2603069,
-      "page_count": 8
+      "page_count": 8,
+      "preferred_text_source": "ocr_sidecar",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_the_edition.txt",
+      "raw_text_sha256": "b3f2fd5e6ee6137054a2111f17f194c0eaa311594f19553a25d72af30a1598e1",
+      "raw_text_char_count": 134,
+      "ocr_text_path": "server/games/monopoly/manual_rules/extracted/disney_the_edition.ocr.txt",
+      "ocr_text_sha256": "fb65596381d1413dd6587b193efc38a27e9372a97457d6069bd24297d20ea662",
+      "ocr_text_char_count": 22838
     },
     "decks": {
       "chance": "Show Time",

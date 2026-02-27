@@ -1085,9 +1085,17 @@
       "manifest_path": "server/games/monopoly/manual_rules/extracted/manifest.json",
       "text_path": "server/games/monopoly/manual_rules/extracted/disney_animation.txt",
       "text_sha256": "348dd5edc1dc69acae848768dc557dc9b7c0d18116eeb255cacf15f0f69395da",
+      "text_char_count": 10323,
       "pdf_sha256": "0c435677d0675ed1563ce7456288fd2b85496d68839bb91829af44c14b44e70b",
       "pdf_size_bytes": 4327949,
-      "page_count": 2
+      "page_count": 2,
+      "preferred_text_source": "pypdf",
+      "raw_text_path": "server/games/monopoly/manual_rules/extracted/disney_animation.txt",
+      "raw_text_sha256": "348dd5edc1dc69acae848768dc557dc9b7c0d18116eeb255cacf15f0f69395da",
+      "raw_text_char_count": 10323,
+      "ocr_text_path": null,
+      "ocr_text_sha256": null,
+      "ocr_text_char_count": null
     },
     "decks": {
       "chance": "Magic Mirror",
