@@ -23,7 +23,18 @@ Head: tracked via git history on `monopoly`
 - `cd server && ../.venv/bin/pytest tests/test_monopoly_special_board_manual_core_conformance.py tests/test_monopoly_special_board_anchor_index.py tests/test_monopoly_manual_core_fidelity_alignment.py tests/test_monopoly_hybrid_lane_exception_contract.py -q`
   - Result: `62 passed`
 - `cd server && ../.venv/bin/pytest -k monopoly -q`
-  - Result: `1280 passed, 598 deselected`
+  - Result: `1286 passed, 598 deselected`
+
+## New Progress: Hardware/Audio Mapping Expansion
+
+- Added deterministic Junior Super Mario coin-sound hardware event wiring for manual-core power-up flow:
+  - Runtime emits `junior_coin_sound_powerup` from `_apply_junior_super_mario_powerup(...)` when `junior_powerup_sound_ready` capability is active.
+  - Event payload records `power_up_die` and resolved no-sound `outcome` for future emulated-sound parity work.
+- Expanded hardware resolver support:
+  - `server/games/monopoly/hardware_emulation.py` now recognizes `junior_coin_sound_powerup`.
+- Added verification coverage:
+  - `server/tests/test_monopoly_wave_special_audio_junior.py`
+  - Expanded `server/tests/test_monopoly_hardware_emulation.py` with Junior event emulation assertions.
 
 ## New Progress: Manual Source Extraction (All Special Boards)
 

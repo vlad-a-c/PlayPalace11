@@ -30,6 +30,19 @@ def test_hardware_event_is_emulatable_when_sound_mode_emulated():
     assert result.status == "emulated"
 
 
+def test_junior_coin_sound_event_is_emulatable_when_sound_mode_emulated():
+    event = HardwareEvent(
+        board_id="junior_super_mario",
+        event_id="junior_coin_sound_powerup",
+        payload={"power_up_die": 4, "outcome": "collect_2"},
+    )
+
+    result = resolve_hardware_event(event, sound_mode="emulated")
+
+    assert result.status == "emulated"
+    assert result.details == "junior_coin_sound_powerup"
+
+
 def test_hardware_event_excludes_pacman_game_unit_emulation():
     event = HardwareEvent(
         board_id="pacman",

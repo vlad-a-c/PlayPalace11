@@ -2590,6 +2590,16 @@ class MonopolyGame(ActionGuardMixin, Game):
             return None
         return None
 
+    def _resolve_junior_super_mario_hardware_event_id(self) -> str | None:
+        """Map junior power-up flow to optional hardware coin-sound events."""
+        if not self._is_junior_super_mario_manual_core_active():
+            return None
+        if not self.active_board_rule_pack_id:
+            return None
+        if not supports_capability(self.active_board_rule_pack_id, "junior_powerup_sound_ready"):
+            return None
+        return "junior_coin_sound_powerup"
+
     def _resolve_junior_super_mario_powerup_outcome(self, power_up_die: int) -> str:
         """Resolve no-sound power-up outcome for junior Super Mario board."""
         sound_outcome = self._resolve_junior_super_mario_powerup_sound_outcome(power_up_die)
@@ -2615,6 +2625,15 @@ class MonopolyGame(ActionGuardMixin, Game):
             return "resolved"
 
         outcome = self._resolve_junior_super_mario_powerup_outcome(power_up_die)
+        hardware_event_id = self._resolve_junior_super_mario_hardware_event_id()
+        if hardware_event_id is not None:
+            self._emit_board_hardware_event(
+                hardware_event_id,
+                payload={
+                    "power_up_die": power_up_die,
+                    "outcome": outcome,
+                },
+            )
         if outcome == "nothing":
             return "resolved"
 

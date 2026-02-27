@@ -7,6 +7,7 @@ from dataclasses import dataclass
 SUPPORTED_EVENT_IDS = {
     "play_theme",
     "star_wars_theme",
+    "junior_coin_sound_powerup",
 }
 
 
