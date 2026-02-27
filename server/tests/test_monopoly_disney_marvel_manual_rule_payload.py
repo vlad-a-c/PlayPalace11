@@ -35,6 +35,23 @@ DISNEY_MARVEL_FAMILY_BOARD_IDS = [
     "marvel_flip",
 ]
 
+DISNEY_MARVEL_LITERAL_TEXT_BOARD_IDS = [
+    "disney_animation",
+    "disney_legacy",
+    "disney_lightyear",
+    "disney_lion_king",
+    "disney_mickey_friends",
+    "disney_villains",
+    "marvel_80_years",
+    "marvel_avengers",
+    "marvel_black_panther_wf",
+    "marvel_deadpool",
+    "marvel_eternals",
+    "marvel_falcon_winter_soldier",
+    "marvel_spider_man",
+    "marvel_super_villains",
+]
+
 
 def _start_game(board_id: str) -> MonopolyGame:
     game = MonopolyGame(
@@ -118,3 +135,27 @@ def test_disney_marvel_manual_rule_payload_executes_manual_effect_for_remapped_c
     assert "move_absolute" in seen_effect_types
     assert host.position == 0
     assert host.cash == 1700
+
+
+@pytest.mark.parametrize("board_id", DISNEY_MARVEL_LITERAL_TEXT_BOARD_IDS)
+@pytest.mark.parametrize(
+    ("deck_type", "card_id", "expected_substring"),
+    [
+        ("chance", "advance_to_go", "GO"),
+        ("chance", "go_to_jail", "In Jail"),
+        ("community_chest", "go_to_jail", "In Jail"),
+        ("community_chest", "get_out_of_jail_free", "Get Out of Jail Free"),
+    ],
+)
+def test_disney_marvel_manual_rule_payload_includes_literal_card_text(
+    board_id: str,
+    deck_type: str,
+    card_id: str,
+    expected_substring: str,
+) -> None:
+    rule_set = load_manual_rule_set(board_id)
+    deck_rows = rule_set.cards.get(deck_type, [])
+    row = next(row for row in deck_rows if row.get("id") == card_id)
+    literal_text = row.get("text")
+    assert isinstance(literal_text, str)
+    assert expected_substring in literal_text

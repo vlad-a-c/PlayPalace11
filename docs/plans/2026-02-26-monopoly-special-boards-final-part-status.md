@@ -18,8 +18,10 @@ Head: `98c6150` (plus working-tree updates)
 
 - `cd server && ../.venv/bin/pytest tests/test_monopoly_manual_rule_payload_completeness.py -v`
   - Result: `55 passed`
+- `cd server && ../.venv/bin/pytest tests/test_monopoly_star_wars_manual_rule_payload.py tests/test_monopoly_disney_marvel_manual_rule_payload.py tests/test_monopoly_manual_card_draw_text.py tests/test_monopoly_manual_rule_payload_completeness.py -v`
+  - Result: `210 passed`
 - `cd server && ../.venv/bin/pytest -k monopoly -q`
-  - Result: `1145 passed, 598 deselected`
+  - Result: `1254 passed, 598 deselected`
 
 ## New Progress: Manual Source Extraction (All Special Boards)
 
@@ -123,9 +125,9 @@ Head: `98c6150` (plus working-tree updates)
     `star_wars_light_side`, `star_wars_solo`, `star_wars_the_child`.
 - Final Star Wars Saga labels are seeded from manual OCR:
   - `star_wars_saga`: `Sith`, `Jedi`; tax labels `Trade Blockade`, `Bounty`
-- Initial literal manual card-text seeding is now present for:
-  - `star_wars_classic_edition`, `star_wars_legacy`
-  - (for `advance_to_go`, `go_to_jail`, `get_out_of_jail_free` canonical cards)
+- Literal manual card-text seeding coverage now includes canonical card text fields (`advance_to_go`, `go_to_jail`, `get_out_of_jail_free`) for:
+  - Star Wars family (`12` boards): `disney_star_wars_dark_side`, `star_wars_40th`, `star_wars_boba_fett`, `star_wars_classic_edition`, `star_wars_complete_saga`, `star_wars_legacy`, `star_wars_light_side`, `star_wars_mandalorian`, `star_wars_mandalorian_s2`, `star_wars_saga`, `star_wars_solo`, `star_wars_the_child`
+  - Disney/Marvel high-confidence subset (`14` boards): `disney_animation`, `disney_legacy`, `disney_lightyear`, `disney_lion_king`, `disney_mickey_friends`, `disney_villains`, `marvel_80_years`, `marvel_avengers`, `marvel_black_panther_wf`, `marvel_deadpool`, `marvel_eternals`, `marvel_falcon_winter_soldier`, `marvel_spider_man`, `marvel_super_villains`
 - Remaining boards without deck-label seeding: `0` (all `55` covered)
 
 ## What Has Been Done (Whole Rollout to Date)
@@ -184,6 +186,11 @@ Move the remaining `50` `near_full` boards to true `manual_core` by replacing sy
 
 - No blockers remain for action/deck/tax label seeding coverage.
 - Remaining blocker is card-by-card deterministic extraction from image-heavy manuals.
+- Literal card text seeding still pending deterministic/manual-auth capture for:
+  - `disney_princesses`
+  - `disney_the_edition`
+  - `marvel_avengers_legacy`
+  - `marvel_flip`
 
 ## Definition of Done for the Final Part
 

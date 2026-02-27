@@ -110,15 +110,14 @@ def test_star_wars_manual_rule_payload_executes_manual_effect_for_remapped_card(
     assert host.cash == 1700
 
 
+@pytest.mark.parametrize("board_id", STAR_WARS_FAMILY_BOARD_IDS)
 @pytest.mark.parametrize(
-    ("board_id", "deck_type", "card_id", "expected_substring"),
+    ("deck_type", "card_id", "expected_substring"),
     [
-        ("star_wars_classic_edition", "chance", "advance_to_go", "Force Dash"),
-        ("star_wars_classic_edition", "chance", "go_to_jail", "In Jail"),
-        ("star_wars_classic_edition", "community_chest", "get_out_of_jail_free", "Get Out of Jail Free"),
-        ("star_wars_legacy", "chance", "advance_to_go", "Force Dash"),
-        ("star_wars_legacy", "community_chest", "go_to_jail", "In Jail"),
-        ("star_wars_legacy", "community_chest", "get_out_of_jail_free", "Get Out of Jail Free"),
+        ("chance", "advance_to_go", "GO"),
+        ("chance", "go_to_jail", "In Jail"),
+        ("community_chest", "go_to_jail", "In Jail"),
+        ("community_chest", "get_out_of_jail_free", "Get Out of Jail Free"),
     ],
 )
 def test_star_wars_manual_rule_payload_includes_literal_card_text(
