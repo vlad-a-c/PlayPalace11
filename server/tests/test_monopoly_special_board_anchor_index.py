@@ -37,3 +37,9 @@ def test_anchor_index_covers_parity_manifest_boards():
     parity_ids = set(get_parity_board_ids())
 
     assert parity_ids.issubset(indexed_ids)
+
+
+def test_anchor_index_marks_all_special_boards_manual_core():
+    data = json.loads(_index_path().read_text(encoding="utf-8"))
+
+    assert all(row.get("fidelity_status") == "manual_core" for row in data)
