@@ -147,12 +147,11 @@ mkdir -p /tmp/monopoly-overnight-logs
   --family fortnite --family game --family ghostbusters --family harry --family junior \
   --family jurassic --family lord --family mario --family marvel --family pokemon \
   --family star --family stranger --family toy --family transformers \
-  --merge-manifest --ocr-when-text-below 4000 \
+  --ocr-when-text-below 4000 \
   > /tmp/monopoly-overnight-logs/extract.log 2>&1
 
 # 2) Refresh card-candidate artifacts for all boards
 ./.venv/bin/python server/scripts/monopoly/extract_manual_card_candidates.py \
-  --all \
   > /tmp/monopoly-overnight-logs/candidates.log 2>&1
 
 # 3) Run Monopoly regressions
