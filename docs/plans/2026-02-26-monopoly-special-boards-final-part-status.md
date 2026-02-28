@@ -25,6 +25,13 @@ Head: tracked via git history on `monopoly`
 - `cd server && ../.venv/bin/pytest -k monopoly -q`
   - Result: `1286 passed, 598 deselected`
 
+## Verification Evidence (2026-02-28)
+
+- `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest tests/test_monopoly_hardware_emulation.py tests/test_monopoly_wave_special_audio_star_wars.py tests/test_monopoly_wave_special_audio_junior.py -q`
+  - Result: `12 passed`
+- `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest -k monopoly -q`
+  - Result: `1288 passed, 598 deselected`
+
 ## New Progress: Hardware/Audio Mapping Expansion
 
 - Added deterministic Junior Super Mario coin-sound hardware event wiring for manual-core power-up flow:
@@ -40,6 +47,16 @@ Head: tracked via git history on `monopoly`
 - Added verification coverage:
   - `server/tests/test_monopoly_wave_special_audio_junior.py`
   - Expanded `server/tests/test_monopoly_hardware_emulation.py` with Junior event emulation assertions.
+
+## New Progress: Sourced Stand-In Hardware Audio Assets
+
+- Added runtime-preferred stand-in assets under `client/sounds/game_monopoly_hardware/original/`:
+  - `play_theme.ogg` (Kenney CC0 pack: `RPGsounds_Kenney.zip`, file `OGG/metalClick.ogg`)
+  - `star_wars_theme.ogg` (OpenGameArt `space-theme`, CC-BY 3.0, author JSKNYC)
+  - `junior_coin_sound_powerup.ogg` (Wikimedia Commons public-domain coin sound)
+- Resolver behavior now actively uses `original/` assets when present and falls back to placeholders when absent.
+- Provenance, source URLs, licenses, and SHA256 hashes are recorded in:
+  - `client/sounds/game_monopoly_hardware/README.md`
 
 ## New Progress: Manual Source Extraction (All Special Boards)
 

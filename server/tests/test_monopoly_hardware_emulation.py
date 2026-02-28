@@ -21,7 +21,12 @@ def test_hardware_event_is_inert_when_sound_mode_none():
     assert result.sound_asset_source == "none"
 
 
-def test_hardware_event_is_emulatable_when_sound_mode_emulated():
+def test_hardware_event_is_emulatable_when_sound_mode_emulated(monkeypatch):
+    monkeypatch.setattr(
+        "server.games.monopoly.hardware_emulation._sound_asset_exists",
+        lambda _relative_asset: False,
+    )
+
     event = HardwareEvent(
         board_id="star_wars_mandalorian",
         event_id="play_theme",
@@ -35,7 +40,12 @@ def test_hardware_event_is_emulatable_when_sound_mode_emulated():
     assert result.sound_asset_source == "placeholder"
 
 
-def test_junior_coin_sound_event_is_emulatable_when_sound_mode_emulated():
+def test_junior_coin_sound_event_is_emulatable_when_sound_mode_emulated(monkeypatch):
+    monkeypatch.setattr(
+        "server.games.monopoly.hardware_emulation._sound_asset_exists",
+        lambda _relative_asset: False,
+    )
+
     event = HardwareEvent(
         board_id="junior_super_mario",
         event_id="junior_coin_sound_powerup",

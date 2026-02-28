@@ -1,6 +1,7 @@
 """Wave special-audio behavior tests for Junior Super Mario hardware promotion."""
 
 from server.games.monopoly.game import MonopolyGame, MonopolyOptions
+from server.games.monopoly.hardware_emulation import resolve_hardware_sound_asset
 from server.users.test_user import MockUser
 
 
@@ -37,10 +38,12 @@ def test_junior_board_emits_coin_sound_event_in_emulated_sound_mode(monkeypatch)
     monkeypatch.setattr(game, "play_sound", lambda name, volume=100, pan=0, pitch=100: played.append(name))
 
     _force_roll(game, monkeypatch)
+    expected_asset, expected_source = resolve_hardware_sound_asset("junior_coin_sound_powerup")
 
     assert game.last_hardware_event_id == "junior_coin_sound_powerup"
     assert game.last_hardware_event_status == "emulated"
-    assert played == ["game_monopoly_hardware/junior_coin_sound_placeholder.ogg"]
+    assert played == [expected_asset]
+    assert expected_source in {"original", "placeholder"}
 
 
 def test_junior_board_coin_sound_event_is_ignored_in_none_sound_mode(monkeypatch):

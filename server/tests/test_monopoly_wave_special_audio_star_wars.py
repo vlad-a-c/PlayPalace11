@@ -1,6 +1,7 @@
 """Wave special-audio behavior tests for first Star Wars hardware promotions."""
 
 from server.games.monopoly.game import MonopolyGame, MonopolyOptions
+from server.games.monopoly.hardware_emulation import resolve_hardware_sound_asset
 from server.users.test_user import MockUser
 
 
@@ -37,10 +38,12 @@ def test_star_wars_board_emits_hardware_event_in_emulated_sound_mode(monkeypatch
     monkeypatch.setattr(game, "play_sound", lambda name, volume=100, pan=0, pitch=100: played.append(name))
 
     _force_chance_draw(game, monkeypatch)
+    expected_asset, expected_source = resolve_hardware_sound_asset("star_wars_theme")
 
     assert game.last_hardware_event_id == "star_wars_theme"
     assert game.last_hardware_event_status == "emulated"
-    assert played == ["game_monopoly_hardware/star_wars_theme_placeholder.ogg"]
+    assert played == [expected_asset]
+    assert expected_source in {"original", "placeholder"}
 
 
 def test_star_wars_board_hardware_event_is_ignored_in_none_sound_mode(monkeypatch):
