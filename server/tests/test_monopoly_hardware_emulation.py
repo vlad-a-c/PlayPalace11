@@ -2,6 +2,7 @@
 
 from server.games.monopoly.hardware_emulation import (
     HardwareEvent,
+    resolve_hardware_sound_asset,
     resolve_hardware_event,
 )
 
@@ -17,6 +18,7 @@ def test_hardware_event_is_inert_when_sound_mode_none():
 
     assert result.status == "ignored"
     assert result.sound_asset == ""
+    assert result.sound_asset_source == "none"
 
 
 def test_hardware_event_is_emulatable_when_sound_mode_emulated():
@@ -30,6 +32,7 @@ def test_hardware_event_is_emulatable_when_sound_mode_emulated():
 
     assert result.status == "emulated"
     assert result.sound_asset == "game_monopoly_hardware/play_theme_placeholder.ogg"
+    assert result.sound_asset_source == "placeholder"
 
 
 def test_junior_coin_sound_event_is_emulatable_when_sound_mode_emulated():
@@ -44,6 +47,7 @@ def test_junior_coin_sound_event_is_emulatable_when_sound_mode_emulated():
     assert result.status == "emulated"
     assert result.details == "junior_coin_sound_powerup"
     assert result.sound_asset == "game_monopoly_hardware/junior_coin_sound_placeholder.ogg"
+    assert result.sound_asset_source == "placeholder"
 
 
 def test_hardware_event_excludes_pacman_game_unit_emulation():
@@ -57,3 +61,29 @@ def test_hardware_event_excludes_pacman_game_unit_emulation():
 
     assert result.status == "ignored"
     assert result.sound_asset == ""
+    assert result.sound_asset_source == "none"
+
+
+def test_resolve_hardware_sound_asset_prefers_original_when_present(monkeypatch):
+    monkeypatch.setattr(
+        "server.games.monopoly.hardware_emulation._sound_asset_exists",
+        lambda relative_asset: relative_asset
+        == "game_monopoly_hardware/original/play_theme.ogg",
+    )
+
+    sound_asset, sound_asset_source = resolve_hardware_sound_asset("play_theme")
+
+    assert sound_asset == "game_monopoly_hardware/original/play_theme.ogg"
+    assert sound_asset_source == "original"
+
+
+def test_resolve_hardware_sound_asset_falls_back_to_placeholder(monkeypatch):
+    monkeypatch.setattr(
+        "server.games.monopoly.hardware_emulation._sound_asset_exists",
+        lambda _relative_asset: False,
+    )
+
+    sound_asset, sound_asset_source = resolve_hardware_sound_asset("star_wars_theme")
+
+    assert sound_asset == "game_monopoly_hardware/star_wars_theme_placeholder.ogg"
+    assert sound_asset_source == "placeholder"

@@ -3,18 +3,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 
-SUPPORTED_EVENT_IDS = {
-    "play_theme",
-    "star_wars_theme",
-    "junior_coin_sound_powerup",
+HARDWARE_EVENT_SOUND_PROFILES: dict[str, dict[str, str]] = {
+    "play_theme": {
+        "placeholder_asset": "game_monopoly_hardware/play_theme_placeholder.ogg",
+        "original_asset": "game_monopoly_hardware/original/play_theme.ogg",
+    },
+    "star_wars_theme": {
+        "placeholder_asset": "game_monopoly_hardware/star_wars_theme_placeholder.ogg",
+        "original_asset": "game_monopoly_hardware/original/star_wars_theme.ogg",
+    },
+    "junior_coin_sound_powerup": {
+        "placeholder_asset": "game_monopoly_hardware/junior_coin_sound_placeholder.ogg",
+        "original_asset": "game_monopoly_hardware/original/junior_coin_sound_powerup.ogg",
+    },
 }
-
-HARDWARE_EVENT_SOUND_ASSETS = {
-    "play_theme": "game_monopoly_hardware/play_theme_placeholder.ogg",
-    "star_wars_theme": "game_monopoly_hardware/star_wars_theme_placeholder.ogg",
-    "junior_coin_sound_powerup": "game_monopoly_hardware/junior_coin_sound_placeholder.ogg",
-}
+SUPPORTED_EVENT_IDS = set(HARDWARE_EVENT_SOUND_PROFILES)
 
 
 @dataclass(frozen=True)
@@ -33,22 +38,56 @@ class HardwareResult:
     status: str
     details: str = ""
     sound_asset: str = ""
+    sound_asset_source: str = ""
+
+
+def _repo_root() -> Path:
+    """Return repository root path from module location."""
+    return Path(__file__).resolve().parents[3]
+
+
+def _client_sound_path(relative_asset: str) -> Path:
+    """Return absolute path to a client sound asset path."""
+    return _repo_root() / "client" / "sounds" / relative_asset
+
+
+def _sound_asset_exists(relative_asset: str) -> bool:
+    """Return True when an asset exists in client/sounds."""
+    return _client_sound_path(relative_asset).is_file()
+
+
+def resolve_hardware_sound_asset(event_id: str) -> tuple[str, str]:
+    """Resolve preferred sound asset path and source tag for one hardware event."""
+    profile = HARDWARE_EVENT_SOUND_PROFILES.get(event_id)
+    if profile is None:
+        return ("", "none")
+
+    original_asset = profile.get("original_asset", "")
+    placeholder_asset = profile.get("placeholder_asset", "")
+    if original_asset and _sound_asset_exists(original_asset):
+        return (original_asset, "original")
+    if placeholder_asset:
+        return (placeholder_asset, "placeholder")
+    return ("", "none")
 
 
 def resolve_hardware_event(event: HardwareEvent, sound_mode: str) -> HardwareResult:
     """Resolve one hardware event according to active sound mode."""
     if sound_mode != "emulated":
-        return HardwareResult(status="ignored", details="sound_mode_disabled")
+        return HardwareResult(status="ignored", details="sound_mode_disabled", sound_asset_source="none")
 
     # Explicit product-scope exclusion: Pac-Man game-unit behavior is out-of-scope.
     if event.board_id == "pacman":
-        return HardwareResult(status="ignored", details="pacman_excluded")
+        return HardwareResult(status="ignored", details="pacman_excluded", sound_asset_source="none")
 
     if event.event_id not in SUPPORTED_EVENT_IDS:
-        return HardwareResult(status="ignored", details="unsupported_event")
+        return HardwareResult(status="ignored", details="unsupported_event", sound_asset_source="none")
+
+    sound_asset, sound_asset_source = resolve_hardware_sound_asset(event.event_id)
 
     return HardwareResult(
         status="emulated",
         details=event.event_id,
-        sound_asset=HARDWARE_EVENT_SOUND_ASSETS.get(event.event_id, ""),
+        sound_asset=sound_asset,
+        sound_asset_source=sound_asset_source,
     )
