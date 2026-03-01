@@ -10,10 +10,10 @@ Continue Monopoly special-board parity/hardware audio work without losing contex
 - Latest commit: `cdff1f9` (`Seed universal card text, add cash override evidence, and fix merge import breakage`)
 
 ## Recent Commit Chain (newest first)
+- *(pending)* Refine themed card text on 19 boards for currency consistency
 - `cdff1f9` Seed universal card text, add cash override evidence, and fix merge import breakage
 - `8da4b3f` Merge branch 'main' into monopoly
 - `4374591` Implement Mario Celebration Question Block deeper mechanic modeling
-- `69636e3` Add document browsing UI (read-only) to main menu
 
 ## What Is Done
 - All 55 special boards are `manual_core`.
@@ -24,6 +24,10 @@ Continue Monopoly special-board parity/hardware audio work without losing contex
 - Full card text coverage: all 10 cards per board (550 total) now have `text` fields.
   - Universal cards: advance_to_go, go_to_jail, get_out_of_jail_free (seeded earlier).
   - Non-universal cards: bank_dividend_50, go_back_three, poor_tax_15, bank_error_collect_200, doctor_fee_pay_50, income_tax_refund_20 (329 new text fields).
+- Themed card text refinement: 19 boards have themed non-universal card text matching their universal text style.
+  - Star Wars (12): `$X` → `X Credits`
+  - Mario (4) / Pokemon (1) / Transformers (1): `$` dropped
+  - Disney Princesses (1): Portuguese translation with `A` prefix notation
 - Full `text_note` evidence coverage: every card across all boards has evidence annotations.
 - Cash override evidence metadata on all 29 boards with `CARD_CASH_OVERRIDES`.
 - OCR quality grades documented for all 5 OCR sidecar boards.
@@ -51,7 +55,7 @@ Continue Monopoly special-board parity/hardware audio work without losing contex
 - `docs/plans/2026-02-28-monopoly-hardware-audio-legal-shortlist.md`
 
 ## Last Verification Results
-- Card text coverage tests: `212 passed, 63 skipped`
+- Card text coverage tests: `231 passed, 99 skipped`
 - Extraction artifact tests: `3 passed`
 
 ## Resume Commands
@@ -63,7 +67,6 @@ Continue Monopoly special-board parity/hardware audio work without losing contex
   - `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest -k monopoly -q`
 
 ## Recommended Next Work
-- Refine themed/localized card text where authentic source text is available (e.g., Portuguese `disney_princesses` edition).
 - Continue option-2 expansion: add hardware event mappings only where manual text shows deterministic sound-unit behavior.
 - Keep legal-source stand-ins for new events with provenance in `client/sounds/game_monopoly_hardware/README.md`.
 - Update parity/status docs each time a new hardware capability/event is added.

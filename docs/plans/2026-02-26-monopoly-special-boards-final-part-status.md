@@ -333,12 +333,33 @@ The final-part promotion target is complete:
 - `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest tests/test_monopoly_manual_source_extraction_artifacts.py -q`
   - Result: `3 passed`
 
+## New Progress: Themed Card Text Refinement (2026-03-01)
+
+- Refined non-universal card text on 19 themed-currency boards for consistency with their universal card text:
+  - Star Wars (12 boards): `$X` → `X Credits` (e.g., "Bank pays you dividend of 50 Credits.")
+  - Mario (4) / Pokemon (1) / Transformers Beast Wars (1): dropped `$` symbol (e.g., "Bank pays you dividend of 50.")
+  - Disney Princesses (1): translated to Portuguese with `A` prefix notation (e.g., "O banco paga-te um dividendo de A90.")
+- Cash-overridden amounts are preserved in themed text (e.g., star_wars_saga bank_error → "205 Credits", mario_celebration income_tax_refund → "60").
+- Total cards refined: 96 text fields, 96 text_note fields updated across 19 boards.
+- `text_note` appended (never overwritten) with themed refinement info:
+  - Star Wars: `Themed currency: Credits.`
+  - Mario/Pokemon/Transformers: `Currency symbol removed for themed consistency.`
+  - Disney Princesses: `Translated to Portuguese for disney_princesses edition.`
+- Script: `server/scripts/monopoly/refine_themed_card_text.py` (idempotent, --dry-run supported).
+- Test: Part F `test_themed_boards_use_consistent_currency` in `test_monopoly_card_text_coverage.py`.
+
+## Verification Evidence (2026-03-01, Themed Card Text Refinement)
+
+- `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest tests/test_monopoly_card_text_coverage.py -q`
+  - Result: `231 passed, 99 skipped`
+- `cd server && nix shell nixpkgs#uv -c uv run --extra dev pytest -k monopoly -q`
+  - Result: `1543 passed, 99 skipped, 1105 deselected`
+
 ## Follow-Up Work
 
-1. Refine themed/localized card text where authentic source text is available (e.g., Portuguese `disney_princesses` edition).
-2. Continue manual-source quality improvements for image-heavy manuals and OCR stability.
-3. Expand hardware/audio mappings when manuals provide deterministic trigger behavior.
-4. Keep parity matrix and plan docs synchronized with any future board-rule revisions.
+1. Continue manual-source quality improvements for image-heavy manuals and OCR stability.
+2. Expand hardware/audio mappings when manuals provide deterministic trigger behavior.
+3. Keep parity matrix and plan docs synchronized with any future board-rule revisions.
 
 ## Current Blockers
 

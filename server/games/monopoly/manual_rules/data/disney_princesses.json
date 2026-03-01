@@ -1008,8 +1008,8 @@
           "amount": 90
         },
         "legacy_id": "bank_dividend_50",
-        "text_note": "Cash override active: board_rules bank_dividend_50 → 90. Source: manual-evidenced board economy. Resolved via canonical legacy slot mapping (`bank_dividend_50`) with deck-prefixed id `sorte_bank_dividend_50`.",
-        "text": "Bank pays you dividend of $90."
+        "text_note": "Cash override active: board_rules bank_dividend_50 → 90. Source: manual-evidenced board economy. Resolved via canonical legacy slot mapping (`bank_dividend_50`) with deck-prefixed id `sorte_bank_dividend_50`. Translated to Portuguese for disney_princesses edition.",
+        "text": "O banco paga-te um dividendo de A90."
       },
       {
         "id": "sorte_go_back_three",
@@ -1020,8 +1020,8 @@
           "collect_pass_go": false
         },
         "legacy_id": "go_back_three",
-        "text_note": "Resolved via canonical legacy slot mapping (`go_back_three`) with deck-prefixed id `sorte_go_back_three`. Source: canonical card text template with board-specific deck naming.",
-        "text": "Go Back Three Spaces."
+        "text_note": "Resolved via canonical legacy slot mapping (`go_back_three`) with deck-prefixed id `sorte_go_back_three`. Source: canonical card text template with board-specific deck naming. Translated to Portuguese for disney_princesses edition.",
+        "text": "Recua Três Casas."
       },
       {
         "id": "sorte_go_to_jail",
@@ -1041,8 +1041,8 @@
           "amount": 15
         },
         "legacy_id": "poor_tax_15",
-        "text_note": "Resolved via canonical legacy slot mapping (`poor_tax_15`) with deck-prefixed id `sorte_poor_tax_15`. Source: canonical card text template with board-specific deck naming.",
-        "text": "Pay Poor Tax of $15."
+        "text_note": "Resolved via canonical legacy slot mapping (`poor_tax_15`) with deck-prefixed id `sorte_poor_tax_15`. Source: canonical card text template with board-specific deck naming. Translated to Portuguese for disney_princesses edition.",
+        "text": "Paga Taxa de Pobreza de A15."
       }
     ],
     "community_chest": [
@@ -1054,8 +1054,8 @@
           "amount": 200
         },
         "legacy_id": "bank_error_collect_200",
-        "text_note": "Resolved via canonical legacy slot mapping (`bank_error_collect_200`) with deck-prefixed id `magia_bank_error_collect_200`. Source: canonical card text template with board-specific deck naming.",
-        "text": "Bank error in your favor. Collect $200."
+        "text_note": "Resolved via canonical legacy slot mapping (`bank_error_collect_200`) with deck-prefixed id `magia_bank_error_collect_200`. Source: canonical card text template with board-specific deck naming. Translated to Portuguese for disney_princesses edition.",
+        "text": "Erro bancário a teu favor. Recebe A200."
       },
       {
         "id": "magia_doctor_fee_pay_50",
@@ -1065,8 +1065,8 @@
           "amount": 50
         },
         "legacy_id": "doctor_fee_pay_50",
-        "text_note": "Resolved via canonical legacy slot mapping (`doctor_fee_pay_50`) with deck-prefixed id `magia_doctor_fee_pay_50`. Source: canonical card text template with board-specific deck naming.",
-        "text": "Doctor's fee. Pay $50."
+        "text_note": "Resolved via canonical legacy slot mapping (`doctor_fee_pay_50`) with deck-prefixed id `magia_doctor_fee_pay_50`. Source: canonical card text template with board-specific deck naming. Translated to Portuguese for disney_princesses edition.",
+        "text": "Taxa do médico. Paga A50."
       },
       {
         "id": "magia_income_tax_refund_20",
@@ -1076,8 +1076,8 @@
           "amount": 20
         },
         "legacy_id": "income_tax_refund_20",
-        "text_note": "Resolved via canonical legacy slot mapping (`income_tax_refund_20`) with deck-prefixed id `magia_income_tax_refund_20`. Source: canonical card text template with board-specific deck naming.",
-        "text": "Income Tax refund. Collect $20."
+        "text_note": "Resolved via canonical legacy slot mapping (`income_tax_refund_20`) with deck-prefixed id `magia_income_tax_refund_20`. Source: canonical card text template with board-specific deck naming. Translated to Portuguese for disney_princesses edition.",
+        "text": "Reembolso de Imposto. Recebe A20."
       },
       {
         "id": "magia_go_to_jail",

@@ -166,3 +166,69 @@ def test_legacy_id_cards_have_mapping_notes(board_id: str) -> None:
 
     if not has_legacy:
         pytest.skip(f"{board_id} has no legacy-id cards")
+
+
+# ── Part F: themed boards use consistent currency ─────────────────
+
+# Boards whose non-universal card text should NOT contain "$".
+STAR_WARS_BOARDS = {
+    "star_wars_saga", "star_wars_mandalorian", "star_wars_mandalorian_s2",
+    "star_wars_complete_saga", "star_wars_boba_fett", "star_wars_solo",
+    "star_wars_the_child", "star_wars_light_side", "star_wars_40th",
+    "star_wars_classic_edition", "star_wars_legacy", "disney_star_wars_dark_side",
+}
+
+DROP_SYMBOL_BOARDS = {
+    "mario_celebration", "mario_kart", "mario_movie", "junior_super_mario",
+    "pokemon", "transformers_beast_wars",
+}
+
+PORTUGUESE_BOARD = "disney_princesses"
+
+THEMED_BOARDS = STAR_WARS_BOARDS | DROP_SYMBOL_BOARDS | {PORTUGUESE_BOARD}
+
+
+@pytest.mark.parametrize("board_id", ALL_BOARD_IDS)
+def test_themed_boards_use_consistent_currency(board_id: str) -> None:
+    if board_id not in THEMED_BOARDS:
+        pytest.skip(f"{board_id} is not a themed-currency board")
+
+    data = _load_raw_json(board_id)
+    cards = data.get("cards", {})
+
+    for deck, card_id in NON_UNIVERSAL_CARD_IDS:
+        card = _find_card(cards, deck, card_id)
+        assert card is not None, (
+            f"{board_id}: missing card {deck}/{card_id}"
+        )
+        text = card.get("text", "")
+
+        if board_id in STAR_WARS_BOARDS:
+            assert "$" not in text, (
+                f"{board_id}: card {deck}/{card_id} still has '$' — "
+                f"expected Credits notation. text={text!r}"
+            )
+            # Cards with monetary amounts should use "Credits"
+            if card_id != "go_back_three":
+                assert "Credits" in text, (
+                    f"{board_id}: card {deck}/{card_id} missing 'Credits'. "
+                    f"text={text!r}"
+                )
+
+        elif board_id in DROP_SYMBOL_BOARDS:
+            assert "$" not in text, (
+                f"{board_id}: card {deck}/{card_id} still has '$' — "
+                f"expected bare number. text={text!r}"
+            )
+
+        elif board_id == PORTUGUESE_BOARD:
+            # Should not contain English canonical text patterns.
+            english_markers = [
+                "Bank pays", "Go Back", "Pay Poor Tax",
+                "Bank error", "Doctor's fee", "Income Tax refund",
+            ]
+            for marker in english_markers:
+                assert marker not in text, (
+                    f"{board_id}: card {deck}/{card_id} still has English text. "
+                    f"text={text!r}"
+                )
