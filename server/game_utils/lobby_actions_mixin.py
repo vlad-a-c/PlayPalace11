@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..games.base import Player
-    from ..users.base import User
+    from server.core.users.base import User
     from .actions import ResolvedAction
 
-from ..users.base import MenuItem, EscapeBehavior
-from ..users.bot import Bot
+from server.core.users.base import MenuItem, EscapeBehavior
+from server.core.users.bot import Bot
 from ..messages.localization import Localization
 
 
@@ -224,9 +224,7 @@ class LobbyActionsMixin:
         user = self.get_user(player)
         if user and items:
             # Add "Go back" option at the end
-            items.append(
-                MenuItem(text=Localization.get(user.locale, "go-back"), id="go_back")
-            )
+            items.append(MenuItem(text=Localization.get(user.locale, "back"), id="go_back"))
             self._actions_menu_open.add(player.id)
             user.speak_l("context-menu")
             user.show_menu(
@@ -257,6 +255,8 @@ class LobbyActionsMixin:
         self.status = "waiting"
         self.setup_keybinds()
         self.add_player(host_name, host_user)
+        if hasattr(self, "_reset_transcripts"):
+            self._reset_transcripts()
         self.rebuild_all_menus()
 
     # Player management
@@ -288,6 +288,8 @@ class LobbyActionsMixin:
         self.attach_user(player.id, user)
         # Set up action sets for the new player
         self.setup_player_actions(player)
+        if hasattr(self, "_transcripts"):
+            self._transcripts.setdefault(player.id, [])
         return player
 
     def add_spectator(self, name: str, user: "User") -> "Player":
@@ -297,4 +299,6 @@ class LobbyActionsMixin:
         self.players.append(player)
         self.attach_user(player.id, user)
         self.setup_player_actions(player)
+        if hasattr(self, "_transcripts"):
+            self._transcripts.setdefault(player.id, [])
         return player

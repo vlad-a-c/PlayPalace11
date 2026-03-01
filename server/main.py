@@ -40,8 +40,8 @@ Examples:
     )
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
-        help="Host address to bind to (default: 0.0.0.0)",
+        default=None,
+        help="Host address to bind to (default: 127.0.0.1 or [server].bind_ip)",
     )
     parser.add_argument(
         "--port",
@@ -59,6 +59,11 @@ Examples:
         dest="ssl_key",
         help="Path to SSL private key file. For Let's Encrypt, use privkey.pem",
     )
+    parser.add_argument(
+        "--preload-locales",
+        action="store_true",
+        help="Block startup until all localization bundles compile (default: warm in background).",
+    )
 
     args = parser.parse_args()
 
@@ -75,6 +80,7 @@ Examples:
             port=args.port,
             ssl_cert=args.ssl_cert,
             ssl_key=args.ssl_key,
+            preload_locales=args.preload_locales,
         )
     )
 

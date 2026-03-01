@@ -3,6 +3,7 @@
 # 游戏分类
 category-card-games = 纸牌游戏
 category-dice-games = 骰子游戏
+category-board-games = 棋盘游戏
 category-rb-play-center = RB Play Center
 category-poker = 扑克
 category-uncategorized = 未分类
@@ -282,3 +283,5 @@ virtual-bots-profiles-header = Profiles: { $count } defined (default: { $default
 virtual-bots-profiles-empty = No profiles are defined.
 virtual-bots-profiles-line = { $profile } ({ $bot_count } bots) overrides: { $overrides }.
 virtual-bots-profiles-no-overrides = inherits base configuration
+
+localization-in-progress-try-again = 本地化正在进行中。请在一分钟后重试。

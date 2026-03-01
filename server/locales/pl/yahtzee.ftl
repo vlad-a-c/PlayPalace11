@@ -48,13 +48,13 @@ yahtzee-continuing = Continuing turn.
 
 # Status checks
 yahtzee-check-scoresheet = Check scorecard
-yahtzee-view-dice = Check hand
+yahtzee-view-dice = Check your dice
 yahtzee-your-dice = Your dice: { $dice }.
 yahtzee-your-dice-kept = Your dice: { $dice }. Keeping: { $kept }
 yahtzee-not-rolled = You haven't rolled yet.
 
 # Scoresheet display
-yahtzee-scoresheet-header = === { $player }'s Scorecard ===
+yahtzee-scoresheet-header = { $player }'s Scorecard
 yahtzee-scoresheet-upper = Upper Section:
 yahtzee-scoresheet-lower = Lower Section:
 yahtzee-scoresheet-category-filled = { $category }: { $points }

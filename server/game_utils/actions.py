@@ -27,11 +27,13 @@ class MenuInput(DataClassJSONMixin):
         prompt: Localization key for menu title/prompt.
         options: Method name returning list[str] options.
         bot_select: Optional method name for bot auto-selection.
+        include_cancel: Whether to append a cancel option (default True).
     """
 
     prompt: str  # Localization key for menu title/prompt
     options: str  # Method name that returns list[str]
     bot_select: str | None = None  # Method name for bot auto-selection
+    include_cancel: bool = True
 
 
 @dataclass
@@ -89,7 +91,7 @@ class ResolvedAction:
     action: Action
     label: str
     enabled: bool
-    disabled_reason: str | None  # Localization key if disabled, None if enabled
+    disabled_reason: "str | tuple[str, dict] | None"  # Localization key (optionally with kwargs) if disabled, None if enabled
     visible: bool
     sound: str | None = None  # Sound to play on highlight
 
@@ -134,7 +136,7 @@ class ActionSet(DataClassJSONMixin):
     ) -> ResolvedAction:
         """Resolve a single action's state for a player."""
         # Resolve enabled state
-        disabled_reason: str | None = None
+        disabled_reason: str | tuple[str, dict] | None = None
         if action.is_enabled:
             method = getattr(game, action.is_enabled, None)
             if method:

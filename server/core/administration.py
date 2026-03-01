@@ -3,9 +3,10 @@
 import functools
 from typing import TYPE_CHECKING
 
-from ..users.network_user import NetworkUser
-from ..users.base import MenuItem, EscapeBehavior, TrustLevel
+from .users.network_user import NetworkUser
+from .users.base import MenuItem, EscapeBehavior, TrustLevel
 from ..messages.localization import Localization
+from .ui.common_flows import show_yes_no_menu
 
 if TYPE_CHECKING:
     from ..persistence.database import Database
@@ -216,17 +217,9 @@ class AdministrationMixin:
 
     def _show_promote_confirm_menu(self, user: NetworkUser, target_username: str) -> None:
         """Show confirmation menu for promoting a user to admin."""
+        question = Localization.get(user.locale, "confirm-promote", player=target_username)
         _speak_activity(user, "confirm-promote", player=target_username)
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "promote_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "promote_confirm_menu", question)
         self._user_states[user.username] = {
             "menu": "promote_confirm_menu",
             "target_username": target_username,
@@ -234,17 +227,9 @@ class AdministrationMixin:
 
     def _show_demote_confirm_menu(self, user: NetworkUser, target_username: str) -> None:
         """Show confirmation menu for demoting an admin."""
+        question = Localization.get(user.locale, "confirm-demote", player=target_username)
         _speak_activity(user, "confirm-demote", player=target_username)
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "demote_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "demote_confirm_menu", question)
         self._user_states[user.username] = {
             "menu": "demote_confirm_menu",
             "target_username": target_username,
@@ -294,17 +279,9 @@ class AdministrationMixin:
 
     def _show_transfer_ownership_confirm_menu(self, user: NetworkUser, target_username: str) -> None:
         """Show confirmation menu for transferring ownership."""
+        question = Localization.get(user.locale, "confirm-transfer-ownership", player=target_username)
         _speak_activity(user, "confirm-transfer-ownership", player=target_username)
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "transfer_ownership_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "transfer_ownership_confirm_menu", question)
         self._user_states[user.username] = {
             "menu": "transfer_ownership_confirm_menu",
             "target_username": target_username,
@@ -375,17 +352,9 @@ class AdministrationMixin:
 
     def _show_ban_confirm_menu(self, user: NetworkUser, target_username: str) -> None:
         """Show confirmation menu for banning a user."""
+        question = Localization.get(user.locale, "confirm-ban", player=target_username)
         _speak_activity(user, "confirm-ban", player=target_username)
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "ban_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "ban_confirm_menu", question)
         self._user_states[user.username] = {
             "menu": "ban_confirm_menu",
             "target_username": target_username,
@@ -393,17 +362,9 @@ class AdministrationMixin:
 
     def _show_unban_confirm_menu(self, user: NetworkUser, target_username: str) -> None:
         """Show confirmation menu for unbanning a user."""
+        question = Localization.get(user.locale, "confirm-unban", player=target_username)
         _speak_activity(user, "confirm-unban", player=target_username)
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "unban_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "unban_confirm_menu", question)
         self._user_states[user.username] = {
             "menu": "unban_confirm_menu",
             "target_username": target_username,
@@ -490,17 +451,9 @@ class AdministrationMixin:
 
     def _show_virtual_bots_clear_confirm_menu(self, user: NetworkUser) -> None:
         """Show confirmation menu for clearing all virtual bots."""
+        question = Localization.get(user.locale, "virtual-bots-clear-confirm")
         user.speak_l("virtual-bots-clear-confirm", buffer="misc")
-        items = [
-            MenuItem(text=Localization.get(user.locale, "confirm-yes"), id="yes"),
-            MenuItem(text=Localization.get(user.locale, "confirm-no"), id="no"),
-        ]
-        user.show_menu(
-            "virtual_bots_clear_confirm_menu",
-            items,
-            multiletter=True,
-            escape_behavior=EscapeBehavior.SELECT_LAST,
-        )
+        show_yes_no_menu(user, "virtual_bots_clear_confirm_menu", question)
         self._user_states[user.username] = {"menu": "virtual_bots_clear_confirm_menu"}
 
     # ==================== Menu Selection Handlers ====================
@@ -820,6 +773,9 @@ class AdministrationMixin:
                 # Update the user's approved status so they can now interact
                 waiting_user.set_approved(True)
 
+                # Broadcast online presence now that the user is approved
+                self._broadcast_login_presence(waiting_user)
+
                 waiting_state = self._user_states.get(username, {})
                 if waiting_state.get("menu") == "main_menu":
                     # User is online and waiting - welcome them and show full main menu
@@ -866,6 +822,7 @@ class AdministrationMixin:
                     "reconnect": False,
                     "show_message": True,
                     "return_to_login": True,
+                    "message": full_message,
                 })
 
         self._show_account_approval_menu(admin)
@@ -1046,6 +1003,7 @@ class AdministrationMixin:
                 "type": "disconnect",
                 "reconnect": False,
                 "show_message": True,
+                "message": full_message,
             })
 
         self._show_ban_user_menu(admin)
@@ -1107,7 +1065,7 @@ class AdministrationMixin:
 
         bots_cleared, tables_killed = self._virtual_bots.clear_bots()
         if bots_cleared > 0:
-            owner.speak_l( 
+            owner.speak_l(
                 "virtual-bots-cleared",
                 bots=bots_cleared,
                 tables=tables_killed,
@@ -1127,7 +1085,7 @@ class AdministrationMixin:
             return
 
         status = self._virtual_bots.get_status()
-        owner.speak_l( 
+        owner.speak_l(
             "virtual-bots-status-report",
             total=status["total"],
             online=status["online"],

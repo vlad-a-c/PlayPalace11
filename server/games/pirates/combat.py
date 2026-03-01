@@ -92,7 +92,7 @@ def do_attack(
         CombatResult with the outcome
     """
     # Play cannon sound
-    sound_num = random.randint(1, 3)
+    sound_num = random.randint(1, 3)  # nosec B311
     game.play_sound(f"game_pirates/cannon{sound_num}.ogg", volume=60)
 
     # Announce attack
@@ -100,9 +100,13 @@ def do_attack(
     defender_user = game.get_user(defender)
 
     if attacker_user:
-        attacker_user.speak_l("pirates-attack-you-fire", target=defender.name)
+        attacker_user.speak_l(
+            "pirates-attack-you-fire", target=defender.name, buffer="table"
+        )
     if defender_user:
-        defender_user.speak_l("pirates-attack-incoming", attacker=attacker.name)
+        defender_user.speak_l(
+            "pirates-attack-incoming", attacker=attacker.name, buffer="table"
+        )
     game.broadcast_l(
         "pirates-attack-fired",
         attacker=attacker.name,
@@ -115,7 +119,7 @@ def do_attack(
     defense_bonus = skills.get_defense_bonus(defender)
 
     # Roll attack
-    attack_roll = random.randint(1, 6)
+    attack_roll = random.randint(1, 6)  # nosec B311
     game.broadcast_l("pirates-attack-roll", roll=attack_roll)
 
     if attack_bonus > 0:
@@ -123,9 +127,9 @@ def do_attack(
         attack_roll += attack_bonus
 
     # Roll defense
-    defense_roll = random.randint(1, 6)
+    defense_roll = random.randint(1, 6)  # nosec B311
     if defender_user:
-        defender_user.speak_l("pirates-defense-roll", roll=defense_roll)
+        defender_user.speak_l("pirates-defense-roll", roll=defense_roll, buffer="table")
     game.broadcast_l("pirates-defense-roll-others", player=defender.name, roll=defense_roll, exclude=defender)
 
     if defense_bonus > 0:
@@ -140,13 +144,17 @@ def do_attack(
 
     if hit:
         # Hit!
-        sound_num = random.randint(1, 3)
+        sound_num = random.randint(1, 3)  # nosec B311
         game.play_sound(f"game_pirates/cannonhit{sound_num}.ogg", volume=70)
 
         if attacker_user:
-            attacker_user.speak_l("pirates-attack-hit-you", target=defender.name)
+            attacker_user.speak_l(
+                "pirates-attack-hit-you", target=defender.name, buffer="table"
+            )
         if defender_user:
-            defender_user.speak_l("pirates-attack-hit-them", attacker=attacker.name)
+            defender_user.speak_l(
+                "pirates-attack-hit-them", attacker=attacker.name, buffer="table"
+            )
         game.broadcast_l(
             "pirates-attack-hit",
             attacker=attacker.name,
@@ -155,7 +163,7 @@ def do_attack(
         )
 
         # Give XP to attacker
-        xp_gain = random.randint(50, 150)
+        xp_gain = random.randint(50, 150)  # nosec B311
         attacker.leveling.give_xp(
             game, attacker.name, xp_gain, moon_mult, global_xp_multiplier
         )
@@ -178,9 +186,11 @@ def do_attack(
     else:
         # Miss!
         if attacker_user:
-            attacker_user.speak_l("pirates-attack-miss-you", target=defender.name)
+            attacker_user.speak_l(
+                "pirates-attack-miss-you", target=defender.name, buffer="table"
+            )
         if defender_user:
-            defender_user.speak_l("pirates-attack-miss-them")
+            defender_user.speak_l("pirates-attack-miss-them", buffer="table")
         game.broadcast_l(
             "pirates-attack-miss",
             attacker=attacker.name,
@@ -189,7 +199,7 @@ def do_attack(
         )
 
         # Give XP to defender for successful defense
-        xp_gain = random.randint(30, 100)
+        xp_gain = random.randint(30, 100)  # nosec B311
         defender.leveling.give_xp(
             game, defender.name, xp_gain, moon_mult, global_xp_multiplier
         )
@@ -247,7 +257,7 @@ def _handle_boarding(
             return
 
     # Bot or timeout - random push
-    direction = random.choice(["left", "right"])
+    direction = random.choice(["left", "right"])  # nosec B311
     _push_defender(game, attacker, defender, direction)
 
 
@@ -258,7 +268,7 @@ def _push_defender(
     direction: str
 ) -> None:
     """Push the defender in the specified direction."""
-    push_amount = random.randint(3, 8)
+    push_amount = random.randint(3, 8)  # nosec B311
     if direction == "left":
         push_amount = -push_amount
 
@@ -273,14 +283,16 @@ def _push_defender(
             "pirates-push-you",
             target=defender.name,
             direction=direction,
-            position=defender.position
+            position=defender.position,
+            buffer="table",
         )
     if defender_user:
         defender_user.speak_l(
             "pirates-push-them",
             attacker=attacker.name,
             direction=direction,
-            position=defender.position
+            position=defender.position,
+            buffer="table",
         )
     game.broadcast_l(
         "pirates-push",
@@ -315,8 +327,8 @@ def _attempt_gem_steal(
     """
     game.broadcast_l("pirates-steal-attempt", attacker=attacker.name)
 
-    steal_roll = random.randint(1, 6) + attack_bonus
-    defend_roll = random.randint(1, 6) + defense_bonus
+    steal_roll = random.randint(1, 6) + attack_bonus  # nosec B311
+    defend_roll = random.randint(1, 6) + defense_bonus  # nosec B311
 
     game.broadcast_l(
         "pirates-steal-rolls",
@@ -326,7 +338,7 @@ def _attempt_gem_steal(
 
     if steal_roll > defend_roll:
         # Successful steal
-        stolen_index = random.randint(0, len(defender.gems) - 1)
+        stolen_index = random.randint(0, len(defender.gems) - 1)  # nosec B311
         stolen_gem = defender.remove_gem(stolen_index)
         if stolen_gem is not None:
             gem_value = gems.get_gem_value(stolen_gem)
@@ -336,7 +348,7 @@ def _attempt_gem_steal(
             defender.recalculate_score(gems.get_gem_value)
 
             # Play steal sound
-            sound_num = random.randint(1, 2)
+            sound_num = random.randint(1, 2)  # nosec B311
             game.play_sound(f"game_pirates/stealgem{sound_num}.ogg", volume=70)
 
             gem_name = gems.get_gem_name(stolen_gem)
@@ -347,13 +359,15 @@ def _attempt_gem_steal(
                 attacker_user.speak_l(
                     "pirates-steal-success-you",
                     gem=gem_name,
-                    target=defender.name
+                    target=defender.name,
+                    buffer="table",
                 )
             if defender_user:
                 defender_user.speak_l(
                     "pirates-steal-success-them",
                     gem=gem_name,
-                    attacker=attacker.name
+                    attacker=attacker.name,
+                    buffer="table",
                 )
             game.broadcast_l(
                 "pirates-steal-success",

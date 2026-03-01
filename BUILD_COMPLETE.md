@@ -9,13 +9,13 @@
 
 ### Start Server
 ```bash
-./run_server.sh
+./scripts/run_server.sh
 ```
 Server starts on `ws://0.0.0.0:8000` by default.
 
 ### Start Client
 ```bash
-./run_client.sh
+./scripts/run_client.sh
 ```
 Client starts in silent mode (no sound effects). All features work normally.
 
@@ -23,14 +23,15 @@ Client starts in silent mode (no sound effects). All features work normally.
 
 ### Distribution Packages
 - `server/dist/playpalace_server-11.0.0-py3-none-any.whl` (637 KB)
-- `client/dist/playpalace_client-11.0.0-py3-none-any.whl` (53 MB)
+- `clients/desktop/dist/playpalace_client-11.0.0-py3-none-any.whl` (53 MB)
 
-### NixOS Configuration
-- `shell.nix` - Development environment with all dependencies
-- `run_server.sh` - Server launcher (uses nix-shell)
-- `run_client.sh` - Client launcher (uses nix-shell + venv)
-- `build.sh` - Rebuild distribution packages
-- `test_run.sh` - Quick verification test
+### Nix Environment
+- `flake.nix` / `flake.lock` - pinned dev environment
+- `shell.nix` - legacy entrypoint that delegates to the flake
+- `scripts/run_server.sh` - Server launcher (enters `nix develop`)
+- `scripts/run_client.sh` - Client launcher (enters `nix develop`, optional Xvfb)
+- `scripts/build.sh` - Rebuild distribution packages via the flake
+- `scripts/test_run.sh` - Quick verification test
 
 ### Documentation
 - `NIXOS_SETUP.md` - Detailed NixOS-specific instructions
@@ -40,12 +41,12 @@ Client starts in silent mode (no sound effects). All features work normally.
 
 ### Server
 - Uses `uv` for dependency management
-- All dependencies installed in nix-shell
+- All dependencies supplied by the flake devshell
 - Starts immediately (no build time)
 
 ### Client  
-- Uses system wxPython from Nix (avoids 30-min compile)
-- Creates `.venv` with other dependencies (websockets, accessible-output2, sound-lib)
+- Uses system wxPython and pinned Python deps from the flake (no ad-hoc venv)
+- Optional headless mode via `PLAYPALACE_USE_XVFB=1 ./scripts/run_client.sh`
 - Runs in silent mode when no audio device available
 - Fully functional for gameplay testing
 
@@ -61,25 +62,27 @@ The client tries to initialize BASS audio library at import time. When no audio 
 
 ```bash
 # Start server on custom port
-./run_server.sh --port 9000
+./scripts/run_server.sh --port 9000
 
 # Start server with SSL
-./run_server.sh --ssl-cert cert.pem --ssl-key key.pem
+./scripts/run_server.sh --ssl-cert cert.pem --ssl-key key.pem
 
 # Run server tests
-nix-shell --run "cd server && uv run pytest"
+nix --extra-experimental-features "nix-command flakes" \
+  develop . \
+  --command bash -c 'cd server && uv run pytest'
 
 # Rebuild packages
-./build.sh
+./scripts/build.sh
 ```
 
 ## File Locations
 
-All launcher scripts are in the root directory:
-- `/home/alek/git/PlayPalace/run_server.sh`
-- `/home/alek/git/PlayPalace/run_client.sh`
-- `/home/alek/git/PlayPalace/build.sh`
-- `/home/alek/git/PlayPalace/test_run.sh`
+All launcher scripts now live under `./scripts/`:
+- `./scripts/run_server.sh`
+- `./scripts/run_client.sh`
+- `./scripts/build.sh`
+- `./scripts/test_run.sh`
 
 ## Success Indicators
 
@@ -90,8 +93,8 @@ When everything works:
 
 ## Next Steps
 
-1. Start the server: `./run_server.sh`
-2. Start the client: `./run_client.sh`  
+1. Start the server: `./scripts/run_server.sh`
+2. Start the client: `./scripts/run_client.sh`  
 3. Connect client to `localhost:8000`
 4. Create account and play!
 

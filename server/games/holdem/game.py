@@ -22,7 +22,7 @@ from ...game_utils.poker_showdown import order_winners_by_button, format_showdow
 from ...game_utils.poker_payout import resolve_pot
 from ...game_utils import poker_log
 from ...messages.localization import Localization
-from ...ui.keybinds import KeybindState
+from server.core.ui.keybinds import KeybindState
 from .bot import bot_think
 from ...game_utils.poker_state import order_after_button
 
@@ -259,105 +259,90 @@ class HoldemGame(Game):
         action_set = super().create_standard_action_set(player)
         user = self.get_user(player)
         locale = user.locale if user else "en"
-        action_set.add(
+        local_actions = [
             Action(
                 id="check_pot",
                 label=Localization.get(locale, "poker-check-pot"),
                 handler="_action_check_pot",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_bet",
                 label=Localization.get(locale, "poker-check-bet"),
                 handler="_action_check_bet",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_min_raise",
                 label=Localization.get(locale, "poker-check-min-raise"),
                 handler="_action_check_min_raise",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_hand_players",
                 label=Localization.get(locale, "poker-check-hand-players"),
                 handler="_action_check_hand_players",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_turn_timer",
                 label=Localization.get(locale, "poker-check-turn-timer"),
                 handler="_action_check_turn_timer",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="speak_hand",
                 label=Localization.get(locale, "poker-read-hand"),
                 handler="_action_read_hand",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="speak_table",
                 label=Localization.get(locale, "poker-read-table"),
                 handler="_action_read_table",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="speak_hand_value",
                 label=Localization.get(locale, "poker-hand-value"),
                 handler="_action_read_hand_value",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_button",
                 label=Localization.get(locale, "poker-check-button"),
                 handler="_action_check_button",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_position",
                 label=Localization.get(locale, "poker-check-position"),
                 handler="_action_check_position",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
-        action_set.add(
+            ),
             Action(
                 id="check_blind_timer",
                 label=Localization.get(locale, "poker-check-blind-timer"),
                 handler="_action_check_blind_timer",
                 is_enabled="_is_check_enabled",
                 is_hidden="_is_check_hidden",
-            )
-        )
+            ),
+        ]
+        for action in reversed(local_actions):
+            action_set.add(action)
+            if action.id in action_set._order:
+                action_set._order.remove(action.id)
+            action_set._order.insert(0, action.id)
         for i in range(1, 8):
             action_set.add(
                 Action(
@@ -662,7 +647,7 @@ class HoldemGame(Game):
             return
         self.announce_turn(turn_sound="game_3cardpoker/turn.ogg")
         if p.is_bot:
-            BotHelper.jolt_bot(p, ticks=random.randint(30, 50))
+            BotHelper.jolt_bot(p, ticks=random.randint(30, 50))  # nosec B311
         self._start_turn_timer()
         self.rebuild_all_menus()
 
@@ -897,7 +882,7 @@ class HoldemGame(Game):
         amount = self.pot_manager.total_pot()
         if isinstance(winner, HoldemPlayer):
             winner.chips += amount
-        self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))
+        self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))  # nosec B311
         self.broadcast_l("poker-player-wins-pot", player=winner.name, amount=amount)
         self._sync_team_scores()
         self._advance_blind_level()
@@ -932,7 +917,7 @@ class HoldemGame(Game):
                 winner = winners[0]
                 cards = read_cards(winner.hand, "en")
                 if pot_index == 0 or len(pot.eligible_player_ids) <= 1:
-                    self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))
+                    self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))  # nosec B311
                     self.broadcast_l(
                         "poker-player-wins-pot-hand",
                         player=winner.name,
@@ -941,7 +926,7 @@ class HoldemGame(Game):
                         hand=desc,
                     )
                 else:
-                    self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))
+                    self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))  # nosec B311
                     self.broadcast_l(
                         "poker-player-wins-side-pot-hand",
                         player=winner.name,
@@ -952,7 +937,7 @@ class HoldemGame(Game):
                     )
             else:
                 names = ", ".join(w.name for w in winners)
-                self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))
+                self.play_sound(random.choice(["game_blackjack/win1.ogg", "game_blackjack/win2.ogg", "game_blackjack/win3.ogg"]))  # nosec B311
                 if pot_index == 0:
                     self.broadcast_l("poker-players-split-pot", players=names, amount=pot.amount, hand=desc)
                 else:

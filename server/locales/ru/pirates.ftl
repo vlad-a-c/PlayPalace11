@@ -21,7 +21,7 @@ pirates-turn = Ход игрока { $player }. Позиция: { $position }.
 pirates-move-left = Плыть влево
 pirates-move-right = Плыть вправо
 pirates-move-2-left = Проплыть 2 клетки влево
-			pirates-move-2-right = Проплыть 2 клетки вправо
+pirates-move-2-right = Проплыть 2 клетки вправо
 pirates-move-3-left = Проплыть 3 клетки влево
 pirates-move-3-right = Проплыть 3 клетки вправо
 
@@ -37,6 +37,7 @@ pirates-map-edge = Вы не можете плыть дальше. Ваша по
 
 # Position and status
 pirates-check-status = Проверить статус
+pirates-check-status-detailed = Подробный статус
 pirates-check-position = Проверить позицию
 pirates-check-moon = Проверить яркость луны
 pirates-your-position = Ваша позиция: { $position } (океан: { $ocean })

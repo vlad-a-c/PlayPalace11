@@ -2,8 +2,8 @@
 name = "playpalace-server"
 version = "11.0.0"
 description = "PlayPalace v11 Game Server"
-readme = "plans/overview.md"
-requires-python = ">=3.11"
+readme = "../docs/design/plans/overview.md"
+requires-python = ">=3.13"
 dependencies = [
     "websockets>=14.0",
     "mashumaro>=3.11",
@@ -11,6 +11,7 @@ dependencies = [
     "babel>=2.14",
     "openskill>=6.1.3",
     "argon2-cffi>=23.1",
+    "pydantic>=2.0",
 ]
 
 [project.optional-dependencies]
@@ -44,3 +45,6 @@ filterwarnings = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
+[tool.hatch.build.targets.wheel.force-include]
+"locales" = "server/locales"
+"../clients/desktop/sounds" = "server/audio"

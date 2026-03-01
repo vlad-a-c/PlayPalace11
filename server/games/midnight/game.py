@@ -19,7 +19,7 @@ from ...game_utils.dice_game_mixin import DiceGameMixin
 from ...game_utils.game_result import GameResult, PlayerResult
 from ...game_utils.options import IntOption, option_field
 from ...messages.localization import Localization
-from ...ui.keybinds import KeybindState
+from server.core.ui.keybinds import KeybindState
 
 
 @dataclass
@@ -165,6 +165,8 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
         # Must keep at least one die per roll (except first roll)
         if midnight_player.dice.has_rolled and midnight_player.dice.kept_unlocked_count == 0:
             return "midnight-must-keep-one"
+        if midnight_player.dice.has_rolled and midnight_player.dice.all_decided:
+            return "action-not-available"
         if midnight_player.dice.unlocked_count == 0:
             return "midnight-no-dice-to-keep"
         return None
@@ -172,13 +174,28 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
     def _is_roll_hidden(self, player: Player) -> Visibility:
         """Roll is visible during play for current player."""
         midnight_player: MidnightPlayer = player  # type: ignore
+        can_reroll = not (
+            midnight_player.dice.has_rolled and midnight_player.dice.all_decided
+        )
         return self.turn_action_visibility(
-            player, extra_condition=midnight_player.dice.unlocked_count > 0
+            player, extra_condition=midnight_player.dice.unlocked_count > 0 and can_reroll
         )
 
     def _action_roll(self, player: Player, action_id: str) -> None:
         """Handle roll action."""
         midnight_player: MidnightPlayer = player  # type: ignore
+
+        had_rolled = midnight_player.dice.has_rolled
+        locked_before = set(midnight_player.dice.locked)
+        kept_before = set(midnight_player.dice.kept)
+        if had_rolled:
+            rolled_indices = [
+                i
+                for i in range(midnight_player.dice.num_dice)
+                if i not in locked_before and i not in kept_before
+            ]
+        else:
+            rolled_indices = list(range(midnight_player.dice.num_dice))
 
         self.play_sound("game_pig/roll.ogg")
 
@@ -186,8 +203,10 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
         midnight_player.dice.roll(lock_kept=True, clear_kept=True)
         self._apply_dice_values_defaults(midnight_player)
 
-        # Format roll results
-        result_text = ", ".join(str(v) for v in midnight_player.dice.values)
+        # Format rerolled dice only (first roll announces all dice).
+        result_text = ", ".join(
+            str(midnight_player.dice.values[i]) for i in rolled_indices
+        )
 
         # Announce results
         self.broadcast_personal_l(
@@ -201,7 +220,7 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
 
         # Give bot time to think about next action
         if player.is_bot:
-            BotHelper.jolt_bot(player, ticks=random.randint(10, 20))
+            BotHelper.jolt_bot(player, ticks=random.randint(10, 20))  # nosec B311
 
         self.rebuild_all_menus()
 
@@ -275,7 +294,7 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
             )
 
         # Jolt all bots to pause for the turn change
-        BotHelper.jolt_bots(self, ticks=random.randint(20, 30))
+        BotHelper.jolt_bots(self, ticks=random.randint(20, 30))  # nosec B311
 
         self._on_turn_end()
 
@@ -341,6 +360,11 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
         active_players = self.get_active_players()
         self.set_turn_players(active_players)
 
+        # Set up TeamManager for score tracking (round wins)
+        self._team_manager.team_mode = "individual"
+        self._team_manager.setup_teams([p.name for p in active_players])
+        self._team_manager.reset_all_scores()
+
         # Reset player state
         for player in active_players:
             player.dice.reset()
@@ -405,27 +429,40 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
 
     def bot_think(self, player: MidnightPlayer) -> str | None:
         """Bot AI decision making. Called by BotHelper."""
-        # Strategy: Keep 1 and 4 first, then keep highest dice
+        if self._should_bot_roll(player):
+            return "roll"
+
+        decision = self._bot_lock_target_value(player, 1)
+        if decision:
+            return decision
+
+        decision = self._bot_lock_target_value(player, 4)
+        if decision:
+            return decision
+
+        decision = self._bot_lock_highest_available(player)
+        if decision:
+            return decision
+
+        return self._bot_finalize_turn(player)
+
+    def _should_bot_roll(self, player: MidnightPlayer) -> bool:
         if not player.dice.has_rolled:
-            return "roll"
-
-        # If we have kept dice but haven't rolled yet to lock them, roll
+            return True
         if player.dice.kept_unlocked_count > 0:
-            return "roll"
+            return True
+        return False
 
-        # Look for 1 if we don't have one locked yet
-        if 1 not in [player.dice.values[i] for i in player.dice.locked]:
-            for i in range(6):
-                if not player.dice.is_locked(i) and player.dice.values[i] == 1:
-                    return f"toggle_die_{i}"
+    def _bot_lock_target_value(self, player: MidnightPlayer, target: int) -> str | None:
+        locked_values = [player.dice.values[i] for i in player.dice.locked]
+        if target in locked_values:
+            return None
+        for i in range(6):
+            if not player.dice.is_locked(i) and player.dice.values[i] == target:
+                return f"toggle_die_{i}"
+        return None
 
-        # Look for 4 if we don't have one locked yet
-        if 4 not in [player.dice.values[i] for i in player.dice.locked]:
-            for i in range(6):
-                if not player.dice.is_locked(i) and player.dice.values[i] == 4:
-                    return f"toggle_die_{i}"
-
-        # Keep highest available die
+    def _bot_lock_highest_available(self, player: MidnightPlayer) -> str | None:
         best_index = -1
         best_value = 0
         for i in range(6):
@@ -433,22 +470,18 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
                 if player.dice.values[i] > best_value:
                     best_value = player.dice.values[i]
                     best_index = i
-
         if best_index >= 0:
             return f"toggle_die_{best_index}"
+        return None
 
-        # No more dice to keep - decide whether to roll or stop
-        # If we have both 1 and 4 locked, we can stop
+    def _bot_finalize_turn(self, player: MidnightPlayer) -> str:
         locked_values = [player.dice.values[i] for i in player.dice.locked]
         has_one = 1 in locked_values
         has_four = 4 in locked_values
 
         if has_one and has_four:
-            # We have what we need, bank to lock in score
             return "bank"
 
-        # Still missing 1 or 4, keep trying (but can't roll if kept_unlocked_count is 0)
-        # In this case, bank anyway to avoid getting stuck
         if player.dice.kept_unlocked_count == 0:
             return "bank"
 
@@ -482,6 +515,7 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
                 # Single round winner
                 winner = winners[0]
                 winner.round_wins += 1
+                self._team_manager.add_to_team_score(winner.name, 1)
                 self.play_sound("game_pig/bank.ogg")
                 self.broadcast_l(
                     "midnight-round-winner", player=winner.name
@@ -492,6 +526,7 @@ class MidnightGame(ActionGuardMixin, Game, DiceGameMixin):
                 # Each tied player gets a win
                 for w in winners:
                     w.round_wins += 1
+                    self._team_manager.add_to_team_score(w.name, 1)
                 for player in self.players:
                     user = self.get_user(player)
                     if user:

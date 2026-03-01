@@ -3,6 +3,7 @@
 # Game categories
 category-card-games = Card Games
 category-dice-games = Dice Games
+category-board-games = Board Games
 category-rb-play-center = RB Play Center
 category-poker = Poker
 category-uncategorized = Uncategorized
@@ -19,7 +20,6 @@ view-active-tables = View active tables
 options = Options
 logout = Logout
 back = Back
-go-back = Go back
 context-menu = Context menu.
 no-actions-available = No actions available.
 create-table = Create a new table
@@ -84,6 +84,8 @@ language = Language
 language-option = Language: { $language }
 language-changed = Language set to { $language }.
 
+fluent-languages-option = Fluent languages ({ $count })
+
 # Boolean option states
 option-on = On
 option-off = Off
@@ -131,7 +133,7 @@ action-not-playing = The game hasn't started.
 action-spectator = Spectators cannot do this.
 action-not-host = Only the host can do this.
 action-game-in-progress = Cannot do this while the game is in progress.
-action-need-more-players = Need more players to start.
+action-need-more-players = Need at least { $min_players } players to start.
 action-table-full = The table is full.
 action-no-bots = There are no bots to remove.
 action-bots-cannot = Bots cannot do this.
@@ -233,6 +235,7 @@ predict-unavailable = Rating predictions are not available.
 predict-need-players = Need at least 2 human players for predictions.
 action-need-more-humans = Need more human players.
 confirm-leave-game = Are you sure you want to leave the table?
+confirm-logout = Are you sure you want to log out?
 confirm-yes = Yes
 confirm-no = No
 
@@ -353,3 +356,13 @@ virtual-bots-profiles-header = Profiles: { $count } defined (default: { $default
 virtual-bots-profiles-empty = No profiles are defined.
 virtual-bots-profiles-line = { $profile } ({ $bot_count } bots) overrides: { $overrides }.
 virtual-bots-profiles-no-overrides = inherits base configuration
+
+# Documents
+documents = Documents
+documents-menu-title = Documents System
+documents-all = All documents
+documents-uncategorized = Uncategorized documents
+documents-no-documents = No documents found.
+documents-no-content = No content available for this document.
+
+localization-in-progress-try-again = Localization in progress. Please try again in a minute.

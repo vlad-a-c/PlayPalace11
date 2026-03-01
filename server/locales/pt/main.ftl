@@ -3,6 +3,7 @@
 # Categorias de jogos
 category-card-games = Jogos de Cartas
 category-dice-games = Jogos de Dados
+category-board-games = Jogos de Tabuleiro
 category-rb-play-center = RB Play Center
 category-poker = Pôquer
 category-uncategorized = Sem Categoria
@@ -292,3 +293,5 @@ virtual-bots-profiles-header = Profiles: { $count } defined (default: { $default
 virtual-bots-profiles-empty = No profiles are defined.
 virtual-bots-profiles-line = { $profile } ({ $bot_count } bots) overrides: { $overrides }.
 virtual-bots-profiles-no-overrides = inherits base configuration
+
+localization-in-progress-try-again = A localização está em andamento. Tente novamente em um minuto.

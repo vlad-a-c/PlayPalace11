@@ -18,7 +18,7 @@ from ...game_utils.bot_helper import BotHelper
 from ...game_utils.game_result import GameResult, PlayerResult
 from ...game_utils.options import GameOptions, FloatOption, MenuOption, option_field
 from ...messages.localization import Localization
-from ...ui.keybinds import KeybindState
+from server.core.ui.keybinds import KeybindState
 
 from .player import PiratesPlayer
 from . import gems
@@ -173,6 +173,7 @@ class PiratesGame(Game):
                 handler="_action_move_left",
                 is_enabled="_is_move_enabled",
                 is_hidden="_is_move_hidden",
+                show_in_actions_menu=False,
             )
         )
         action_set.add(
@@ -182,6 +183,7 @@ class PiratesGame(Game):
                 handler="_action_move_right",
                 is_enabled="_is_move_enabled",
                 is_hidden="_is_move_hidden",
+                show_in_actions_menu=False,
             )
         )
 
@@ -193,6 +195,7 @@ class PiratesGame(Game):
                 handler="_action_move_2_left",
                 is_enabled="_is_move_2_enabled",
                 is_hidden="_is_move_2_hidden",
+                show_in_actions_menu=False,
             )
         )
         action_set.add(
@@ -202,6 +205,7 @@ class PiratesGame(Game):
                 handler="_action_move_2_right",
                 is_enabled="_is_move_2_enabled",
                 is_hidden="_is_move_2_hidden",
+                show_in_actions_menu=False,
             )
         )
 
@@ -213,6 +217,7 @@ class PiratesGame(Game):
                 handler="_action_move_3_left",
                 is_enabled="_is_move_3_enabled",
                 is_hidden="_is_move_3_hidden",
+                show_in_actions_menu=False,
             )
         )
         action_set.add(
@@ -222,6 +227,7 @@ class PiratesGame(Game):
                 handler="_action_move_3_right",
                 is_enabled="_is_move_3_enabled",
                 is_hidden="_is_move_3_hidden",
+                show_in_actions_menu=False,
             )
         )
 
@@ -251,7 +257,7 @@ class PiratesGame(Game):
             )
         )
 
-        # Status actions
+        # Status actions (keybind only)
         action_set.add(
             Action(
                 id="check_moon",
@@ -267,7 +273,7 @@ class PiratesGame(Game):
                 label=Localization.get(locale, "pirates-check-position"),
                 handler="_action_check_position",
                 is_enabled="_is_status_enabled",
-                is_hidden="_is_always_hidden",  # Always hidden, keybind only
+                is_hidden="_is_status_hidden",
             )
         )
         action_set.add(
@@ -279,12 +285,34 @@ class PiratesGame(Game):
                 is_hidden="_is_status_hidden",
             )
         )
+        return action_set
 
+    def create_standard_action_set(self, player: Player) -> ActionSet:
+        """Create the standard action set and add detailed status."""
+        action_set = super().create_standard_action_set(player)
+        user = self.get_user(player)
+        locale = user.locale if user else "en"
+        action = Action(
+            id="check_status_detailed",
+            label=Localization.get(locale, "pirates-check-status-detailed"),
+            handler="_action_check_status_detailed",
+            is_enabled="_is_status_enabled",
+            is_hidden="_is_always_hidden",
+        )
+        action_set.add(action)
+        if action.id in action_set._order:
+            action_set._order.remove(action.id)
+        action_set._order.insert(0, action.id)
         return action_set
 
     def setup_keybinds(self) -> None:
         """Define all keybinds for the game."""
         super().setup_keybinds()
+
+        if "s" in self._keybinds:
+            self._keybinds["s"] = []
+        if "shift+s" in self._keybinds:
+            self._keybinds["shift+s"] = []
 
         self.define_keybind(
             "p",
@@ -299,6 +327,27 @@ class PiratesGame(Game):
             ["check_moon"],
             state=KeybindState.ACTIVE,
             include_spectators=True,
+        )
+        self.define_keybind(
+            "s",
+            "Check status",
+            ["check_status"],
+            state=KeybindState.ACTIVE,
+            include_spectators=True,
+        )
+        self.define_keybind(
+            "shift+s",
+            "Detailed status",
+            ["check_status_detailed"],
+            state=KeybindState.ACTIVE,
+            include_spectators=True,
+        )
+        self.define_keybind(
+            "k",
+            "Use skill",
+            ["use_skill"],
+            state=KeybindState.ACTIVE,
+            include_spectators=False,
         )
 
     # ==========================================================================
@@ -390,13 +439,11 @@ class PiratesGame(Game):
     def _get_skill_options(self, player: Player) -> list[str]:
         """Get available skills for the skill menu."""
         if not isinstance(player, PiratesPlayer):
-            return ["Back"]
+            return []
 
         options = []
         for skill in skills.get_available_skills(player):
             options.append(skill.get_menu_label(player))
-
-        options.append("Back")
         return options
 
     def _is_status_enabled(self, player: Player) -> str | None:
@@ -408,6 +455,12 @@ class PiratesGame(Game):
         if self.status != "playing":
             return Visibility.HIDDEN
         return Visibility.VISIBLE
+
+    def _is_check_scores_hidden(self, player: Player) -> Visibility:
+        return Visibility.HIDDEN
+
+    def _is_check_scores_detailed_hidden(self, player: Player) -> Visibility:
+        return Visibility.HIDDEN
 
     def _is_moon_check_enabled(self, player: Player) -> str | None:
         if self.status != "playing":
@@ -452,7 +505,7 @@ class PiratesGame(Game):
 
         # Initialize player positions randomly
         for player in self.get_active_players():
-            player.position = random.randint(1, 40)
+            player.position = random.randint(1, 40)  # nosec B311
 
         # Initialize charted tiles
         self.charted_tiles = {i: False for i in range(1, 41)}
@@ -473,7 +526,7 @@ class PiratesGame(Game):
         self._start_round()
 
         # Jolt bots
-        BotHelper.jolt_bots(self, ticks=random.randint(10, 30))
+        BotHelper.jolt_bots(self, ticks=random.randint(10, 30))  # nosec B311
 
     def _start_round(self) -> None:
         """Start a new round."""
@@ -549,10 +602,17 @@ class PiratesGame(Game):
         else:
             self._announce_turn()
 
-        self.rebuild_all_menus()
+        # Rebuild menus, resetting focus to first item for current player
+        # (always-visible actions shift position when turn actions appear)
+        current = self.current_player
+        for p in self.players:
+            if p == current:
+                self.rebuild_player_menu(p, position=1)
+            else:
+                self.rebuild_player_menu(p)
 
         # Jolt bots
-        BotHelper.jolt_bots(self, ticks=random.randint(80, 120))
+        BotHelper.jolt_bots(self, ticks=random.randint(80, 120))  # nosec B311
 
     def _check_gem_collection(self, player: PiratesPlayer) -> None:
         """Check if player is on a gem and collect it."""
@@ -564,7 +624,7 @@ class PiratesGame(Game):
         gem_name = gems.get_gem_name(gem_type)
 
         # Play collection sound
-        sound_num = random.randint(1, 3)
+        sound_num = random.randint(1, 3)  # nosec B311
         self.play_sound(f"game_pirates/grabgem{sound_num}.ogg", volume=70)
 
         # Add gem to player
@@ -572,7 +632,12 @@ class PiratesGame(Game):
 
         user = self.get_user(player)
         if user:
-            user.speak_l("pirates-gem-found-you", gem=gem_name, value=gem_value)
+            user.speak_l(
+                "pirates-gem-found-you",
+                gem=gem_name,
+                value=gem_value,
+                buffer="table",
+            )
         self.broadcast_l(
             "pirates-gem-found",
             player=player.name,
@@ -582,7 +647,7 @@ class PiratesGame(Game):
         )
 
         # Give XP for finding gem
-        xp_gain = random.randint(150, 300)
+        xp_gain = random.randint(150, 300)  # nosec B311
         moon_mult = 3.0 if self.golden_moon_active else 1.0
         player.leveling.give_xp(
             self, player.name, xp_gain, moon_mult, self.options.find_gem_xp_multiplier
@@ -607,7 +672,7 @@ class PiratesGame(Game):
         winners = [p for p in active_players if p.score == highest_score]
 
         # If tie, pick random winner
-        winner = random.choice(winners)
+        winner = random.choice(winners)  # nosec B311
 
         self.play_sound("game_pig/win.ogg", volume=80)
         self.broadcast_l("pirates-winner", player=winner.name, score=winner.score)
@@ -694,7 +759,7 @@ class PiratesGame(Game):
             # Blocked by map edge
             user = self.get_user(player)
             if user:
-                user.speak_l("pirates-map-edge", position=old_position)
+                user.speak_l("pirates-map-edge", position=old_position, buffer="table")
             return False
 
         player.position = new_position
@@ -702,22 +767,33 @@ class PiratesGame(Game):
         # Play movement sound
         abs_amount = abs(amount)
         if abs_amount == 1:
-            sound_num = random.randint(1, 3)
+            sound_num = random.randint(1, 3)  # nosec B311
             self.play_sound(f"game_pirates/move{sound_num}.ogg", volume=60)
         elif abs_amount == 2:
-            sound_num = random.randint(1, 3)
+            sound_num = random.randint(1, 3)  # nosec B311
             self.play_sound(f"game_pirates/boat{sound_num}.ogg", volume=60)
         elif abs_amount == 3:
-            sound_num = random.randint(1, 2)
+            sound_num = random.randint(1, 2)  # nosec B311
             self.play_sound(f"game_pirates/future{sound_num}.ogg", volume=60)
 
         direction = "right" if amount > 0 else "left"
         user = self.get_user(player)
         if user:
             if abs_amount == 1:
-                user.speak_l("pirates-move-you", direction=direction, position=player.position)
+                user.speak_l(
+                    "pirates-move-you",
+                    direction=direction,
+                    position=player.position,
+                    buffer="table",
+                )
             else:
-                user.speak_l("pirates-move-you-tiles", tiles=abs_amount, direction=direction, position=player.position)
+                user.speak_l(
+                    "pirates-move-you-tiles",
+                    tiles=abs_amount,
+                    direction=direction,
+                    position=player.position,
+                    buffer="table",
+                )
 
         self.broadcast_l(
             "pirates-move",
@@ -786,9 +862,6 @@ class PiratesGame(Game):
         if not isinstance(player, PiratesPlayer):
             return
 
-        if skill_choice == "Back":
-            return
-
         # Find the skill by matching the label
         for skill in skills.get_available_skills(player):
             if skill.get_menu_label(player) == skill_choice:
@@ -800,7 +873,7 @@ class PiratesGame(Game):
                 else:
                     user = self.get_user(player)
                     if user and reason:
-                        user.speak(reason)
+                        user.speak(reason, buffer="table")
                 return
 
     # ==========================================================================
@@ -811,12 +884,26 @@ class PiratesGame(Game):
         """Show game status to the player."""
         if not isinstance(player, PiratesPlayer):
             return
+        user = self.get_user(player)
+        if not user:
+            return
 
         lines = []
         for p in self.get_active_players():
             gem_str = gems.format_gem_list(p.gems)
             lines.append(f"{p.name}: Level {p.level}, {p.xp} XP, {p.score} points, {gem_str}")
 
+        for line in lines:
+            user.speak(line)
+
+    def _action_check_status_detailed(self, player: Player, action_id: str) -> None:
+        """Show detailed status in a status box."""
+        if not isinstance(player, PiratesPlayer):
+            return
+        lines = []
+        for p in self.get_active_players():
+            gem_str = gems.format_gem_list(p.gems)
+            lines.append(f"{p.name}: Level {p.level}, {p.xp} XP, {p.score} points, {gem_str}")
         self.status_box(player, lines)
 
     def _action_check_position(self, player: Player, action_id: str) -> None:
@@ -860,7 +947,7 @@ class PiratesGame(Game):
             max_range = skills.get_attack_range(player)
             user = self.get_user(player)
             if user:
-                user.speak_l("pirates-no-targets", range=max_range)
+                user.speak_l("pirates-no-targets", range=max_range, buffer="table")
             return "continue"
 
         # For human players, show target selection menu
@@ -897,7 +984,7 @@ class PiratesGame(Game):
         if not occupied_oceans:
             user = self.get_user(player)
             if user:
-                user.speak_l("pirates-portal-no-ships")
+                user.speak_l("pirates-portal-no-ships", buffer="table")
             self.broadcast_l("pirates-portal-fizzle", player=player.name, exclude=player)
             return "continue"
 
@@ -906,7 +993,7 @@ class PiratesGame(Game):
             chosen_ocean = bot_ai.bot_select_portal_ocean(self, player, occupied_oceans)
         else:
             # For now, simplified to random selection
-            chosen_ocean = random.choice(occupied_oceans)[0]
+            chosen_ocean = random.choice(occupied_oceans)[0]  # nosec B311
 
         if chosen_ocean is None:
             return "continue"
@@ -914,12 +1001,12 @@ class PiratesGame(Game):
         # Teleport to random position in chosen ocean
         ocean_start = chosen_ocean * 10 + 1
         ocean_end = (chosen_ocean + 1) * 10
-        new_pos = random.randint(ocean_start, ocean_end)
+        new_pos = random.randint(ocean_start, ocean_end)  # nosec B311
 
         player.position = new_pos
         skill.start_cooldown(player)
 
-        sound_num = random.randint(1, 2)
+        sound_num = random.randint(1, 2)  # nosec B311
         self.play_sound(f"game_pirates/portal{sound_num}.ogg", volume=60)
 
         ocean_name = self.selected_oceans[chosen_ocean] if chosen_ocean < len(self.selected_oceans) else "Unknown"
@@ -939,18 +1026,18 @@ class PiratesGame(Game):
 
         user = self.get_user(player)
         if user:
-            user.speak_l("pirates-battleship-activated")
+            user.speak_l("pirates-battleship-activated", buffer="table")
         self.broadcast_l("pirates-skill-activated", player=player.name, skill="Battleship", exclude=player)
 
         for shot in range(1, 3):
             targets = self.get_targets_in_range(player)
             if not targets:
                 if user:
-                    user.speak_l("pirates-battleship-no-targets", shot=shot)
+                    user.speak_l("pirates-battleship-no-targets", shot=shot, buffer="table")
                 break
 
             if user:
-                user.speak_l("pirates-battleship-shot", shot=shot)
+                user.speak_l("pirates-battleship-shot", shot=shot, buffer="table")
 
             target = bot_ai.bot_select_target(self, player, targets)
             if target:

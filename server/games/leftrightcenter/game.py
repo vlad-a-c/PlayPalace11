@@ -18,7 +18,7 @@ from ...game_utils.bot_helper import BotHelper
 from ...game_utils.game_result import GameResult, PlayerResult
 from ...game_utils.options import IntOption, option_field
 from ...messages.localization import Localization
-from ...ui.keybinds import KeybindState
+from server.core.ui.keybinds import KeybindState
 
 
 DICE_FACES = ["left", "right", "center", "dot", "dot", "dot"]
@@ -146,15 +146,17 @@ class LeftRightCenterGame(ActionGuardMixin, Game):
         action_set = super().create_standard_action_set(player)
         user = self.get_user(player)
         locale = user.locale if user else "en"
-        action_set.add(
-            Action(
-                id="check_center",
-                label=Localization.get(locale, "lrc-center-pot"),
-                handler="_action_check_center",
-                is_enabled="_is_check_center_enabled",
-                is_hidden="_is_check_center_hidden",
-            )
+        action = Action(
+            id="check_center",
+            label=Localization.get(locale, "lrc-center-pot"),
+            handler="_action_check_center",
+            is_enabled="_is_check_center_enabled",
+            is_hidden="_is_check_center_hidden",
         )
+        action_set.add(action)
+        if action.id in action_set._order:
+            action_set._order.remove(action.id)
+        action_set._order.insert(0, action.id)
         return action_set
 
     # ==========================================================================
@@ -198,7 +200,7 @@ class LeftRightCenterGame(ActionGuardMixin, Game):
             self.end_turn()
             return
         if player.is_bot:
-            BotHelper.jolt_bot(player, ticks=random.randint(5, 10))
+            BotHelper.jolt_bot(player, ticks=random.randint(5, 10))  # nosec B311
 
         self.rebuild_all_menus()
 
@@ -241,7 +243,7 @@ class LeftRightCenterGame(ActionGuardMixin, Game):
             return
         self.play_sound("game_pig/roll.ogg")
 
-        faces = [random.choice(DICE_FACES) for _ in range(roll_count)]
+        faces = [random.choice(DICE_FACES) for _ in range(roll_count)]  # nosec B311
         self._broadcast_roll_results(lrc_player, faces)
 
         # Delay the chip movements slightly for pacing
@@ -366,7 +368,7 @@ class LeftRightCenterGame(ActionGuardMixin, Game):
         """End the current turn with optional delay for turn resolution."""
         current = self.current_player
         if current and current.is_bot:
-            BotHelper.jolt_bot(current, ticks=random.randint(10, 15))
+            BotHelper.jolt_bot(current, ticks=random.randint(10, 15))  # nosec B311
         if delay_ticks > 0:
             self.turn_delay_ticks = delay_ticks
             self._pending_turn_advance = True

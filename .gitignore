@@ -1,17 +1,21 @@
 *.claude
 *.pyc
 *.venv
+*.pytest_cache
 server/.ruff_cache
-server/.pytest_cache
-server/errors.log
-server/playpalace.db
+server/.cache/
 server/config.toml
+var/*
+!var/.gitkeep
 
 # PyInstaller artifacts
-client/build/
-client/dist/
-client/*.spec
+clients/desktop/build/
+clients/desktop/dist/
+clients/desktop/*.spec
 
 # Test report coverage files
 server/.coverage
 server/coverage-report.txt
+
+# Web client local deployment config
+clients/web/config.js
