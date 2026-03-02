@@ -29,6 +29,7 @@ class TranscriberRoleMixin:
         from server.core.ui.common_flows import show_language_menu
 
         all_transcribers = self._db.get_all_transcribers()
+        is_admin = user.trust_level.value >= TrustLevel.ADMIN.value
         # Count transcribers per language
         lang_counts: dict[str, int] = {}
         for langs in all_transcribers.values():
@@ -36,16 +37,31 @@ class TranscriberRoleMixin:
                 lang_counts[lang] = lang_counts.get(lang, 0) + 1
 
         status_labels = {}
-        for code in Localization.get_available_locale_codes():
-            count = lang_counts.get(code, 0)
-            key = "transcribers-language-users-one" if count == 1 else "transcribers-language-users"
-            # We only need the count part, not the full label with language name
-            label = f"({count} {'user' if count == 1 else 'users'})"
-            status_labels[code] = label
+        lang_codes = None
+        if is_admin:
+            for code in Localization.get_available_locale_codes():
+                count = lang_counts.get(code, 0)
+                label = f"({count} {'user' if count == 1 else 'users'})"
+                status_labels[code] = label
+        else:
+            # Non-admins only see languages that have at least one transcriber.
+            lang_codes = [
+                code for code in Localization.get_available_locale_codes()
+                if lang_counts.get(code, 0) > 0
+            ]
+            if not lang_codes:
+                user.speak_l("transcribers-no-transcribers")
+                self._show_documents_menu(user)
+                return
+            for code in lang_codes:
+                count = lang_counts[code]
+                label = f"({count} {'user' if count == 1 else 'users'})"
+                status_labels[code] = label
 
         if show_language_menu(
             user,
             highlight_active_locale=False,
+            lang_codes=lang_codes,
             status_labels=status_labels,
             on_select=self._on_transcribers_by_language_select,
             on_back=lambda u: self._show_documents_menu(u),
@@ -99,17 +115,10 @@ class TranscriberRoleMixin:
     ) -> None:
         """Handle selection in the transcribers-for-language menu."""
         lang_code = state.get("lang_code", "")
-        adding = state.get("adding_users", False)
         if selection_id == "back":
-            if adding:
-                self._show_transcribers_for_language(user, lang_code)
-            else:
-                self._show_transcribers_by_language(user)
+            self._show_transcribers_by_language(user)
         elif selection_id == "add_users":
             self._show_add_transcriber_users(user, lang_code)
-        elif selection_id.startswith("toggle_") and adding:
-            target_username = selection_id[7:]
-            self._toggle_transcriber_for_language(user, target_username, lang_code)
         elif selection_id.startswith("user_"):
             target_username = selection_id[5:]
             if user.trust_level.value >= TrustLevel.ADMIN.value:
@@ -151,74 +160,99 @@ class TranscriberRoleMixin:
         self._show_transcribers_for_language(user, lang_code)
 
     def _show_add_transcriber_users(
-        self, user: NetworkUser, lang_code: str
+        self, user: NetworkUser, lang_code: str,
+        enabled_users: set[str] | None = None,
+        focus_username: str | None = None,
     ) -> None:
-        """Show toggle list of eligible users to add as transcribers for a language."""
+        """Show toggle list of eligible users to add as transcribers for a language.
+
+        Only shows users who are fluent in the language but not already assigned.
+        """
         existing = set(self._db.get_transcribers_for_language(lang_code))
-        # Get all approved users (non-admin + admin) and filter by fluent languages
         all_users = self._db.get_non_admin_users() + self._db.get_admin_users()
+        if enabled_users is None:
+            enabled_users = set()
         on_label = Localization.get(user.locale, "option-on")
         off_label = Localization.get(user.locale, "option-off")
         items = []
+        focus_position = 1
         for u in sorted(all_users, key=lambda r: r.username.lower()):
             if lang_code not in u.fluent_languages:
                 continue
-            status = on_label if u.username in existing else off_label
+            if u.username in existing:
+                continue
+            status = on_label if u.username in enabled_users else off_label
             items.append(
                 MenuItem(
                     text=f"{u.username} {status}",
                     id=f"toggle_{u.username}",
                 )
             )
+            if u.username == focus_username:
+                focus_position = len(items)
         if not items:
             user.speak_l("transcribers-no-eligible-users")
             self._show_transcribers_for_language(user, lang_code)
             return
 
         items.append(
-            MenuItem(text=Localization.get(user.locale, "back"), id="back")
+            MenuItem(text=Localization.get(user.locale, "done"), id="done")
+        )
+        items.append(
+            MenuItem(text=Localization.get(user.locale, "cancel"), id="cancel")
         )
         user.show_menu(
-            "transcribers_for_language_menu",
+            "add_transcriber_users_menu",
             items,
             multiletter=True,
             escape_behavior=EscapeBehavior.SELECT_LAST,
+            position=focus_position,
         )
         self._user_states[user.username] = {
-            "menu": "transcribers_for_language_menu",
+            "menu": "add_transcriber_users_menu",
             "lang_code": lang_code,
-            "adding_users": True,
+            "enabled_users": enabled_users,
         }
 
-    def _toggle_transcriber_for_language(
-        self, user: NetworkUser, target_username: str, lang_code: str
+    async def _handle_add_transcriber_users_selection(
+        self, user: NetworkUser, selection_id: str, state: dict
     ) -> None:
-        """Toggle a user's transcriber assignment for a language."""
-        existing = self._db.get_transcribers_for_language(lang_code)
-        lang_name = Localization.get(user.locale, f"language-{lang_code}")
-        if target_username in existing:
-            self._db.remove_transcriber_assignment(target_username, lang_code)
-            user.play_sound("checkbox_list_off.wav")
-        else:
-            # Verify the user has this language in fluent_languages
-            fluent = self._db.get_user_fluent_languages(target_username)
-            if lang_code not in fluent:
+        """Handle selection in the add-transcriber-users menu."""
+        lang_code = state.get("lang_code", "")
+        enabled_users: set[str] = state.get("enabled_users", set())
+        if selection_id == "done":
+            if enabled_users:
+                lang_name = Localization.get(user.locale, f"language-{lang_code}")
+                for username in enabled_users:
+                    self._db.add_transcriber_assignment(username, lang_code)
+                users_str = ", ".join(sorted(enabled_users))
                 user.speak_l(
-                    "transcribers-not-fluent",
-                    user=target_username, language=lang_name,
+                    "transcribers-users-added",
+                    users=users_str, language=lang_name,
                 )
-                return
-            self._db.add_transcriber_assignment(target_username, lang_code)
-            user.play_sound("checkbox_list_on.wav")
-        self._show_add_transcriber_users(user, lang_code)
+            self._show_transcribers_for_language(user, lang_code)
+        elif selection_id == "cancel":
+            self._show_transcribers_for_language(user, lang_code)
+        elif selection_id.startswith("toggle_"):
+            target_username = selection_id[7:]
+            if target_username in enabled_users:
+                enabled_users.discard(target_username)
+                user.play_sound("checkbox_list_off.wav")
+            else:
+                enabled_users.add(target_username)
+                user.play_sound("checkbox_list_on.wav")
+            self._show_add_transcriber_users(
+                user, lang_code, enabled_users, focus_username=target_username,
+            )
 
     # -- Transcribers by user --
 
     def _show_transcribers_by_user(self, user: NetworkUser) -> None:
         """Show list of transcriber users with language counts."""
         all_transcribers = self._db.get_all_transcribers()
+        is_admin = user.trust_level.value >= TrustLevel.ADMIN.value
 
-        if not all_transcribers and user.trust_level.value < TrustLevel.ADMIN.value:
+        if not all_transcribers and not is_admin:
             user.speak_l("transcribers-no-transcribers")
             self._show_documents_menu(user)
             return
@@ -229,6 +263,13 @@ class TranscriberRoleMixin:
             label = f"{username} ({count} {'language' if count == 1 else 'languages'})"
             items.append(MenuItem(text=label, id=f"user_{username}"))
 
+        if is_admin:
+            items.append(
+                MenuItem(
+                    text=Localization.get(user.locale, "transcribers-add-user"),
+                    id="add_user",
+                )
+            )
         items.append(
             MenuItem(text=Localization.get(user.locale, "back"), id="back")
         )
@@ -246,9 +287,52 @@ class TranscriberRoleMixin:
         """Handle selection in transcribers-by-user menu."""
         if selection_id == "back":
             self._show_documents_menu(user)
+        elif selection_id == "add_user":
+            self._show_add_transcriber_user_picker(user)
         elif selection_id.startswith("user_"):
             target_username = selection_id[5:]
             self._show_transcriber_user_languages(user, target_username)
+
+    def _show_add_transcriber_user_picker(self, user: NetworkUser) -> None:
+        """Show list of users who are not yet transcribers to pick one to add."""
+        all_transcribers = self._db.get_all_transcribers()
+        existing_usernames = set(all_transcribers.keys())
+        all_users = self._db.get_non_admin_users() + self._db.get_admin_users()
+        items = []
+        for u in sorted(all_users, key=lambda r: r.username.lower()):
+            if u.username in existing_usernames:
+                continue
+            if not u.fluent_languages:
+                continue
+            items.append(MenuItem(text=u.username, id=f"pick_{u.username}"))
+        if not items:
+            user.speak_l("transcribers-no-users-to-add")
+            self._show_transcribers_by_user(user)
+            return
+        items.append(
+            MenuItem(text=Localization.get(user.locale, "back"), id="back")
+        )
+        user.show_menu(
+            "add_transcriber_user_picker_menu",
+            items,
+            multiletter=True,
+            escape_behavior=EscapeBehavior.SELECT_LAST,
+        )
+        self._user_states[user.username] = {
+            "menu": "add_transcriber_user_picker_menu",
+        }
+
+    async def _handle_add_transcriber_user_picker_selection(
+        self, user: NetworkUser, selection_id: str, state: dict
+    ) -> None:
+        """Handle selection in the add-transcriber user picker."""
+        if selection_id == "back":
+            self._show_transcribers_by_user(user)
+        elif selection_id.startswith("pick_"):
+            target_username = selection_id[5:]
+            self._show_add_transcriber_languages(
+                user, target_username, from_user_list=True,
+            )
 
     def _show_transcriber_user_languages(
         self, user: NetworkUser, target_username: str
@@ -271,6 +355,12 @@ class TranscriberRoleMixin:
                 MenuItem(
                     text=Localization.get(user.locale, "transcribers-add-languages"),
                     id="add_languages",
+                )
+            )
+            items.append(
+                MenuItem(
+                    text=Localization.get(user.locale, "transcribers-remove-transcriber"),
+                    id="remove_transcriber",
                 )
             )
         items.append(
@@ -296,6 +386,8 @@ class TranscriberRoleMixin:
             self._show_transcribers_by_user(user)
         elif selection_id == "add_languages":
             self._show_add_transcriber_languages(user, target_username)
+        elif selection_id == "remove_transcriber":
+            self._show_transcriber_remove_all_confirm(user, target_username)
         elif selection_id.startswith("lang_"):
             lang_code = selection_id[5:]
             if user.trust_level.value >= TrustLevel.ADMIN.value:
@@ -336,8 +428,37 @@ class TranscriberRoleMixin:
             )
         self._show_transcriber_user_languages(user, target_username)
 
-    def _show_add_transcriber_languages(
+    def _show_transcriber_remove_all_confirm(
         self, user: NetworkUser, target_username: str
+    ) -> None:
+        """Ask admin to confirm removing all transcriber assignments from a user."""
+        from server.core.ui.common_flows import show_yes_no_menu
+
+        question = Localization.get(
+            user.locale, "transcribers-remove-all-confirm",
+            user=target_username,
+        )
+        show_yes_no_menu(user, "transcriber_remove_all_confirm", question)
+        self._user_states[user.username] = {
+            "menu": "transcriber_remove_all_confirm",
+            "target_username": target_username,
+        }
+
+    async def _handle_transcriber_remove_all_confirm(
+        self, user: NetworkUser, selection_id: str, state: dict
+    ) -> None:
+        """Handle removal of all transcriber assignments."""
+        target_username = state.get("target_username", "")
+        if selection_id == "yes":
+            lang_codes = self._db.get_transcriber_languages(target_username)
+            for lang_code in lang_codes:
+                self._db.remove_transcriber_assignment(target_username, lang_code)
+            user.speak_l("transcribers-removed-all", user=target_username)
+        self._show_transcribers_by_user(user)
+
+    def _show_add_transcriber_languages(
+        self, user: NetworkUser, target_username: str,
+        from_user_list: bool = False,
     ) -> None:
         """Show language menu filtered to the user's unassigned fluent languages."""
         from server.core.ui.common_flows import show_language_menu
@@ -348,36 +469,47 @@ class TranscriberRoleMixin:
 
         if not available:
             user.speak_l("transcribers-no-eligible-languages")
-            self._show_transcriber_user_languages(user, target_username)
+            if from_user_list:
+                self._show_transcribers_by_user(user)
+            else:
+                self._show_transcriber_user_languages(user, target_username)
             return
 
-        on_label = Localization.get(user.locale, "option-on")
-        off_label = Localization.get(user.locale, "option-off")
-        # All shown languages are currently off (not assigned)
-        status_labels = {code: off_label for code in available}
+        def on_done(u: NetworkUser, selected: set[str]) -> None:
+            if selected:
+                for lang_code in selected:
+                    self._db.add_transcriber_assignment(target_username, lang_code)
+                lang_names = [
+                    Localization.get(u.locale, f"language-{code}")
+                    for code in selected
+                ]
+                langs_str = ", ".join(sorted(lang_names))
+                u.speak_l(
+                    "transcribers-languages-added",
+                    user=target_username, languages=langs_str,
+                )
+            if from_user_list:
+                self._show_transcribers_by_user(u)
+            else:
+                self._show_transcriber_user_languages(u, target_username)
+
+        def on_cancel(u: NetworkUser) -> None:
+            if from_user_list:
+                self._show_transcribers_by_user(u)
+            else:
+                self._show_transcriber_user_languages(u, target_username)
 
         if show_language_menu(
             user,
             highlight_active_locale=False,
+            multi_select=True,
             lang_codes=available,
-            status_labels=status_labels,
-            on_select=lambda u, lc: self._toggle_transcriber_language_for_user(u, target_username, lc),
-            on_back=lambda u: self._show_transcriber_user_languages(u, target_username),
+            selected=set(),
+            on_done=on_done,
+            on_cancel=on_cancel,
         ):
             self._user_states[user.username] = {
                 "menu": "language_menu",
                 "target_username": target_username,
+                "from_user_list": from_user_list,
             }
-
-    def _toggle_transcriber_language_for_user(
-        self, user: NetworkUser, target_username: str, lang_code: str
-    ) -> None:
-        """Toggle a language assignment for a transcriber user."""
-        assigned = self._db.get_transcriber_languages(target_username)
-        if lang_code in assigned:
-            self._db.remove_transcriber_assignment(target_username, lang_code)
-            user.play_sound("checkbox_list_off.wav")
-        else:
-            self._db.add_transcriber_assignment(target_username, lang_code)
-            user.play_sound("checkbox_list_on.wav")
-        self._show_add_transcriber_languages(user, target_username)

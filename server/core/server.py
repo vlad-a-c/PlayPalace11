@@ -1890,9 +1890,12 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
             "documents_list_menu": (self._handle_documents_list_selection, (user, selection_id, state)),
             "transcribers_for_language_menu": (self._handle_transcribers_for_language_selection, (user, selection_id, state)),
             "transcriber_remove_confirm": (self._handle_transcriber_remove_confirm, (user, selection_id, state)),
+            "add_transcriber_users_menu": (self._handle_add_transcriber_users_selection, (user, selection_id, state)),
             "transcribers_by_user_menu": (self._handle_transcribers_by_user_selection, (user, selection_id, state)),
+            "add_transcriber_user_picker_menu": (self._handle_add_transcriber_user_picker_selection, (user, selection_id, state)),
             "transcriber_user_languages_menu": (self._handle_transcriber_user_languages_selection, (user, selection_id, state)),
             "transcriber_remove_lang_confirm": (self._handle_transcriber_remove_lang_confirm, (user, selection_id, state)),
+            "transcriber_remove_all_confirm": (self._handle_transcriber_remove_all_confirm, (user, selection_id, state)),
             "online_users": (self._restore_previous_menu, (user, state)),
             "admin_menu": (self._handle_admin_menu_selection, (user, selection_id)),
             "account_approval_menu": (self._handle_account_approval_selection, (user, selection_id)),
@@ -2038,9 +2041,7 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
         elif selection_id == "back":
             self._show_main_menu(user)
 
-    def _show_fluent_languages_menu(
-        self, user: NetworkUser, focus_lang: str | None = None
-    ) -> None:
+    def _show_fluent_languages_menu(self, user: NetworkUser) -> None:
         """Show fluent languages toggle menu."""
         if self._is_localization_warmup_active():
             self._notify_localization_in_progress(user)
@@ -2049,34 +2050,28 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
 
         from server.core.ui.common_flows import show_language_menu
 
-        on_label = Localization.get(user.locale, "option-on")
-        off_label = Localization.get(user.locale, "option-off")
-        status_labels = {
-            code: on_label if code in user.fluent_languages else off_label
-            for code in Localization.get_available_locale_codes()
-        }
+        original = list(user.fluent_languages)
+
+        def on_done(u: NetworkUser, selected: set[str]) -> None:
+            u.fluent_languages[:] = list(selected)
+            self._db.set_user_fluent_languages(u.username, u.fluent_languages)
+            self._show_options_menu(u)
+
+        def on_cancel(u: NetworkUser) -> None:
+            u.fluent_languages[:] = original
+            self._show_options_menu(u)
+
         if show_language_menu(
             user,
             highlight_active_locale=False,
-            status_labels=status_labels,
-            focus_lang=focus_lang,
-            on_select=self._toggle_fluent_language,
-            on_back=lambda u: self._show_options_menu(u),
+            multi_select=True,
+            selected=set(user.fluent_languages),
+            on_done=on_done,
+            on_cancel=on_cancel,
         ):
             self._user_states[user.username] = {"menu": "language_menu"}
         else:
             self._show_options_menu(user)
-
-    async def _toggle_fluent_language(self, user: NetworkUser, lang_code: str) -> None:
-        """Toggle a language in the user's fluent languages list."""
-        if lang_code in user.fluent_languages:
-            user.fluent_languages.remove(lang_code)
-            user.play_sound("checkbox_list_off.wav")
-        else:
-            user.fluent_languages.append(lang_code)
-            user.play_sound("checkbox_list_on.wav")
-        self._db.set_user_fluent_languages(user.username, user.fluent_languages)
-        self._show_fluent_languages_menu(user, focus_lang=lang_code)
 
     def _show_dice_keeping_style_menu(self, user: NetworkUser) -> None:
         """Show dice keeping style selection menu."""
