@@ -3216,29 +3216,30 @@ class MonopolyGame(ActionGuardMixin, Game):
         finally:
             self.junior_endgame_evaluating = False
 
-    def _declare_bankrupt(
+    def _resolve_bankruptcy_creditor(
         self,
         player: MonopolyPlayer,
-        *,
-        creditor_name: str | None = None,
-        creditor_id: str | None = None,
+        creditor_id: str | None,
+    ) -> MonopolyPlayer | None:
+        """Resolve valid bankruptcy creditor player when one is provided."""
+        if not creditor_id:
+            return None
+        maybe_creditor = self.get_player_by_id(creditor_id)
+        if (
+            maybe_creditor
+            and isinstance(maybe_creditor, MonopolyPlayer)
+            and not maybe_creditor.bankrupt
+            and maybe_creditor.id != player.id
+        ):
+            return maybe_creditor
+        return None
+
+    def _transfer_bankrupt_holdings(
+        self,
+        player: MonopolyPlayer,
+        creditor: MonopolyPlayer | None,
     ) -> None:
-        """Mark a player bankrupt, release their holdings, and check winner."""
-        if player.bankrupt:
-            return
-
-        player.bankrupt = True
-        creditor: MonopolyPlayer | None = None
-        if creditor_id:
-            maybe_creditor = self.get_player_by_id(creditor_id)
-            if (
-                maybe_creditor
-                and isinstance(maybe_creditor, MonopolyPlayer)
-                and not maybe_creditor.bankrupt
-                and maybe_creditor.id != player.id
-            ):
-                creditor = maybe_creditor
-
+        """Transfer/release all player holdings during bankruptcy."""
         for space_id in list(player.owned_space_ids):
             if self.property_owners.get(space_id) == player.id:
                 if creditor:
@@ -3252,6 +3253,13 @@ class MonopolyGame(ActionGuardMixin, Game):
             # Buildings are liquidated during bankruptcy transfer/release.
             if space_id in self.building_levels:
                 self.building_levels[space_id] = 0
+
+    def _clear_bankrupt_player_state(
+        self,
+        player: MonopolyPlayer,
+        creditor: MonopolyPlayer | None,
+    ) -> None:
+        """Zero all transferable state and close banking account for bankrupt player."""
         if creditor and player.get_out_of_jail_cards > 0:
             creditor.get_out_of_jail_cards += player.get_out_of_jail_cards
         player.get_out_of_jail_cards = 0
@@ -3262,17 +3270,15 @@ class MonopolyGame(ActionGuardMixin, Game):
         player.in_jail = False
         player.jail_turns = 0
 
+    def _cancel_pending_trade_for_bankrupt_player(self, player: MonopolyPlayer) -> None:
+        """Cancel pending trade when bankrupt player is involved."""
         pending = self.pending_trade_offer
         if pending and (pending.proposer_id == player.id or pending.target_id == player.id):
             self.broadcast_l("monopoly-trade-cancelled", offer=pending.summary)
             self.pending_trade_offer = None
 
-        self.broadcast_l(
-            "monopoly-player-bankrupt",
-            player=player.name,
-            creditor=creditor_name or (creditor.name if creditor else "Bank"),
-        )
-
+    def _finalize_turn_order_after_bankruptcy(self, player: MonopolyPlayer) -> None:
+        """Finalize winner/turn-order state after one player is marked bankrupt."""
         ordered_before = self.turn_players
         try:
             old_index = ordered_before.index(player)
@@ -3302,6 +3308,30 @@ class MonopolyGame(ActionGuardMixin, Game):
         current = self.current_player
         if current and current.is_bot:
             BotHelper.jolt_bot(current, ticks=random.randint(8, 14))
+
+    def _declare_bankrupt(
+        self,
+        player: MonopolyPlayer,
+        *,
+        creditor_name: str | None = None,
+        creditor_id: str | None = None,
+    ) -> None:
+        """Mark a player bankrupt, release their holdings, and check winner."""
+        if player.bankrupt:
+            return
+
+        player.bankrupt = True
+        creditor = self._resolve_bankruptcy_creditor(player, creditor_id)
+        self._transfer_bankrupt_holdings(player, creditor)
+        self._clear_bankrupt_player_state(player, creditor)
+        self._cancel_pending_trade_for_bankrupt_player(player)
+
+        self.broadcast_l(
+            "monopoly-player-bankrupt",
+            player=player.name,
+            creditor=creditor_name or (creditor.name if creditor else "Bank"),
+        )
+        self._finalize_turn_order_after_bankruptcy(player)
 
     def _resolve_card_draw_text(
         self,
