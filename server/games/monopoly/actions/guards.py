@@ -83,3 +83,85 @@ def is_voice_command_hidden(game: MonopolyGame, player: Player) -> Visibility:
         player,
         extra_condition=game.active_preset_id == "voice_banking",
     )
+
+
+def is_auction_property_enabled(game: MonopolyGame, player: Player) -> str | None:
+    """Enable auction action for pending unpurchased property."""
+    error = game.guard_turn_action_enabled(player)
+    if error:
+        return error
+    if game._is_auction_active():
+        return "monopoly-auction-active"
+    if not game.turn_has_rolled:
+        return "monopoly-roll-first"
+    if game._pending_purchase_space() is None:
+        return "monopoly-no-property-to-auction"
+    return None
+
+
+def is_auction_property_hidden(game: MonopolyGame, player: Player) -> Visibility:
+    """Show auction only when property purchase is pending."""
+    return game.turn_action_visibility(
+        player,
+        extra_condition=not game._is_auction_active()
+        and game.turn_has_rolled
+        and game._pending_purchase_space() is not None,
+    )
+
+
+def is_auction_bid_enabled(game: MonopolyGame, player: Player) -> str | None:
+    """Enable placing a bid when it is this player's auction turn."""
+    error = game.guard_turn_action_enabled(player, require_current_player=False)
+    if error:
+        return error
+    if not game._is_auction_active():
+        return "monopoly-no-auction-active"
+    mono_player = player  # type: ignore[assignment]
+    if mono_player.bankrupt:
+        return "monopoly-bankrupt-player"
+    current_bidder = game._current_auction_bidder()
+    if current_bidder is None or current_bidder.id != mono_player.id:
+        return "monopoly-not-your-auction-turn"
+    if not game._options_for_auction_bid(player):
+        return "monopoly-not-enough-cash"
+    return None
+
+
+def is_auction_bid_hidden(game: MonopolyGame, player: Player) -> Visibility:
+    """Show bid action only to the active auction bidder."""
+    current_bidder = game._current_auction_bidder()
+    return game.turn_action_visibility(
+        player,
+        require_current_player=False,
+        extra_condition=game._is_auction_active()
+        and current_bidder is not None
+        and current_bidder.id == player.id,
+    )
+
+
+def is_auction_pass_enabled(game: MonopolyGame, player: Player) -> str | None:
+    """Enable passing in an active interactive auction."""
+    error = game.guard_turn_action_enabled(player, require_current_player=False)
+    if error:
+        return error
+    if not game._is_auction_active():
+        return "monopoly-no-auction-active"
+    mono_player = player  # type: ignore[assignment]
+    if mono_player.bankrupt:
+        return "monopoly-bankrupt-player"
+    current_bidder = game._current_auction_bidder()
+    if current_bidder is None or current_bidder.id != mono_player.id:
+        return "monopoly-not-your-auction-turn"
+    return None
+
+
+def is_auction_pass_hidden(game: MonopolyGame, player: Player) -> Visibility:
+    """Show pass action only to the active auction bidder."""
+    current_bidder = game._current_auction_bidder()
+    return game.turn_action_visibility(
+        player,
+        require_current_player=False,
+        extra_condition=game._is_auction_active()
+        and current_bidder is not None
+        and current_bidder.id == player.id,
+    )

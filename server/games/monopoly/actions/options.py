@@ -71,3 +71,48 @@ def options_for_banking_transfer(game: MonopolyGame, player: Player) -> list[str
         for amount in target_amounts:
             options.append(encode_banking_transfer_option(game, target, amount))
     return options
+
+
+def options_for_auction_bid(game: MonopolyGame, player: Player) -> list[str]:
+    """Menu options for bidding in the active interactive auction."""
+    mono_player = player  # type: ignore[assignment]
+    current_bidder = game._current_auction_bidder()
+    if current_bidder is None or current_bidder.id != mono_player.id:
+        return []
+    min_bid = game._auction_min_bid()
+    if game._current_liquid_balance(mono_player) < min_bid:
+        return []
+
+    max_bid = game._current_liquid_balance(mono_player)
+    increment = max(1, min_bid - game.pending_auction_current_bid)
+    spread_steps = [0, 1, 3, 6]
+    options: set[int] = {min_bid, max_bid}
+    for step in spread_steps:
+        candidate = min(max_bid, min_bid + (step * increment))
+        if candidate >= min_bid:
+            options.add(candidate)
+
+    return [str(value) for value in sorted(options)]
+
+
+def bot_select_auction_bid(game: MonopolyGame, player: Player, options: list[str]) -> str | None:
+    """Pick a practical bid for bots in interactive auctions."""
+    if not options:
+        return None
+    space = game._pending_auction_space()
+    if not space:
+        return options[0]
+
+    cap = min(space.price, int(game._current_liquid_balance(player) * 0.85))
+    affordable = []
+    for option in options:
+        try:
+            value = int(option)
+        except ValueError:
+            continue
+        if value <= cap:
+            affordable.append(value)
+
+    if affordable:
+        return str(max(affordable))
+    return options[0]

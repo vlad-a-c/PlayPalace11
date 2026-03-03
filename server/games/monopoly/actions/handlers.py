@@ -198,3 +198,86 @@ def action_voice_command(game: MonopolyGame, player: Player, text: str, action_i
     game.voice_last_response_by_player_id[mono_player.id] = parsed.intent
     if user:
         user.speak_l("monopoly-voice-command-accepted", intent=parsed.intent)
+
+
+def action_auction_property(game: MonopolyGame, player: Player, action_id: str) -> None:
+    """Start an interactive auction for the pending unpurchased property."""
+    _ = action_id
+    mono_player = player  # type: ignore[assignment]
+    if game._is_auction_active():
+        return
+    space = game._pending_purchase_space()
+    if not space:
+        return
+
+    game._start_property_auction(space, mono_player)
+
+
+def action_auction_bid(game: MonopolyGame, player: Player, option: str, action_id: str) -> None:
+    """Place a bid in the active interactive auction."""
+    _ = action_id
+    if not game._is_auction_active():
+        return
+    current_bidder = game._current_auction_bidder()
+    if current_bidder is None or current_bidder.id != player.id:
+        return
+    if option not in game._options_for_auction_bid(player):
+        return
+    space = game._pending_auction_space()
+    if not space:
+        return
+
+    try:
+        bid = int(option)
+    except ValueError:
+        return
+
+    min_bid = game._auction_min_bid()
+    if bid < min_bid or bid > game._current_liquid_balance(current_bidder):
+        return
+
+    game.pending_auction_current_bid = bid
+    game.pending_auction_high_bidder_id = current_bidder.id
+    game.broadcast_l(
+        "monopoly-auction-bid-placed",
+        player=current_bidder.name,
+        property=space.name,
+        amount=bid,
+    )
+
+    current_index = game.pending_auction_turn_index % len(game.pending_auction_bidder_ids)
+    game._advance_pending_auction_turn(current_index)
+    if game._is_auction_active():
+        game.rebuild_all_menus()
+
+
+def action_auction_pass(game: MonopolyGame, player: Player, action_id: str) -> None:
+    """Pass on bidding in the active interactive auction."""
+    _ = action_id
+    if not game._is_auction_active():
+        return
+    current_bidder = game._current_auction_bidder()
+    if current_bidder is None or current_bidder.id != player.id:
+        return
+    if player.id not in game.pending_auction_bidder_ids:
+        return
+
+    space = game._pending_auction_space()
+    if not space:
+        game._finish_pending_auction()
+        return
+
+    current_index = game.pending_auction_bidder_ids.index(player.id)
+    game.pending_auction_bidder_ids.remove(player.id)
+    if game.pending_auction_high_bidder_id == player.id:
+        game.pending_auction_high_bidder_id = ""
+        game.pending_auction_current_bid = 0
+    game.broadcast_l(
+        "monopoly-auction-pass-event",
+        player=current_bidder.name,
+        property=space.name,
+    )
+
+    game._advance_pending_auction_turn(current_index - 1)
+    if game._is_auction_active():
+        game.rebuild_all_menus()

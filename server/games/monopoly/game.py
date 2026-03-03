@@ -3619,123 +3619,37 @@ class MonopolyGame(ActionGuardMixin, Game):
 
     def _is_auction_property_enabled(self, player: Player) -> str | None:
         """Enable auction action for pending unpurchased property."""
-        error = self.guard_turn_action_enabled(player)
-        if error:
-            return error
-        if self._is_auction_active():
-            return "monopoly-auction-active"
-        if not self.turn_has_rolled:
-            return "monopoly-roll-first"
-        if self._pending_purchase_space() is None:
-            return "monopoly-no-property-to-auction"
-        return None
+        return action_guards.is_auction_property_enabled(self, player)
 
     def _is_auction_property_hidden(self, player: Player) -> Visibility:
         """Show auction only when property purchase is pending."""
-        return self.turn_action_visibility(
-            player,
-            extra_condition=not self._is_auction_active()
-            and self.turn_has_rolled
-            and self._pending_purchase_space() is not None,
-        )
+        return action_guards.is_auction_property_hidden(self, player)
 
     def _options_for_auction_bid(self, player: Player) -> list[str]:
         """Menu options for bidding in the active interactive auction."""
-        mono_player: MonopolyPlayer = player  # type: ignore
-        current_bidder = self._current_auction_bidder()
-        if current_bidder is None or current_bidder.id != mono_player.id:
-            return []
-        min_bid = self._auction_min_bid()
-        if self._current_liquid_balance(mono_player) < min_bid:
-            return []
-
-        max_bid = self._current_liquid_balance(mono_player)
-        spread_steps = [0, 1, 3, 6]
-        options: set[int] = {min_bid, max_bid}
-        for step in spread_steps:
-            candidate = min(max_bid, min_bid + (step * MIN_AUCTION_INCREMENT))
-            if candidate >= min_bid:
-                options.add(candidate)
-
-        return [str(value) for value in sorted(options)]
+        return action_options.options_for_auction_bid(self, player)
 
     def _bot_select_auction_bid(
         self, player: MonopolyPlayer, options: list[str]
     ) -> str | None:
         """Pick a practical bid for bots in interactive auctions."""
-        if not options:
-            return None
-        space = self._pending_auction_space()
-        if not space:
-            return options[0]
-
-        cap = min(space.price, int(self._current_liquid_balance(player) * 0.85))
-        affordable = []
-        for option in options:
-            try:
-                value = int(option)
-            except ValueError:
-                continue
-            if value <= cap:
-                affordable.append(value)
-
-        if affordable:
-            return str(max(affordable))
-        return options[0]
+        return action_options.bot_select_auction_bid(self, player, options)
 
     def _is_auction_bid_enabled(self, player: Player) -> str | None:
         """Enable placing a bid when it is this player's auction turn."""
-        error = self.guard_turn_action_enabled(player, require_current_player=False)
-        if error:
-            return error
-        if not self._is_auction_active():
-            return "monopoly-no-auction-active"
-        mono_player: MonopolyPlayer = player  # type: ignore
-        if mono_player.bankrupt:
-            return "monopoly-bankrupt-player"
-        current_bidder = self._current_auction_bidder()
-        if current_bidder is None or current_bidder.id != mono_player.id:
-            return "monopoly-not-your-auction-turn"
-        if not self._options_for_auction_bid(player):
-            return "monopoly-not-enough-cash"
-        return None
+        return action_guards.is_auction_bid_enabled(self, player)
 
     def _is_auction_bid_hidden(self, player: Player) -> Visibility:
         """Show bid action only to the active auction bidder."""
-        current_bidder = self._current_auction_bidder()
-        return self.turn_action_visibility(
-            player,
-            require_current_player=False,
-            extra_condition=self._is_auction_active()
-            and current_bidder is not None
-            and current_bidder.id == player.id,
-        )
+        return action_guards.is_auction_bid_hidden(self, player)
 
     def _is_auction_pass_enabled(self, player: Player) -> str | None:
         """Enable passing in an active interactive auction."""
-        error = self.guard_turn_action_enabled(player, require_current_player=False)
-        if error:
-            return error
-        if not self._is_auction_active():
-            return "monopoly-no-auction-active"
-        mono_player: MonopolyPlayer = player  # type: ignore
-        if mono_player.bankrupt:
-            return "monopoly-bankrupt-player"
-        current_bidder = self._current_auction_bidder()
-        if current_bidder is None or current_bidder.id != mono_player.id:
-            return "monopoly-not-your-auction-turn"
-        return None
+        return action_guards.is_auction_pass_enabled(self, player)
 
     def _is_auction_pass_hidden(self, player: Player) -> Visibility:
         """Show pass action only to the active auction bidder."""
-        current_bidder = self._current_auction_bidder()
-        return self.turn_action_visibility(
-            player,
-            require_current_player=False,
-            extra_condition=self._is_auction_active()
-            and current_bidder is not None
-            and current_bidder.id == player.id,
-        )
+        return action_guards.is_auction_pass_hidden(self, player)
 
     def _options_for_mortgage_property(self, player: Player) -> list[str]:
         """Menu options for unmortgaged owned properties."""
@@ -4342,80 +4256,15 @@ class MonopolyGame(ActionGuardMixin, Game):
 
     def _action_auction_property(self, player: Player, action_id: str) -> None:
         """Start an interactive auction for the pending unpurchased property."""
-        mono_player: MonopolyPlayer = player  # type: ignore
-        if self._is_auction_active():
-            return
-        space = self._pending_purchase_space()
-        if not space:
-            return
-
-        self._start_property_auction(space, mono_player)
+        action_handlers.action_auction_property(self, player, action_id)
 
     def _action_auction_bid(self, player: Player, option: str, action_id: str) -> None:
         """Place a bid in the active interactive auction."""
-        if not self._is_auction_active():
-            return
-        current_bidder = self._current_auction_bidder()
-        if current_bidder is None or current_bidder.id != player.id:
-            return
-        if option not in self._options_for_auction_bid(player):
-            return
-        space = self._pending_auction_space()
-        if not space:
-            return
-
-        try:
-            bid = int(option)
-        except ValueError:
-            return
-
-        min_bid = self._auction_min_bid()
-        if bid < min_bid or bid > self._current_liquid_balance(current_bidder):
-            return
-
-        self.pending_auction_current_bid = bid
-        self.pending_auction_high_bidder_id = current_bidder.id
-        self.broadcast_l(
-            "monopoly-auction-bid-placed",
-            player=current_bidder.name,
-            property=space.name,
-            amount=bid,
-        )
-
-        current_index = self.pending_auction_turn_index % len(self.pending_auction_bidder_ids)
-        self._advance_pending_auction_turn(current_index)
-        if self._is_auction_active():
-            self.rebuild_all_menus()
+        action_handlers.action_auction_bid(self, player, option, action_id)
 
     def _action_auction_pass(self, player: Player, action_id: str) -> None:
         """Pass on bidding in the active interactive auction."""
-        if not self._is_auction_active():
-            return
-        current_bidder = self._current_auction_bidder()
-        if current_bidder is None or current_bidder.id != player.id:
-            return
-        if player.id not in self.pending_auction_bidder_ids:
-            return
-
-        space = self._pending_auction_space()
-        if not space:
-            self._finish_pending_auction()
-            return
-
-        current_index = self.pending_auction_bidder_ids.index(player.id)
-        self.pending_auction_bidder_ids.remove(player.id)
-        if self.pending_auction_high_bidder_id == player.id:
-            self.pending_auction_high_bidder_id = ""
-            self.pending_auction_current_bid = 0
-        self.broadcast_l(
-            "monopoly-auction-pass-event",
-            player=current_bidder.name,
-            property=space.name,
-        )
-
-        self._advance_pending_auction_turn(current_index - 1)
-        if self._is_auction_active():
-            self.rebuild_all_menus()
+        action_handlers.action_auction_pass(self, player, action_id)
 
     def _action_mortgage_property(
         self, player: Player, space_id: str, action_id: str
