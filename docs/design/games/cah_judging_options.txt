@@ -16,7 +16,7 @@ Use independent if number of judges = 1.
 Default independent
 
 Independent = each judge chooses their own winning submissions, allowing for a wider range of point distribution.
-Jury = all judges must agree on the winning submissions, making the game more fair and intense. More than 1 judge must be present.
+Jury = all judges must agree on the winning submissions, making the game more fair and intense.
 Random = each turn any judging method can be chosen, allowing for chaotic scoring.
 
 Allow judges to submit cards (bool):
@@ -84,6 +84,7 @@ If there are more seats after all losers are chosen, evaluate all remaining play
 If all players who have met the multiple submission criteria have been selected and there are more judge seats available, start again for remaining players with submission bypassses.
 If there are still available seats after filtering out submission bypass, the rest will be handled by rotating / random only.
 It is very unlikely that the table host will enable all criterias, so the chain should not get this deep. But in case it does, I want the execution to be clear.
+Be smart about when to chain to avoid extra work. For exaple if there are 5 judge seats and only 4 losers, automatically select all 4 losers without chaining since all losers will need to be selected. Then fill the last remaining seat with the remaining criterias.
 
 cardzar presets:
 
