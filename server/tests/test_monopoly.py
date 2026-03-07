@@ -431,9 +431,9 @@ def test_monopoly_property_browsing_actions_are_escape_only() -> None:
     assert "View Baltic Avenue" in visible_labels
     assert "Browse all deeds" not in visible_labels
     assert "View my properties" not in visible_labels
-    assert "View player properties" not in visible_labels
+    assert "View player info" not in visible_labels
     assert "Browse all deeds" in enabled_labels
-    assert "View player properties" in enabled_labels
+    assert "View player info" in enabled_labels
 
 
 def test_monopoly_actions_menu_orders_current_then_game_then_global() -> None:
@@ -483,6 +483,23 @@ def test_monopoly_shift_p_keybind_opens_player_property_browser() -> None:
     assert game._pending_actions.get(host.id) == "select_player_property_owner"
     menu = host_user.menus.get("action_input_menu")
     assert menu is not None
+
+
+def test_monopoly_shift_p_lists_players_without_properties() -> None:
+    game = _start_three_player_game()
+    host = game.players[0]
+    host_user = game.get_user(host)
+    assert host_user is not None
+
+    game.execute_action(host, "view_player_properties")
+
+    assert game._pending_actions.get(host.id) == "select_player_property_owner"
+    menu = host_user.menus.get("action_input_menu")
+    assert menu is not None
+    labels = [item.text for item in menu["items"][:-1]]
+    assert any(label.startswith("Host") for label in labels)
+    assert any(label.startswith("Guest") for label in labels)
+    assert any(label.startswith("Third") for label in labels)
 
 
 def test_monopoly_shift_p_selection_opens_player_property_list() -> None:

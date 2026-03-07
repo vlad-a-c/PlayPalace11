@@ -1867,13 +1867,11 @@ class MonopolyGame(ActionGuardMixin, Game):
         )
 
     def _is_view_player_properties_enabled(self, player: Player) -> str | None:
-        """Enable player-property browser for everyone while playing."""
+        """Enable player-info browser for everyone while playing."""
         if self.status != "playing":
             return "action-not-playing"
         if not [
-            p
-            for p in self.turn_players
-            if isinstance(p, MonopolyPlayer) and not p.bankrupt and self._sorted_owned_space_ids(p.id)
+            p for p in self.turn_players if isinstance(p, MonopolyPlayer) and not p.bankrupt
         ]:
             return "monopoly-no-players-with-properties"
         return None
@@ -1904,12 +1902,10 @@ class MonopolyGame(ActionGuardMixin, Game):
         return [space.space_id for space in self._deed_capable_spaces_in_board_order()]
 
     def _options_for_player_property_owners(self, player: Player) -> list[str]:
-        """Return owner ids that can be browsed for deed lists."""
+        """Return player ids that can be browsed for deed lists."""
         owners: list[str] = []
         for candidate in self.turn_players:
             if not isinstance(candidate, MonopolyPlayer) or candidate.bankrupt:
-                continue
-            if not self._sorted_owned_space_ids(candidate.id):
                 continue
             owners.append(candidate.id)
         return owners
@@ -1955,7 +1951,7 @@ class MonopolyGame(ActionGuardMixin, Game):
         )
 
     def _action_view_player_properties(self, player: Player, action_id: str) -> None:
-        """Open player list, then allow browsing that player's properties."""
+        """Open player list, then allow browsing that player's info."""
         _ = action_id
         user = self.get_user(player)
         if not user:
@@ -1963,8 +1959,6 @@ class MonopolyGame(ActionGuardMixin, Game):
         items: list[MenuItem] = []
         for candidate in self.turn_players:
             if not isinstance(candidate, MonopolyPlayer) or candidate.bankrupt:
-                continue
-            if not self._sorted_owned_space_ids(candidate.id):
                 continue
             square_name = ""
             if self.active_board_size > 0:
