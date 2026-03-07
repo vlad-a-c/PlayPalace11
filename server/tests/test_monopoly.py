@@ -900,6 +900,20 @@ def test_monopoly_cash_keybind_reads_cash_and_stays_escape_only() -> None:
     assert "$1,500 in cash." in spoken
 
 
+def test_monopoly_cash_keybind_does_not_force_roll_focus() -> None:
+    game = _start_two_player_game()
+    game.setup_keybinds()
+    host = game.players[0]
+    host_user = game.get_user(host)
+    assert host_user is not None
+
+    game._handle_keybind_event(host, {"key": "c"})
+
+    turn_menu = host_user.menus.get("turn_menu")
+    assert turn_menu is not None
+    assert turn_menu["position"] is None
+
+
 def test_monopoly_speed_doubles_do_not_grant_extra_roll(monkeypatch):
     game = _start_two_player_game(MonopolyOptions(preset_id="speed"))
     host = game.current_player

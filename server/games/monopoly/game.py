@@ -605,6 +605,7 @@ class MonopolyGame(ActionGuardMixin, Game):
     building_levels: dict[str, int] = field(default_factory=dict)
     pending_trade_offer: MonopolyTradeOffer | None = None
     deed_browse_owner_by_viewer_id: dict[str, str] = field(default_factory=dict)
+    turn_menu_roll_focus_player_ids: set[str] = field(default_factory=set)
     free_parking_pool: int = 0
     pending_auction_space_id: str = ""
     pending_auction_bidder_ids: list[str] = field(default_factory=list)
@@ -1093,15 +1094,21 @@ class MonopolyGame(ActionGuardMixin, Game):
         return None
 
     def _preferred_turn_focus_action_id(self, player: Player) -> str | None:
-        """Prefer roll focus whenever the roll action is visible."""
+        """Return the preferred one-shot turn-menu focus action."""
         for resolved in self.get_all_visible_actions(player):
             if resolved.action.id == "roll_dice":
                 return "roll_dice"
         return None
 
+    def _queue_roll_focus(self, player: Player | None) -> None:
+        """Focus roll on the next rebuild when roll is available."""
+        if player is None:
+            return
+        self.turn_menu_roll_focus_player_ids.add(player.id)
+
     def rebuild_player_menu(self, player: Player, *, position: int | None = None) -> None:
-        """Rebuild Monopoly turn menus with roll focus when available."""
-        if position is None:
+        """Rebuild Monopoly turn menus with queued one-shot roll focus."""
+        if position is None and player.id in self.turn_menu_roll_focus_player_ids:
             preferred_action_id = self._preferred_turn_focus_action_id(player)
             if preferred_action_id:
                 visible_actions = self.get_all_visible_actions(player)
@@ -1109,14 +1116,8 @@ class MonopolyGame(ActionGuardMixin, Game):
                     if resolved.action.id == preferred_action_id:
                         position = index
                         break
+            self.turn_menu_roll_focus_player_ids.discard(player.id)
         super().rebuild_player_menu(player, position=position)
-
-    def update_player_menu(self, player: Player, selection_id: str | None = None) -> None:
-        """Update Monopoly turn menus with roll focus when available."""
-        preferred_action_id = self._preferred_turn_focus_action_id(player)
-        if preferred_action_id:
-            selection_id = preferred_action_id
-        super().update_player_menu(player, selection_id=selection_id)
 
     def get_available_preset_ids(self) -> list[str]:
         """Return selectable preset ids from generated catalog artifacts."""
@@ -3050,6 +3051,7 @@ class MonopolyGame(ActionGuardMixin, Game):
         self.turn_last_roll.clear()
         self.turn_pending_purchase_space_id = ""
         self.turn_can_roll_again = False
+        self._queue_roll_focus(player)
         self.broadcast_personal_l(
             player,
             "monopoly-you-roll-again",
@@ -3136,12 +3138,15 @@ class MonopolyGame(ActionGuardMixin, Game):
         next_player = self.advance_turn(announce=True)
         self._start_cheaters_turn(next_player)
         self._start_city_turn(next_player)
+        self._queue_roll_focus(next_player)
         if self._is_city_preset() and self._check_city_endgame():
             self.rebuild_all_menus()
             return
         if self._is_junior_preset() and self._check_junior_endgame():
             self.rebuild_all_menus()
             return
+        if next_player:
+            self.rebuild_player_menu(next_player)
         if next_player and next_player.is_bot:
             BotHelper.jolt_bot(next_player, ticks=random.randint(8, 14))
 
