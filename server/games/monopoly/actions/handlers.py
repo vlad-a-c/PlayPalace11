@@ -427,7 +427,6 @@ def action_mortgage_property(
         player=mono_player.name,
         property=space.name,
         amount=credited,
-        cash=mono_player.cash,
     )
 
     game._sync_cash_scores()
@@ -461,7 +460,6 @@ def action_unmortgage_property(
         player=mono_player.name,
         property=space.name,
         amount=paid,
-        cash=mono_player.cash,
     )
 
     game._sync_cash_scores()
@@ -500,14 +498,21 @@ def action_build_house(game: MonopolyGame, player: Player, space_id: str, action
             player=mono_player.name,
             blocks=mono_player.builder_blocks,
         )
-    game.broadcast_l(
-        "monopoly-house-built",
-        player=mono_player.name,
-        property=space.name,
-        amount=paid,
-        level=new_level,
-        cash=mono_player.cash,
-    )
+    if new_level >= 5:
+        game.broadcast_l(
+            "monopoly-house-built-hotel",
+            player=mono_player.name,
+            property=space.name,
+            amount=paid,
+        )
+    else:
+        game.broadcast_l(
+            "monopoly-house-built-house",
+            player=mono_player.name,
+            property=space.name,
+            amount=paid,
+            level=new_level,
+        )
 
     game._sync_cash_scores()
     game.rebuild_all_menus()
@@ -541,7 +546,6 @@ def action_sell_house(game: MonopolyGame, player: Player, space_id: str, action_
         property=space.name,
         amount=credited,
         level=new_level,
-        cash=mono_player.cash,
     )
 
     game._sync_cash_scores()
@@ -678,7 +682,6 @@ def action_pay_bail(game: MonopolyGame, player: Player, action_id: str) -> None:
         "monopoly-bail-paid",
         player=mono_player.name,
         amount=paid,
-        cash=mono_player.cash,
     )
     game._apply_sore_loser_rebate(mono_player, paid)
 
@@ -703,7 +706,6 @@ def action_use_jail_card(game: MonopolyGame, player: Player, action_id: str) -> 
     game.broadcast_l(
         "monopoly-jail-card-used",
         player=mono_player.name,
-        cards=mono_player.get_out_of_jail_cards,
     )
 
     game._sync_cash_scores()
@@ -796,7 +798,6 @@ def action_roll_dice(game: MonopolyGame, player: Player, action_id: str) -> None
                 game.broadcast_l(
                     "monopoly-jail-card-used",
                     player=mono_player.name,
-                    cards=mono_player.get_out_of_jail_cards,
                 )
             elif game._current_liquid_balance(mono_player) >= 1:
                 paid = game._debit_player_to_bank(mono_player, 1, "pay_bail")
@@ -811,7 +812,6 @@ def action_roll_dice(game: MonopolyGame, player: Player, action_id: str) -> None
                     "monopoly-bail-paid",
                     player=mono_player.name,
                     amount=paid,
-                    cash=mono_player.cash,
                 )
             else:
                 game.turn_doubles_count = 0
@@ -878,7 +878,6 @@ def action_roll_dice(game: MonopolyGame, player: Player, action_id: str) -> None
                     "monopoly-bail-paid",
                     player=mono_player.name,
                     amount=paid,
-                    cash=mono_player.cash,
                 )
                 game._apply_sore_loser_rebate(mono_player, paid)
                 _schedule_monopoly_roll_resolution(

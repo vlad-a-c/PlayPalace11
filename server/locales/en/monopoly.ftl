@@ -50,7 +50,7 @@ monopoly-action-disabled-for-preset = This action is disabled for the selected p
 monopoly-buy-disabled = Buying property directly is disabled for this preset.
 
 # Turn events
-monopoly-pass-go = { $player } passed GO and collected { $amount } (cash: { $cash }).
+monopoly-pass-go = { $player } passed GO and collected { $amount }.
 monopoly-roll-result = { $player } rolled { $die1 } + { $die2 } = { $total } and landed on { $space }.
 monopoly-roll-only = { $player } rolled { $die1 } + { $die2 } = { $total }.
 monopoly-you-roll-result = You rolled { $die1 } + { $die2 } = { $total } and landed on { $space }.
@@ -60,11 +60,17 @@ monopoly-player-roll-only = { $player } rolled { $die1 } + { $die2 } = { $total 
 monopoly-you-roll-only-doubles = You rolled { $die1 } + { $die2 } = { $total }. Doubles!
 monopoly-player-roll-only-doubles = { $player } rolled { $die1 } + { $die2 } = { $total }. Doubles!
 monopoly-property-available = { $property } is available for { $price }.
-monopoly-property-bought = { $player } bought { $property } for { $price } (cash: { $cash }).
+monopoly-property-bought = { $player } bought { $property } for { $price }.
 monopoly-rent-paid = { $player } paid { $amount } in rent to { $owner } for { $property }.
 monopoly-player-paid-player = { $player } paid { $amount } to { $target }.
+monopoly-you-completed-color-set = You now own all of the { $group } properties.
+monopoly-player-completed-color-set = { $player } now owns all of the { $group } properties.
+monopoly-you-completed-railroads = You now own all of the railroads.
+monopoly-player-completed-railroads = { $player } now owns all of the railroads.
+monopoly-you-completed-utilities = You now own all of the utilities.
+monopoly-player-completed-utilities = { $player } now owns all of the utilities.
 monopoly-landed-owned = { $player } landed on their own property: { $property }.
-monopoly-tax-paid = { $player } paid { $amount } for { $tax } (cash: { $cash }).
+monopoly-tax-paid = { $player } paid { $amount } for { $tax }.
 monopoly-go-to-jail = { $player } goes to jail (moved to { $space }).
 monopoly-bankrupt-player = You are bankrupt and out of the game.
 monopoly-player-bankrupt = { $player } is bankrupt. Creditor: { $creditor }.
@@ -126,15 +132,15 @@ monopoly-jail-roll-doubles = { $player } rolled doubles ({ $die1 } and { $die2 }
 monopoly-you-jail-roll-doubles = You rolled doubles ({ $die1 } and { $die2 }) and leave jail.
 monopoly-player-jail-roll-doubles = { $player } rolled doubles ({ $die1 } and { $die2 }) and leaves jail.
 monopoly-jail-roll-failed = { $player } rolled { $die1 } and { $die2 } in jail (attempt { $attempts }).
-monopoly-bail-paid = { $player } paid { $amount } bail (cash: { $cash }).
+monopoly-bail-paid = { $player } paid { $amount } bail.
 monopoly-three-doubles-jail = { $player } rolled three doubles in one turn and is sent to jail.
 monopoly-you-three-doubles-jail = You rolled three doubles in one turn and are sent to jail.
 monopoly-player-three-doubles-jail = { $player } rolled three doubles in one turn and is sent to jail.
-monopoly-jail-card-used = { $player } used a get-out-of-jail card ({ $cards } remaining).
-monopoly-sore-loser-rebate = { $player } received a sore loser rebate of { $amount } (cash: { $cash }).
-monopoly-cheaters-early-end-turn-blocked = { $player } tried to end the turn early and paid a cheating penalty of { $amount } (cash: { $cash }).
-monopoly-cheaters-payment-avoidance-blocked = { $player } triggered a cheaters payment penalty of { $amount } (cash: { $cash }).
-monopoly-cheaters-reward-granted = { $player } claimed a cheaters reward of { $amount } (cash: { $cash }).
+monopoly-jail-card-used = { $player } used a get-out-of-jail card.
+monopoly-sore-loser-rebate = { $player } received a sore loser rebate of { $amount }.
+monopoly-cheaters-early-end-turn-blocked = { $player } tried to end the turn early and paid a cheating penalty of { $amount }.
+monopoly-cheaters-payment-avoidance-blocked = { $player } triggered a cheaters payment penalty of { $amount }.
+monopoly-cheaters-reward-granted = { $player } claimed a cheaters reward of { $amount }.
 monopoly-cheaters-reward-unavailable = { $player } already claimed the cheaters reward this turn.
 
 # Auctions and mortgages
@@ -143,16 +149,17 @@ monopoly-auction-started = Auction started for { $property } (opening bid: { $am
 monopoly-auction-turn = Auction turn: { $player } to act on { $property } (current bid: { $amount }).
 monopoly-auction-bid-placed = { $player } bid { $amount } for { $property }.
 monopoly-auction-pass-event = { $player } passed on { $property }.
-monopoly-auction-won = { $player } won the auction for { $property } at { $amount } (cash: { $cash }).
-monopoly-property-mortgaged = { $player } mortgaged { $property } for { $amount } (cash: { $cash }).
-monopoly-property-unmortgaged = { $player } unmortgaged { $property } for { $amount } (cash: { $cash }).
-monopoly-house-built = { $player } built on { $property } for { $amount } (level: { $level }, cash: { $cash }).
-monopoly-house-sold = { $player } sold a building on { $property } for { $amount } (level: { $level }, cash: { $cash }).
+monopoly-auction-won = { $player } won the auction for { $property } at { $amount }.
+monopoly-property-mortgaged = { $player } mortgaged { $property } for { $amount }.
+monopoly-property-unmortgaged = { $player } unmortgaged { $property } for { $amount }.
+monopoly-house-built-house = { $player } built a house on { $property } for { $amount }. It now has { $level }.
+monopoly-house-built-hotel = { $player } built a hotel on { $property } for { $amount }.
+monopoly-house-sold = { $player } sold a building on { $property } for { $amount } (level: { $level }).
 monopoly-trade-offered = { $proposer } offered { $target } a trade: { $offer }.
 monopoly-trade-completed = Trade completed between { $proposer } and { $target }: { $offer }.
 monopoly-trade-declined = { $target } declined trade from { $proposer }: { $offer }.
 monopoly-trade-cancelled = Trade cancelled: { $offer }.
-monopoly-free-parking-jackpot = { $player } collected the Free Parking jackpot of { $amount } (cash: { $cash }).
+monopoly-free-parking-jackpot = { $player } collected the Free Parking jackpot of { $amount }.
 monopoly-mortgaged-no-rent = { $player } landed on mortgaged { $property }; no rent is due.
 monopoly-builder-blocks-awarded = { $player } gained { $amount } builder blocks ({ $blocks } total).
 monopoly-builder-block-spent = { $player } spent a builder block ({ $blocks } remaining).
@@ -165,14 +172,14 @@ monopoly-voice-command-error = Voice command error: { $reason }.
 monopoly-voice-command-accepted = Voice command accepted: { $intent }.
 monopoly-voice-command-repeat = Repeating last banking response code: { $response }.
 monopoly-voice-transfer-staged = Voice transfer staged: { $amount } to { $target }. Say voice: confirm transfer.
-monopoly-mortgage-transfer-interest-paid = { $player } paid { $amount } in mortgage transfer interest (cash: { $cash }).
+monopoly-mortgage-transfer-interest-paid = { $player } paid { $amount } in mortgage transfer interest.
 
 # Card engine
 monopoly-card-drawn = { $player } drew a { $deck } card: { $card }.
-monopoly-card-collect = { $player } collected { $amount } (cash: { $cash }).
-monopoly-card-pay = { $player } paid { $amount } (cash: { $cash }).
+monopoly-card-collect = { $player } collected { $amount }.
+monopoly-card-pay = { $player } paid { $amount }.
 monopoly-card-move = { $player } moved to { $space }.
-monopoly-card-jail-free = { $player } received a get-out-of-jail card ({ $cards } total).
+monopoly-card-jail-free = { $player } received a get-out-of-jail card.
 monopoly-card-utility-roll = { $player } rolled { $die1 } + { $die2 } = { $total } for utility rent.
 monopoly-deck-chance = Chance
 monopoly-deck-community-chest = Community Chest

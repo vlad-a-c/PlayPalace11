@@ -50,7 +50,7 @@ monopoly-action-disabled-for-preset = Ta akcja jest wyłączona dla wybranego tr
 monopoly-buy-disabled = Bezpośredni zakup nieruchomości jest wyłączony w tym trybie.
 
 # Turn events
-monopoly-pass-go = { $player } przeszedł przez START i otrzymał { $amount } (gotówka: { $cash }).
+monopoly-pass-go = { $player } przeszedł przez START i otrzymał { $amount }.
 monopoly-roll-result = { $player } wyrzucił { $die1 } + { $die2 } = { $total } i stanął na polu { $space }.
 monopoly-roll-only = { $player } wyrzucił { $die1 } + { $die2 } = { $total }.
 monopoly-you-roll-result = Wyrzuciłeś { $die1 } + { $die2 } = { $total } i stanąłeś na polu { $space }.
@@ -60,11 +60,17 @@ monopoly-player-roll-only = { $player } wyrzucił { $die1 } + { $die2 } = { $tot
 monopoly-you-roll-only-doubles = Wyrzuciłeś { $die1 } + { $die2 } = { $total }. Dublet!
 monopoly-player-roll-only-doubles = { $player } wyrzucił { $die1 } + { $die2 } = { $total }. Dublet!
 monopoly-property-available = { $property } jest dostępna za { $price }.
-monopoly-property-bought = { $player } kupił { $property } za { $price } (gotówka: { $cash }).
+monopoly-property-bought = { $player } kupił { $property } za { $price }.
 monopoly-rent-paid = { $player } zapłacił { $amount } czynszu graczowi { $owner } za { $property }.
 monopoly-player-paid-player = { $player } zapłacił { $amount } graczowi { $target }.
+monopoly-you-completed-color-set = Masz teraz wszystkie pola z grupy { $group }.
+monopoly-player-completed-color-set = { $player } ma teraz wszystkie pola z grupy { $group }.
+monopoly-you-completed-railroads = Masz teraz wszystkie koleje.
+monopoly-player-completed-railroads = { $player } ma teraz wszystkie koleje.
+monopoly-you-completed-utilities = Masz teraz wszystkie przedsiębiorstwa użyteczności publicznej.
+monopoly-player-completed-utilities = { $player } ma teraz wszystkie przedsiębiorstwa użyteczności publicznej.
 monopoly-landed-owned = { $player } stanął na swojej własnej nieruchomości: { $property }.
-monopoly-tax-paid = { $player } zapłacił { $amount } za pole { $tax } (gotówka: { $cash }).
+monopoly-tax-paid = { $player } zapłacił { $amount } za pole { $tax }.
 monopoly-go-to-jail = { $player } idzie do więzienia (przeniesiono na { $space }).
 monopoly-bankrupt-player = Zbankrutowałeś i odpadasz z gry.
 monopoly-player-bankrupt = { $player } zbankrutował. Wierzyciel: { $creditor }.
@@ -126,15 +132,15 @@ monopoly-jail-roll-doubles = { $player } wyrzucił dublet ({ $die1 } i { $die2 }
 monopoly-you-jail-roll-doubles = Wyrzuciłeś dublet ({ $die1 } i { $die2 }) i wychodzisz z więzienia.
 monopoly-player-jail-roll-doubles = { $player } wyrzucił dublet ({ $die1 } i { $die2 }) i wychodzi z więzienia.
 monopoly-jail-roll-failed = { $player } wyrzucił w więzieniu { $die1 } i { $die2 } (próba { $attempts }).
-monopoly-bail-paid = { $player } zapłacił { $amount } kaucji (gotówka: { $cash }).
+monopoly-bail-paid = { $player } zapłacił { $amount } kaucji.
 monopoly-three-doubles-jail = { $player } wyrzucił trzy dublety w jednej turze i trafia do więzienia.
 monopoly-you-three-doubles-jail = Wyrzuciłeś trzy dublety w jednej turze i trafiasz do więzienia.
 monopoly-player-three-doubles-jail = { $player } wyrzucił trzy dublety w jednej turze i trafia do więzienia.
-monopoly-jail-card-used = { $player } użył karty wyjścia z więzienia (pozostało: { $cards }).
-monopoly-sore-loser-rebate = { $player } otrzymał zwrot dla przegranego w wysokości { $amount } (gotówka: { $cash }).
-monopoly-cheaters-early-end-turn-blocked = { $player } próbował za wcześnie zakończyć turę i zapłacił karę za oszustwo w wysokości { $amount } (gotówka: { $cash }).
-monopoly-cheaters-payment-avoidance-blocked = { $player } uruchomił karę za unikanie płatności w wysokości { $amount } (gotówka: { $cash }).
-monopoly-cheaters-reward-granted = { $player } odebrał nagrodę oszusta w wysokości { $amount } (gotówka: { $cash }).
+monopoly-jail-card-used = { $player } użył karty wyjścia z więzienia.
+monopoly-sore-loser-rebate = { $player } otrzymał zwrot dla przegranego w wysokości { $amount }.
+monopoly-cheaters-early-end-turn-blocked = { $player } próbował za wcześnie zakończyć turę i zapłacił karę za oszustwo w wysokości { $amount }.
+monopoly-cheaters-payment-avoidance-blocked = { $player } uruchomił karę za unikanie płatności w wysokości { $amount }.
+monopoly-cheaters-reward-granted = { $player } odebrał nagrodę oszusta w wysokości { $amount }.
 monopoly-cheaters-reward-unavailable = { $player } już odebrał nagrodę oszusta w tej turze.
 
 # Auctions and mortgages
@@ -143,16 +149,17 @@ monopoly-auction-started = Rozpoczęto licytację dla pola { $property } (oferta
 monopoly-auction-turn = Tura licytacji: ruch gracza { $player } dla pola { $property } (bieżąca oferta: { $amount }).
 monopoly-auction-bid-placed = { $player } zaoferował { $amount } za { $property }.
 monopoly-auction-pass-event = { $player } spasował przy polu { $property }.
-monopoly-auction-won = { $player } wygrał licytację pola { $property } za { $amount } (gotówka: { $cash }).
-monopoly-property-mortgaged = { $player } zastawił { $property } za { $amount } (gotówka: { $cash }).
-monopoly-property-unmortgaged = { $player } wykupił z zastawu { $property } za { $amount } (gotówka: { $cash }).
-monopoly-house-built = { $player } zabudował pole { $property } za { $amount } (poziom: { $level }, gotówka: { $cash }).
-monopoly-house-sold = { $player } sprzedał budynek na polu { $property } za { $amount } (poziom: { $level }, gotówka: { $cash }).
+monopoly-auction-won = { $player } wygrał licytację pola { $property } za { $amount }.
+monopoly-property-mortgaged = { $player } zastawił { $property } za { $amount }.
+monopoly-property-unmortgaged = { $player } wykupił z zastawu { $property } za { $amount }.
+monopoly-house-built-house = { $player } zbudował dom na polu { $property } za { $amount }. Teraz stoją tam { $level } domki.
+monopoly-house-built-hotel = { $player } zbudował hotel na polu { $property } za { $amount }.
+monopoly-house-sold = { $player } sprzedał budynek na polu { $property } za { $amount } (poziom: { $level }).
 monopoly-trade-offered = { $proposer } zaoferował graczowi { $target } wymianę: { $offer }.
 monopoly-trade-completed = Wymiana między { $proposer } a { $target } została zakończona: { $offer }.
 monopoly-trade-declined = { $target } odrzucił wymianę od { $proposer }: { $offer }.
 monopoly-trade-cancelled = Wymiana anulowana: { $offer }.
-monopoly-free-parking-jackpot = { $player } zebrał jackpot z Darmowego Parkingu w wysokości { $amount } (gotówka: { $cash }).
+monopoly-free-parking-jackpot = { $player } zebrał jackpot z Darmowego Parkingu w wysokości { $amount }.
 monopoly-mortgaged-no-rent = { $player } stanął na zastawionym polu { $property }; czynsz nie jest należny.
 monopoly-builder-blocks-awarded = { $player } zdobył { $amount } bloków budowniczego ({ $blocks } łącznie).
 monopoly-builder-block-spent = { $player } zużył blok budowniczego (pozostało: { $blocks }).
@@ -165,14 +172,14 @@ monopoly-voice-command-error = Błąd polecenia głosowego: { $reason }.
 monopoly-voice-command-accepted = Polecenie głosowe zaakceptowane: { $intent }.
 monopoly-voice-command-repeat = Powtarzam ostatni kod odpowiedzi bankowej: { $response }.
 monopoly-voice-transfer-staged = Przygotowano przelew głosowy: { $amount } do gracza { $target }. Powiedz voice: confirm transfer.
-monopoly-mortgage-transfer-interest-paid = { $player } zapłacił { $amount } odsetek za przejęcie zastawu (gotówka: { $cash }).
+monopoly-mortgage-transfer-interest-paid = { $player } zapłacił { $amount } odsetek za przejęcie zastawu.
 
 # Card engine
 monopoly-card-drawn = { $player } dobrał kartę { $deck }: { $card }.
-monopoly-card-collect = { $player } otrzymał { $amount } (gotówka: { $cash }).
-monopoly-card-pay = { $player } zapłacił { $amount } (gotówka: { $cash }).
+monopoly-card-collect = { $player } otrzymał { $amount }.
+monopoly-card-pay = { $player } zapłacił { $amount }.
 monopoly-card-move = { $player } przeniósł się na pole { $space }.
-monopoly-card-jail-free = { $player } otrzymał kartę wyjścia z więzienia ({ $cards } łącznie).
+monopoly-card-jail-free = { $player } otrzymał kartę wyjścia z więzienia.
 monopoly-card-utility-roll = { $player } wyrzucił { $die1 } + { $die2 } = { $total } dla czynszu za wodociągi/elektrownię.
 monopoly-deck-chance = Szansa
 monopoly-deck-community-chest = Kasa Społeczna

@@ -587,6 +587,9 @@ def test_monopoly_view_player_properties_allows_two_stage_selection():
 
     game.execute_action(host, "view_player_properties")
     assert game._pending_actions.get(host.id) == "select_player_property_owner"
+    menu = host_user.menus.get("action_input_menu")
+    assert menu is not None
+    assert menu["position"] == 1
 
     game.handle_event(
         host,
@@ -600,6 +603,7 @@ def test_monopoly_view_player_properties_allows_two_stage_selection():
     assert game._pending_actions.get(host.id) == "view_selected_owner_property_deed"
     menu = host_user.menus.get("action_input_menu")
     assert menu is not None
+    assert menu["position"] == 1
     labels = [item.text for item in menu["items"][:-1]]
     assert any(label.startswith("Baltic Avenue") for label in labels)
 
@@ -1435,7 +1439,103 @@ def test_monopoly_birthday_card_announces_player_payments() -> None:
     guest_spoken = " ".join(guest_user.get_spoken_messages())
     assert "Guest paid $10 to Host." in host_spoken
     assert "Guest paid $10 to Host." in guest_spoken
-    assert "Host collected $10 (cash: $1,510)." in host_spoken
+    assert "Host collected $10." in host_spoken
+
+
+def test_monopoly_view_my_properties_focuses_first_item() -> None:
+    game = _start_two_player_game()
+    host = game.players[0]
+    host_user = game.get_user(host)
+    assert host_user is not None
+
+    host.owned_space_ids.extend(["baltic_avenue", "boardwalk"])
+    game.property_owners["baltic_avenue"] = host.id
+    game.property_owners["boardwalk"] = host.id
+
+    game.execute_action(host, "view_my_properties")
+
+    menu = host_user.menus.get("action_input_menu")
+    assert menu is not None
+    assert menu["position"] == 1
+
+
+def test_monopoly_jail_card_messages_hide_card_counts() -> None:
+    game = _start_two_player_game()
+    host = game.players[0]
+    host_user = game.get_user(host)
+    assert host_user is not None
+
+    host_user.clear_messages()
+    game._grant_get_out_of_jail_card(
+        host,
+        deck_type="chance",
+        card_id="get_out_of_jail_free_chance",
+    )
+    assert host_user.get_last_spoken() == "Host received a get-out-of-jail card."
+
+    host.in_jail = True
+    host_user.clear_messages()
+    game.execute_action(host, "use_jail_card")
+    assert host_user.get_last_spoken() == "Host used a get-out-of-jail card."
+
+
+def test_monopoly_build_house_announcement_uses_house_wording() -> None:
+    game = _start_two_player_game()
+    host = game.players[0]
+    host_user = game.get_user(host)
+    assert host_user is not None
+
+    for space_id in ("mediterranean_avenue", "baltic_avenue"):
+        host.owned_space_ids.append(space_id)
+        game.property_owners[space_id] = host.id
+
+    host_user.clear_messages()
+    game.execute_action(host, "build_house", input_value="baltic_avenue")
+
+    assert "Host built a house on Baltic Avenue for $50. It now has 1." in host_user.get_spoken_messages()
+
+
+def test_monopoly_buying_second_brown_announces_completed_color_set() -> None:
+    game = _start_two_player_game()
+    host = game.players[0]
+    guest = game.players[1]
+    host_user = game.get_user(host)
+    guest_user = game.get_user(guest)
+    assert host_user is not None
+    assert guest_user is not None
+
+    host.owned_space_ids.append("mediterranean_avenue")
+    game.property_owners["mediterranean_avenue"] = host.id
+    host_user.clear_messages()
+    guest_user.clear_messages()
+
+    bought = game._buy_property_for_player(host, game.active_space_by_id["baltic_avenue"])
+
+    assert bought is True
+    assert "You now own all of the Brown properties." in host_user.get_spoken_messages()
+    assert "Host now owns all of the Brown properties." in guest_user.get_spoken_messages()
+
+
+def test_monopoly_buying_fourth_railroad_announces_completed_set() -> None:
+    game = _start_two_player_game()
+    host = game.players[0]
+    guest = game.players[1]
+    host_user = game.get_user(host)
+    guest_user = game.get_user(guest)
+    assert host_user is not None
+    assert guest_user is not None
+
+    for space_id in ("reading_railroad", "pennsylvania_railroad", "bo_railroad"):
+        host.owned_space_ids.append(space_id)
+        game.property_owners[space_id] = host.id
+    host_user.clear_messages()
+    guest_user.clear_messages()
+
+    bought = game._buy_property_for_player(host, game.active_space_by_id["short_line"])
+
+    assert bought is True
+    assert "You now own all of the railroads." in host_user.get_spoken_messages()
+    assert "Host now owns all of the railroads." in guest_user.get_spoken_messages()
 
 
 def test_monopoly_bot_accepts_favorable_pending_trade_offer():

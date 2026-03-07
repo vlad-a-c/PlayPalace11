@@ -50,7 +50,7 @@ monopoly-action-disabled-for-preset = Esta ação está desativada para o modo s
 monopoly-buy-disabled = Comprar propriedade diretamente está desativado neste modo.
 
 # Turn events
-monopoly-pass-go = { $player } passou pelo INÍCIO e recebeu { $amount } (dinheiro: { $cash }).
+monopoly-pass-go = { $player } passou pelo INÍCIO e recebeu { $amount }.
 monopoly-roll-result = { $player } rolou { $die1 } + { $die2 } = { $total } e caiu em { $space }.
 monopoly-roll-only = { $player } rolou { $die1 } + { $die2 } = { $total }.
 monopoly-you-roll-result = Você rolou { $die1 } + { $die2 } = { $total } e caiu em { $space }.
@@ -60,11 +60,17 @@ monopoly-player-roll-only = { $player } rolou { $die1 } + { $die2 } = { $total }
 monopoly-you-roll-only-doubles = Você rolou { $die1 } + { $die2 } = { $total }. Dupla!
 monopoly-player-roll-only-doubles = { $player } rolou { $die1 } + { $die2 } = { $total }. Dupla!
 monopoly-property-available = { $property } está disponível por { $price }.
-monopoly-property-bought = { $player } comprou { $property } por { $price } (dinheiro: { $cash }).
+monopoly-property-bought = { $player } comprou { $property } por { $price }.
 monopoly-rent-paid = { $player } pagou { $amount } de aluguel a { $owner } por { $property }.
 monopoly-player-paid-player = { $player } pagou { $amount } a { $target }.
+monopoly-you-completed-color-set = Agora você possui todas as propriedades { $group }.
+monopoly-player-completed-color-set = { $player } agora possui todas as propriedades { $group }.
+monopoly-you-completed-railroads = Agora você possui todas as ferrovias.
+monopoly-player-completed-railroads = { $player } agora possui todas as ferrovias.
+monopoly-you-completed-utilities = Agora você possui todas as companhias.
+monopoly-player-completed-utilities = { $player } agora possui todas as companhias.
 monopoly-landed-owned = { $player } caiu na própria propriedade: { $property }.
-monopoly-tax-paid = { $player } pagou { $amount } por { $tax } (dinheiro: { $cash }).
+monopoly-tax-paid = { $player } pagou { $amount } por { $tax }.
 monopoly-go-to-jail = { $player } vai para a prisão (movido para { $space }).
 monopoly-bankrupt-player = Você faliu e saiu do jogo.
 monopoly-player-bankrupt = { $player } faliu. Credor: { $creditor }.
@@ -126,15 +132,15 @@ monopoly-jail-roll-doubles = { $player } rolou uma dupla ({ $die1 } e { $die2 })
 monopoly-you-jail-roll-doubles = Você rolou uma dupla ({ $die1 } e { $die2 }) e sai da prisão.
 monopoly-player-jail-roll-doubles = { $player } rolou uma dupla ({ $die1 } e { $die2 }) e sai da prisão.
 monopoly-jail-roll-failed = { $player } rolou { $die1 } e { $die2 } na prisão (tentativa { $attempts }).
-monopoly-bail-paid = { $player } pagou { $amount } de fiança (dinheiro: { $cash }).
+monopoly-bail-paid = { $player } pagou { $amount } de fiança.
 monopoly-three-doubles-jail = { $player } rolou três duplas em um turno e foi para a prisão.
 monopoly-you-three-doubles-jail = Você rolou três duplas em um turno e foi para a prisão.
 monopoly-player-three-doubles-jail = { $player } rolou três duplas em um turno e foi para a prisão.
-monopoly-jail-card-used = { $player } usou uma carta de saída da prisão ({ $cards } restantes).
-monopoly-sore-loser-rebate = { $player } recebeu um reembolso de mau perdedor de { $amount } (dinheiro: { $cash }).
-monopoly-cheaters-early-end-turn-blocked = { $player } tentou encerrar o turno cedo e pagou uma penalidade de trapaça de { $amount } (dinheiro: { $cash }).
-monopoly-cheaters-payment-avoidance-blocked = { $player } ativou uma penalidade por evitar pagamento de { $amount } (dinheiro: { $cash }).
-monopoly-cheaters-reward-granted = { $player } recebeu uma recompensa de trapaça de { $amount } (dinheiro: { $cash }).
+monopoly-jail-card-used = { $player } usou uma carta de saída da prisão.
+monopoly-sore-loser-rebate = { $player } recebeu um reembolso de mau perdedor de { $amount }.
+monopoly-cheaters-early-end-turn-blocked = { $player } tentou encerrar o turno cedo e pagou uma penalidade de trapaça de { $amount }.
+monopoly-cheaters-payment-avoidance-blocked = { $player } ativou uma penalidade por evitar pagamento de { $amount }.
+monopoly-cheaters-reward-granted = { $player } recebeu uma recompensa de trapaça de { $amount }.
 monopoly-cheaters-reward-unavailable = { $player } já recebeu a recompensa de trapaça neste turno.
 
 # Auctions and mortgages
@@ -143,16 +149,17 @@ monopoly-auction-started = Leilão iniciado para { $property } (lance inicial: {
 monopoly-auction-turn = Turno do leilão: { $player } deve agir em { $property } (lance atual: { $amount }).
 monopoly-auction-bid-placed = { $player } ofertou { $amount } por { $property }.
 monopoly-auction-pass-event = { $player } passou em { $property }.
-monopoly-auction-won = { $player } venceu o leilão de { $property } por { $amount } (dinheiro: { $cash }).
-monopoly-property-mortgaged = { $player } hipotecou { $property } por { $amount } (dinheiro: { $cash }).
-monopoly-property-unmortgaged = { $player } deshipotecou { $property } por { $amount } (dinheiro: { $cash }).
-monopoly-house-built = { $player } construiu em { $property } por { $amount } (nível: { $level }, dinheiro: { $cash }).
-monopoly-house-sold = { $player } vendeu uma construção em { $property } por { $amount } (nível: { $level }, dinheiro: { $cash }).
+monopoly-auction-won = { $player } venceu o leilão de { $property } por { $amount }.
+monopoly-property-mortgaged = { $player } hipotecou { $property } por { $amount }.
+monopoly-property-unmortgaged = { $player } deshipotecou { $property } por { $amount }.
+monopoly-house-built-house = { $player } construiu uma casa em { $property } por { $amount }. Agora ela tem { $level }.
+monopoly-house-built-hotel = { $player } construiu um hotel em { $property } por { $amount }.
+monopoly-house-sold = { $player } vendeu uma construção em { $property } por { $amount } (nível: { $level }).
 monopoly-trade-offered = { $proposer } ofereceu a { $target } uma troca: { $offer }.
 monopoly-trade-completed = Troca concluída entre { $proposer } e { $target }: { $offer }.
 monopoly-trade-declined = { $target } recusou a troca de { $proposer }: { $offer }.
 monopoly-trade-cancelled = Troca cancelada: { $offer }.
-monopoly-free-parking-jackpot = { $player } recebeu o jackpot do Estacionamento Livre de { $amount } (dinheiro: { $cash }).
+monopoly-free-parking-jackpot = { $player } recebeu o jackpot do Estacionamento Livre de { $amount }.
 monopoly-mortgaged-no-rent = { $player } caiu em { $property } hipotecada; nenhum aluguel é devido.
 monopoly-builder-blocks-awarded = { $player } ganhou { $amount } blocos de construtor ({ $blocks } no total).
 monopoly-builder-block-spent = { $player } gastou um bloco de construtor ({ $blocks } restantes).
@@ -165,14 +172,14 @@ monopoly-voice-command-error = Erro no comando de voz: { $reason }.
 monopoly-voice-command-accepted = Comando de voz aceito: { $intent }.
 monopoly-voice-command-repeat = Repetindo o último código de resposta bancária: { $response }.
 monopoly-voice-transfer-staged = Transferência por voz preparada: { $amount } para { $target }. Diga voice: confirm transfer.
-monopoly-mortgage-transfer-interest-paid = { $player } pagou { $amount } de juros por transferência de hipoteca (dinheiro: { $cash }).
+monopoly-mortgage-transfer-interest-paid = { $player } pagou { $amount } de juros por transferência de hipoteca.
 
 # Card engine
 monopoly-card-drawn = { $player } tirou uma carta de { $deck }: { $card }.
-monopoly-card-collect = { $player } recebeu { $amount } (dinheiro: { $cash }).
-monopoly-card-pay = { $player } pagou { $amount } (dinheiro: { $cash }).
+monopoly-card-collect = { $player } recebeu { $amount }.
+monopoly-card-pay = { $player } pagou { $amount }.
 monopoly-card-move = { $player } foi movido para { $space }.
-monopoly-card-jail-free = { $player } recebeu uma carta de saída da prisão ({ $cards } no total).
+monopoly-card-jail-free = { $player } recebeu uma carta de saída da prisão.
 monopoly-card-utility-roll = { $player } rolou { $die1 } + { $die2 } = { $total } para aluguel de companhia.
 monopoly-deck-chance = Sorte
 monopoly-deck-community-chest = Caixa da Comunidade

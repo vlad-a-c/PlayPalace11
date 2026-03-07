@@ -1951,6 +1951,7 @@ class MonopolyGame(ActionGuardMixin, Game):
             items,
             multiletter=True,
             escape_behavior=EscapeBehavior.SELECT_LAST,
+            position=1,
         )
 
     def _is_view_active_deed_enabled(self, player: Player) -> str | None:
@@ -2126,6 +2127,7 @@ class MonopolyGame(ActionGuardMixin, Game):
             items,
             multiletter=True,
             escape_behavior=EscapeBehavior.SELECT_LAST,
+            position=1,
         )
 
     def _action_select_player_property_owner(
@@ -2395,7 +2397,6 @@ class MonopolyGame(ActionGuardMixin, Game):
         self.broadcast_l(
             "monopoly-card-jail-free",
             player=player.name,
-            cards=player.get_out_of_jail_cards,
         )
         return "resolved"
 
@@ -2697,7 +2698,6 @@ class MonopolyGame(ActionGuardMixin, Game):
             "monopoly-mortgage-transfer-interest-paid",
             player=player.name,
             amount=paid,
-            cash=player.cash,
         )
         if paid < total_due and allow_bankruptcy:
             self._declare_bankrupt(player, creditor_name="Bank")
@@ -2835,6 +2835,110 @@ class MonopolyGame(ActionGuardMixin, Game):
         if not group_ids:
             return False
         return all(self.property_owners.get(space_id) == owner_id for space_id in group_ids)
+
+    def _owns_all_of_kind(self, owner_id: str, kind: str) -> bool:
+        """Return True when one owner controls every active space of one kind."""
+        total = sum(1 for space in self.active_board_spaces if space.kind == kind)
+        if total <= 0:
+            return False
+        return self._count_owned_kind(owner_id, kind) >= total
+
+    def _color_group_label(self, color_group: str, locale: str) -> str:
+        """Return one localized color-group label."""
+        return self._monopoly_text(
+            locale,
+            f"monopoly-color-{color_group}",
+            fallback=color_group.replace("_", " ").title(),
+        )
+
+    def _broadcast_completed_collection(
+        self,
+        player: MonopolyPlayer,
+        *,
+        color_group: str | None = None,
+        kind: str | None = None,
+    ) -> None:
+        """Announce when a player completes a full set."""
+        for listener in self.players:
+            user = self.get_user(listener)
+            if not user:
+                continue
+            locale = user.locale
+            if color_group:
+                message_id = (
+                    "monopoly-you-completed-color-set"
+                    if listener.id == player.id
+                    else "monopoly-player-completed-color-set"
+                )
+                text = self._monopoly_text(
+                    locale,
+                    message_id,
+                    fallback=(
+                        f"You now own all of the {self._color_group_label(color_group, locale)} properties."
+                        if listener.id == player.id
+                        else (
+                            f"{player.name} now owns all of the "
+                            f"{self._color_group_label(color_group, locale)} properties."
+                        )
+                    ),
+                    player=player.name,
+                    group=self._color_group_label(color_group, locale),
+                )
+            elif kind == "railroad":
+                message_id = (
+                    "monopoly-you-completed-railroads"
+                    if listener.id == player.id
+                    else "monopoly-player-completed-railroads"
+                )
+                text = self._monopoly_text(
+                    locale,
+                    message_id,
+                    fallback=(
+                        "You now own all of the railroads."
+                        if listener.id == player.id
+                        else f"{player.name} now owns all of the railroads."
+                    ),
+                    player=player.name,
+                )
+            elif kind == "utility":
+                message_id = (
+                    "monopoly-you-completed-utilities"
+                    if listener.id == player.id
+                    else "monopoly-player-completed-utilities"
+                )
+                text = self._monopoly_text(
+                    locale,
+                    message_id,
+                    fallback=(
+                        "You now own all of the utilities."
+                        if listener.id == player.id
+                        else f"{player.name} now owns all of the utilities."
+                    ),
+                    player=player.name,
+                )
+            else:
+                continue
+            user.speak(text, buffer="table")
+
+    def _announce_completed_collection_if_needed(
+        self,
+        player: MonopolyPlayer,
+        space: MonopolySpace,
+        *,
+        owned_before: bool,
+    ) -> None:
+        """Announce one newly completed color set, railroad set, or utility set."""
+        if owned_before:
+            return
+        if self._is_street_property(space) and space.color_group:
+            if self._owner_has_full_color_set(player.id, space.color_group):
+                self._broadcast_completed_collection(player, color_group=space.color_group)
+            return
+        if space.kind == "railroad" and self._owns_all_of_kind(player.id, "railroad"):
+            self._broadcast_completed_collection(player, kind="railroad")
+            return
+        if space.kind == "utility" and self._owns_all_of_kind(player.id, "utility"):
+            self._broadcast_completed_collection(player, kind="utility")
 
     def _group_space_ids(self, color_group: str) -> list[str]:
         """Get all board space ids in one color group."""
@@ -2983,11 +3087,24 @@ class MonopolyGame(ActionGuardMixin, Game):
         """Transfer one property between players."""
         if not self._is_property_tradable_for_trade(space_id, from_player.id):
             return False
+        space = self.active_space_by_id.get(space_id)
+        if not space:
+            return False
+        owned_before = False
+        if self._is_street_property(space) and space.color_group:
+            owned_before = self._owner_has_full_color_set(to_player.id, space.color_group)
+        elif space.kind in {"railroad", "utility"}:
+            owned_before = self._owns_all_of_kind(to_player.id, space.kind)
         self.property_owners[space_id] = to_player.id
         if space_id in from_player.owned_space_ids:
             from_player.owned_space_ids.remove(space_id)
         if space_id not in to_player.owned_space_ids:
             to_player.owned_space_ids.append(space_id)
+        self._announce_completed_collection_if_needed(
+            to_player,
+            space,
+            owned_before=owned_before,
+        )
         return True
 
     def _transferred_mortgage_interest_due_for_offer(
@@ -3753,6 +3870,11 @@ class MonopolyGame(ActionGuardMixin, Game):
         paid = self._debit_player_to_bank(winner, bid, f"auction:{space.space_id}")
         if paid <= 0:
             return
+        owned_before = False
+        if self._is_street_property(space) and space.color_group:
+            owned_before = self._owner_has_full_color_set(winner.id, space.color_group)
+        elif space.kind in {"railroad", "utility"}:
+            owned_before = self._owns_all_of_kind(winner.id, space.kind)
         if space.space_id not in winner.owned_space_ids:
             winner.owned_space_ids.append(space.space_id)
         self.property_owners[space.space_id] = winner.id
@@ -3764,7 +3886,11 @@ class MonopolyGame(ActionGuardMixin, Game):
             player=winner.name,
             property=space.name,
             amount=paid,
-            cash=winner.cash,
+        )
+        self._announce_completed_collection_if_needed(
+            winner,
+            space,
+            owned_before=owned_before,
         )
         self._award_builder_blocks(winner)
 
@@ -3914,6 +4040,11 @@ class MonopolyGame(ActionGuardMixin, Game):
             return False
         if self._current_liquid_balance(player) < space.price:
             return False
+        owned_before = False
+        if self._is_street_property(space) and space.color_group:
+            owned_before = self._owner_has_full_color_set(player.id, space.color_group)
+        elif space.kind in {"railroad", "utility"}:
+            owned_before = self._owns_all_of_kind(player.id, space.kind)
 
         paid = self._debit_player_to_bank(player, space.price, f"buy_property:{space.space_id}")
         if paid < space.price:
@@ -3930,7 +4061,11 @@ class MonopolyGame(ActionGuardMixin, Game):
             player=player.name,
             property=space.name,
             price=paid,
-            cash=player.cash,
+        )
+        self._announce_completed_collection_if_needed(
+            player,
+            space,
+            owned_before=owned_before,
         )
         self._award_builder_blocks(player)
         return True
@@ -4900,9 +5035,25 @@ class MonopolyGame(ActionGuardMixin, Game):
         for space_id in list(player.owned_space_ids):
             if self.property_owners.get(space_id) == player.id:
                 if creditor:
+                    space = self._space_by_id_or_none(space_id)
+                    owned_before = False
+                    if space is not None:
+                        if self._is_street_property(space) and space.color_group:
+                            owned_before = self._owner_has_full_color_set(
+                                creditor.id,
+                                space.color_group,
+                            )
+                        elif space.kind in {"railroad", "utility"}:
+                            owned_before = self._owns_all_of_kind(creditor.id, space.kind)
                     self.property_owners[space_id] = creditor.id
                     if space_id not in creditor.owned_space_ids:
                         creditor.owned_space_ids.append(space_id)
+                    if space is not None:
+                        self._announce_completed_collection_if_needed(
+                            creditor,
+                            space,
+                            owned_before=owned_before,
+                        )
                     if space_id in self.mortgaged_space_ids:
                         transferred_mortgaged_space_ids.append(space_id)
                 else:
