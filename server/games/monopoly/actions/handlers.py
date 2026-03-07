@@ -88,7 +88,7 @@ def handle_scheduled_event(game: MonopolyGame, event_type: str, data: dict) -> N
         total,
         collect_pass_go=bool(data["collect_pass_go"]),
     )
-    game.broadcast(landed_space.name)
+    game._broadcast_space_name(landed_space)
     resolution = game._resolve_space(mono_player, landed_space, dice_total=total)
 
     powerup_die = data.get("extra_powerup_die")
@@ -179,11 +179,28 @@ def action_banking_ledger(game: MonopolyGame, player: Player, action_id: str) ->
     for tx in game.banking_state.ledger[-5:]:
         if tx.status == "success":
             entries.append(
-                f"{tx.tx_id} {tx.kind} {tx.from_id}->{tx.to_id} {tx.amount} ({tx.reason})"
+                game._monopoly_text(
+                    user.locale,
+                    "monopoly-banking-ledger-entry-success",
+                    fallback=f"{tx.tx_id} {tx.kind} {tx.from_id}->{tx.to_id} {tx.amount} ({tx.reason})",
+                    tx_id=tx.tx_id,
+                    kind=tx.kind,
+                    from_id=tx.from_id,
+                    to_id=tx.to_id,
+                    amount=tx.amount,
+                    reason=tx.reason,
+                )
             )
         else:
             entries.append(
-                f"{tx.tx_id} {tx.kind} failed ({tx.failure_reason or 'unknown'})"
+                game._monopoly_text(
+                    user.locale,
+                    "monopoly-banking-ledger-entry-failed",
+                    fallback=f"{tx.tx_id} {tx.kind} failed ({tx.failure_reason or 'unknown'})",
+                    tx_id=tx.tx_id,
+                    kind=tx.kind,
+                    reason=tx.failure_reason or "unknown",
+                )
             )
 
     if not entries:

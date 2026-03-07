@@ -322,6 +322,29 @@ def test_monopoly_view_active_deed_reads_pending_purchase():
     assert "With 1 house: $20" in lines
 
 
+def test_monopoly_view_active_deed_uses_localized_deed_templates() -> None:
+    game = MonopolyGame(options=MonopolyOptions())
+    host_user = MockUser("Host", locale="pl")
+    guest_user = MockUser("Guest", locale="en")
+    game.add_player("Host", host_user)
+    game.add_player("Guest", guest_user)
+    game.host = "Host"
+    game.on_start()
+    host = game.current_player
+    assert host is not None
+
+    game.turn_pending_purchase_space_id = "baltic_avenue"
+    game.execute_action(host, "view_active_deed")
+
+    status_items = host_user.get_current_menu_items("status_box")
+    assert status_items is not None
+    lines = [item.text for item in status_items]
+    assert "monopoly-deed" not in " ".join(lines)
+    assert "monopoly-color" not in " ".join(lines)
+    assert "Baltic Avenue" in lines
+    assert "Owner: Bank" in lines
+
+
 def test_monopoly_view_active_deed_hidden_when_no_active_deed():
     game = _start_two_player_game()
     host = game.current_player

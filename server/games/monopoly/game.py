@@ -1351,6 +1351,28 @@ class MonopolyGame(ActionGuardMixin, Game):
             return fallback
         return text
 
+    def _monopoly_text(
+        self,
+        locale: str,
+        key: str,
+        *,
+        fallback: str | None = None,
+        **kwargs,
+    ) -> str:
+        """Return one Monopoly locale string with optional fallback text."""
+        text = Localization.get(locale, key, **kwargs)
+        if fallback is not None and text == key:
+            return fallback
+        return text
+
+    def _space_display_name(self, space: MonopolySpace, locale: str) -> str:
+        """Return localized display text for one board space."""
+        return self._monopoly_text(
+            locale,
+            f"monopoly-space-{space.space_id}",
+            fallback=space.name,
+        )
+
     def _is_announce_preset_enabled(self, player: Player) -> str | None:
         """Enable preset announcements during active play."""
         return self.guard_game_active()
@@ -1393,15 +1415,17 @@ class MonopolyGame(ActionGuardMixin, Game):
             return None
         return landed
 
-    def _owner_name_for_space(self, space_id: str) -> str:
+    def _owner_name_for_space(self, space_id: str, locale: str) -> str:
         """Return owner name for one space id."""
         owner_id = self.property_owners.get(space_id, "")
         if not owner_id:
-            return "Bank"
+            return self._monopoly_text(locale, "monopoly-owner-bank", fallback="Bank")
         owner = self.get_player_by_id(owner_id)
-        return owner.name if owner else "Unknown"
+        if owner:
+            return owner.name
+        return self._monopoly_text(locale, "monopoly-owner-unknown", fallback="Unknown")
 
-    def _building_status_text(self, space: MonopolySpace) -> str:
+    def _building_status_text(self, space: MonopolySpace, locale: str) -> str:
         """Return compact building status text for property summaries."""
         if not self._is_street_property(space):
             return ""
@@ -1409,20 +1433,53 @@ class MonopolyGame(ActionGuardMixin, Game):
         if level <= 0:
             return ""
         if level >= 5:
-            return "with hotel"
+            return self._monopoly_text(
+                locale,
+                "monopoly-building-status-hotel",
+                fallback="with hotel",
+            )
         if level == 1:
-            return "with 1 house"
-        return f"with {level} houses"
+            return self._monopoly_text(
+                locale,
+                "monopoly-building-status-one-house",
+                fallback="with 1 house",
+            )
+        return self._monopoly_text(
+            locale,
+            "monopoly-building-status-houses",
+            fallback=f"with {level} houses",
+            count=level,
+        )
 
-    def _deed_menu_label(self, space: MonopolySpace) -> str:
+    def _deed_menu_label(self, space: MonopolySpace, locale: str) -> str:
         """Build one concise menu label for deed browsing."""
-        owner = self._owner_name_for_space(space.space_id)
-        building = self._building_status_text(space)
-        mortgaged = "mortgaged" if self._is_space_mortgaged(space.space_id) else ""
+        owner = self._owner_name_for_space(space.space_id, locale)
+        building = self._building_status_text(space, locale)
+        mortgaged = ""
+        if self._is_space_mortgaged(space.space_id):
+            mortgaged = self._monopoly_text(
+                locale,
+                "monopoly-mortgaged-short",
+                fallback="mortgaged",
+            )
         extras = ", ".join([part for part in (building, mortgaged) if part])
+        property_name = self._space_display_name(space, locale)
         if extras:
-            return f"{space.name} ({owner}; {extras})"
-        return f"{space.name} ({owner})"
+            return self._monopoly_text(
+                locale,
+                "monopoly-deed-menu-label-extra",
+                fallback=f"{property_name} ({owner}; {extras})",
+                property=property_name,
+                owner=owner,
+                extras=extras,
+            )
+        return self._monopoly_text(
+            locale,
+            "monopoly-deed-menu-label",
+            fallback=f"{property_name} ({owner})",
+            property=property_name,
+            owner=owner,
+        )
 
     def _sorted_owned_space_ids(self, owner_id: str) -> list[str]:
         """Return owner's deed-capable spaces sorted by board index."""
@@ -1437,59 +1494,248 @@ class MonopolyGame(ActionGuardMixin, Game):
         spaces.sort(key=lambda space: space.index)
         return [space.space_id for space in spaces]
 
-    def _deed_lines(self, space: MonopolySpace) -> list[str]:
+    def _deed_lines(self, space: MonopolySpace, locale: str) -> list[str]:
         """Render one title deed as multiline status text."""
-        lines = [space.name]
+        lines = [self._space_display_name(space, locale)]
         if self._is_street_property(space):
-            color = space.color_group.replace("_", " ").title()
-            lines.append(f"Type: {color} color group")
+            color = self._monopoly_text(
+                locale,
+                f"monopoly-color-{space.color_group}",
+                fallback=space.color_group.replace("_", " ").title(),
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-type-color-group",
+                    fallback=f"Type: {color} color group",
+                    color=color,
+                )
+            )
         elif space.kind == "railroad":
-            lines.append("Type: Railroad")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-type-railroad",
+                    fallback="Type: Railroad",
+                )
+            )
         elif space.kind == "utility":
-            lines.append("Type: Utility")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-type-utility",
+                    fallback="Type: Utility",
+                )
+            )
         else:
-            lines.append(f"Type: {space.kind.title()}")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-type-generic",
+                    fallback=f"Type: {space.kind.title()}",
+                    kind=space.kind.title(),
+                )
+            )
         if space.price > 0:
-            lines.append(f"Purchase price: ${space.price}")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-purchase-price",
+                    fallback=f"Purchase price: ${space.price}",
+                    amount=f"${space.price}",
+                )
+            )
 
         if self._is_street_property(space):
             base_rent = space.rents[0] if space.rents else space.rent
-            lines.append(f"Rent: ${base_rent}")
-            lines.append(f"If owner has full color set: ${base_rent * 2}")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-rent",
+                    fallback=f"Rent: ${base_rent}",
+                    amount=f"${base_rent}",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-full-set-rent",
+                    fallback=f"If owner has full color set: ${base_rent * 2}",
+                    amount=f"${base_rent * 2}",
+                )
+            )
             if space.rents:
                 if len(space.rents) > 1:
-                    lines.append(f"With 1 house: ${space.rents[1]}")
+                    lines.append(
+                        self._monopoly_text(
+                            locale,
+                            "monopoly-deed-rent-one-house",
+                            fallback=f"With 1 house: ${space.rents[1]}",
+                            amount=f"${space.rents[1]}",
+                        )
+                    )
                 if len(space.rents) > 2:
-                    lines.append(f"With 2 houses: ${space.rents[2]}")
+                    lines.append(
+                        self._monopoly_text(
+                            locale,
+                            "monopoly-deed-rent-houses",
+                            fallback=f"With 2 houses: ${space.rents[2]}",
+                            count=2,
+                            amount=f"${space.rents[2]}",
+                        )
+                    )
                 if len(space.rents) > 3:
-                    lines.append(f"With 3 houses: ${space.rents[3]}")
+                    lines.append(
+                        self._monopoly_text(
+                            locale,
+                            "monopoly-deed-rent-houses",
+                            fallback=f"With 3 houses: ${space.rents[3]}",
+                            count=3,
+                            amount=f"${space.rents[3]}",
+                        )
+                    )
                 if len(space.rents) > 4:
-                    lines.append(f"With 4 houses: ${space.rents[4]}")
+                    lines.append(
+                        self._monopoly_text(
+                            locale,
+                            "monopoly-deed-rent-houses",
+                            fallback=f"With 4 houses: ${space.rents[4]}",
+                            count=4,
+                            amount=f"${space.rents[4]}",
+                        )
+                    )
                 if len(space.rents) > 5:
-                    lines.append(f"With hotel: ${space.rents[5]}")
+                    lines.append(
+                        self._monopoly_text(
+                            locale,
+                            "monopoly-deed-rent-hotel",
+                            fallback=f"With hotel: ${space.rents[5]}",
+                            amount=f"${space.rents[5]}",
+                        )
+                    )
             if space.house_cost > 0:
-                lines.append(f"House cost: ${space.house_cost}")
+                lines.append(
+                    self._monopoly_text(
+                        locale,
+                        "monopoly-deed-house-cost",
+                        fallback=f"House cost: ${space.house_cost}",
+                        amount=f"${space.house_cost}",
+                    )
+                )
         elif space.kind == "railroad":
-            lines.append("Rent with 1 railroad: $25")
-            lines.append("Rent with 2 railroads: $50")
-            lines.append("Rent with 3 railroads: $100")
-            lines.append("Rent with 4 railroads: $200")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-railroad-rent",
+                    fallback="Rent with 1 railroad: $25",
+                    count=1,
+                    amount="$25",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-railroad-rent",
+                    fallback="Rent with 2 railroads: $50",
+                    count=2,
+                    amount="$50",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-railroad-rent",
+                    fallback="Rent with 3 railroads: $100",
+                    count=3,
+                    amount="$100",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-railroad-rent",
+                    fallback="Rent with 4 railroads: $200",
+                    count=4,
+                    amount="$200",
+                )
+            )
         elif space.kind == "utility":
-            lines.append("If one utility is owned: 4x dice roll")
-            lines.append("If both utilities are owned: 10x dice roll")
-            lines.append("Utility base rent (legacy fallback): $20")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-utility-one-owned",
+                    fallback="If one utility is owned: 4x dice roll",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-utility-both-owned",
+                    fallback="If both utilities are owned: 10x dice roll",
+                )
+            )
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-utility-base-rent",
+                    fallback="Utility base rent (legacy fallback): $20",
+                    amount="$20",
+                )
+            )
         else:
-            lines.append(f"Rent: ${space.rent}")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-rent",
+                    fallback=f"Rent: ${space.rent}",
+                    amount=f"${space.rent}",
+                )
+            )
 
-        lines.append(f"Mortgage value: ${self._mortgage_value(space)}")
-        lines.append(f"Unmortgage cost: ${self._unmortgage_cost(space)}")
-        lines.append(f"Owner: {self._owner_name_for_space(space.space_id)}")
+        lines.append(
+            self._monopoly_text(
+                locale,
+                "monopoly-deed-mortgage-value",
+                fallback=f"Mortgage value: ${self._mortgage_value(space)}",
+                amount=f"${self._mortgage_value(space)}",
+            )
+        )
+        lines.append(
+            self._monopoly_text(
+                locale,
+                "monopoly-deed-unmortgage-cost",
+                fallback=f"Unmortgage cost: ${self._unmortgage_cost(space)}",
+                amount=f"${self._unmortgage_cost(space)}",
+            )
+        )
+        owner = self._owner_name_for_space(space.space_id, locale)
+        lines.append(
+            self._monopoly_text(
+                locale,
+                "monopoly-deed-owner",
+                fallback=f"Owner: {owner}",
+                owner=owner,
+            )
+        )
 
-        building = self._building_status_text(space)
+        building = self._building_status_text(space, locale)
         if building:
-            lines.append(f"Current buildings: {building}")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-current-buildings",
+                    fallback=f"Current buildings: {building}",
+                    buildings=building,
+                )
+            )
         if self._is_space_mortgaged(space.space_id):
-            lines.append("Status: Mortgaged")
+            lines.append(
+                self._monopoly_text(
+                    locale,
+                    "monopoly-deed-status-mortgaged",
+                    fallback="Status: Mortgaged",
+                )
+            )
         return lines
 
     def _open_deed_selection_menu(
@@ -1505,12 +1751,13 @@ class MonopolyGame(ActionGuardMixin, Game):
         user = self.get_user(player)
         if not user:
             return
+        locale = user.locale
         items: list[MenuItem] = []
         for space_id in space_ids:
             space = self.active_space_by_id.get(space_id)
             if not space or space.kind not in PURCHASABLE_KINDS:
                 continue
-            items.append(MenuItem(text=self._deed_menu_label(space), id=space.space_id))
+            items.append(MenuItem(text=self._deed_menu_label(space, locale), id=space.space_id))
         if not items:
             kwargs = empty_message_kwargs or {}
             user.speak_l(empty_message_key, **kwargs)
@@ -1630,13 +1877,14 @@ class MonopolyGame(ActionGuardMixin, Game):
     def _action_view_active_deed(self, player: Player, action_id: str) -> None:
         """Read the deed for the active board item."""
         _ = action_id
+        user = self.get_user(player)
         space = self._active_deed_space()
         if not space:
-            user = self.get_user(player)
             if user:
                 user.speak_l("monopoly-no-active-deed")
             return
-        self.status_box(player, self._deed_lines(space))
+        locale = user.locale if user else "en"
+        self.status_box(player, self._deed_lines(space, locale))
 
     def _action_browse_all_deeds(self, player: Player, action_id: str) -> None:
         """Open board-ordered deed list and allow selection."""
@@ -1673,11 +1921,24 @@ class MonopolyGame(ActionGuardMixin, Game):
                 continue
             square_name = ""
             if self.active_board_size > 0:
-                square_name = self._space_at(candidate.position).name
+                square_name = self._space_display_name(self._space_at(candidate.position), user.locale)
             if square_name:
-                label = f"{candidate.name}, on {square_name}, square {candidate.position}"
+                label = self._monopoly_text(
+                    user.locale,
+                    "monopoly-player-properties-label",
+                    fallback=f"{candidate.name}, on {square_name}, square {candidate.position}",
+                    player=candidate.name,
+                    space=square_name,
+                    position=candidate.position,
+                )
             else:
-                label = f"{candidate.name}, square {candidate.position}"
+                label = self._monopoly_text(
+                    user.locale,
+                    "monopoly-player-properties-label-no-space",
+                    fallback=f"{candidate.name}, square {candidate.position}",
+                    player=candidate.name,
+                    position=candidate.position,
+                )
             items.append(MenuItem(text=label, id=candidate.id))
         if not items:
             user.speak_l("monopoly-no-players-with-properties")
@@ -1730,7 +1991,7 @@ class MonopolyGame(ActionGuardMixin, Game):
         return Localization.get(
             locale,
             "monopoly-view-active-deed-space",
-            property=space.name,
+            property=self._space_display_name(space, locale),
         )
 
     def _get_buy_property_label(self, player: Player, action_id: str) -> str:
@@ -1748,7 +2009,9 @@ class MonopolyGame(ActionGuardMixin, Game):
         space = self.active_space_by_id.get(space_id)
         if not space or space.kind not in PURCHASABLE_KINDS:
             return
-        self.status_box(player, self._deed_lines(space))
+        user = self.get_user(player)
+        locale = user.locale if user else "en"
+        self.status_box(player, self._deed_lines(space, locale))
 
     def _action_view_selected_owner_property_deed(
         self, player: Player, space_id: str, action_id: str
@@ -1944,10 +2207,20 @@ class MonopolyGame(ActionGuardMixin, Game):
         """Get board space by board index."""
         return self.active_board_spaces[position % self.active_board_size]
 
-    def _space_label(self, space_id: str) -> str:
+    def _space_label(self, space_id: str, locale: str = "en") -> str:
         """Return display label for a space id."""
         space = self.active_space_by_id.get(space_id)
-        return space.name if space else space_id
+        if not space:
+            return space_id
+        return self._space_display_name(space, locale)
+
+    def _broadcast_space_name(self, space: MonopolySpace) -> None:
+        """Speak one board-space name with per-user localization."""
+        for player in self.players:
+            user = self.get_user(player)
+            if not user:
+                continue
+            user.speak(self._space_display_name(space, user.locale))
 
     def _mortgage_value(self, space: MonopolySpace) -> int:
         """Get mortgage value for a space."""
