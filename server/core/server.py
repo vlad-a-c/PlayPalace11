@@ -1268,7 +1268,12 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                     return
 
                 # User not found - check if this will be a new user that needs approval
-                needs_approval = self._db.get_user_count() > 0
+                tmpuser=self._db.get_user(username=username)
+                if(tmpuser is None):
+                    needs_approval = self._auto_approve_new_accounts 
+                else:
+                    needs_approval = tmpuser.approved
+                tmpuser=None
 
                 # Try to register
                 if not self._auth.register(username, password, approval=self._auto_approve_new_accounts, locale=locale):
