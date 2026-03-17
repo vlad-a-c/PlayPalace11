@@ -1276,7 +1276,7 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                 # User not found - check if this will be a new user that needs approval
                 tmpuser=self._db.get_user(username=username)
                 if(tmpuser is None):
-                    needs_approval = self._auto_approve_new_accounts 
+                    needs_approval = not self._auto_approve_new_accounts 
                 else:
                     needs_approval = tmpuser.approved
                 tmpuser=None
@@ -1293,8 +1293,6 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                         "return_to_login": True,
                         "message": error_message,
                     })
-                    return
-
                 if not self._auth.register(username, password, block_new_accounts=self._block_new_accounts, approval=self._auto_approve_new_accounts, locale=locale):
                     self._record_login_failure(username)
                     # Registration failed (shouldn't happen if user not found, but handle anyway)
@@ -1353,11 +1351,11 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
             await client.send({"type": "speak", "text": throttle_message, "buffer": "activity"})
             return
 
+
         # All self-registered users require approval.
         needs_approval = not self._auto_approve_new_accounts
-
         # Try to register the user
-        if self._auth.register(username, password, approval=self._auto_approve_new_accounts, locale=locale):
+        if self._auth.register(username, password, approval=self._auto_approve_new_accounts, block_new_accounts=self._block_new_accounts, locale=locale):
             await client.send({
                 "type": "speak",
                 "text": "Registration successful! Your account is waiting for approval.",
