@@ -330,10 +330,24 @@ class BackgammonGame(Game):
             if action.id in action_set._order:
                 action_set._order.remove(action.id)
             action_set._order.insert(0, action.id)
+
+        # Hide base score actions — we use our own check_score
+        for action_id in ("check_scores", "check_scores_detailed"):
+            existing = action_set.get_action(action_id)
+            if existing:
+                existing.show_in_actions_menu = False
+
         return action_set
 
     def setup_keybinds(self) -> None:
         super().setup_keybinds()
+
+        # Remove base class's score keybinds — we use our own
+        if "s" in self._keybinds:
+            self._keybinds["s"] = []
+        if "shift+s" in self._keybinds:
+            self._keybinds["shift+s"] = []
+
         # Rolling is done by pressing enter on any grid point (no dedicated key)
         self.define_keybind("shift+d", "Double", ["offer_double"], state=KeybindState.ACTIVE)
         self.define_keybind("y", "Accept double", ["accept_double"], state=KeybindState.ACTIVE)
@@ -756,7 +770,7 @@ class BackgammonGame(Game):
         if matched_move.is_hit:
             self.play_sound(f"game_chess/capture{random.randint(1, 2)}.ogg")  # nosec B311
         elif matched_move.is_bear_off:
-            self.play_sound("mention.ogg")
+            self.play_sound("mention.ogg", volume=50)
         else:
             self.play_sound("game_squares/step1.ogg")
 
@@ -1539,6 +1553,12 @@ class BackgammonGame(Game):
         if self.status != "playing":
             return "action-not-playing"
         return None
+
+    def _is_check_scores_hidden(self, player: Player) -> Visibility:
+        return Visibility.HIDDEN
+
+    def _is_check_scores_detailed_hidden(self, player: Player) -> Visibility:
+        return Visibility.HIDDEN
 
     def _is_always_hidden(self, player: Player) -> Visibility:
         return Visibility.HIDDEN
