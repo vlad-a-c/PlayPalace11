@@ -23,6 +23,39 @@ backgammon-move-bar = Barra a { $dest }, { $count }.
 backgammon-move-bar-hit = Barra captura en { $dest }, { $count }.
 backgammon-move-bearoff = Sacando de { $src }, { $remain }.
 
+# Comentario de movimientos detallado
+backgammon-verbose-move-normal = { $is_self ->
+    [yes] Mueves una ficha del punto { $src } al punto { $dest }.
+    *[no] { $player } mueve una ficha del punto { $src } al punto { $dest }.
+} { $src_count ->
+    [0] El punto { $src } queda vacío, { $dest_count } en el punto { $dest }.
+    *[other] { $src_count } en el punto { $src }, { $dest_count } en el punto { $dest }.
+}
+backgammon-verbose-move-hit = { $is_self ->
+    [yes] Mueves una ficha del punto { $src } para capturar la ficha de { $opponent } en el punto { $dest }.
+    [spectator] { $player } mueve una ficha del punto { $src } para capturar la ficha de { $opponent } en el punto { $dest }.
+    *[no] { $player } mueve una ficha del punto { $src } para capturar tu ficha en el punto { $dest }.
+} { $src_count ->
+    [0] El punto { $src } queda vacío.
+    *[other] { $src_count } restantes en el punto { $src }.
+}
+backgammon-verbose-move-bar = { $is_self ->
+    [yes] Entras desde la barra al punto { $dest }.
+    *[no] { $player } entra desde la barra al punto { $dest }.
+} { $dest_count } en el punto { $dest }.
+backgammon-verbose-move-bar-hit = { $is_self ->
+    [yes] Entras desde la barra para capturar la ficha de { $opponent } en el punto { $dest }.
+    [spectator] { $player } entra desde la barra para capturar la ficha de { $opponent } en el punto { $dest }.
+    *[no] { $player } entra desde la barra para capturar tu ficha en el punto { $dest }.
+}
+backgammon-verbose-move-bearoff = { $is_self ->
+    [yes] Sacas una ficha del punto { $src }.
+    *[no] { $player } saca una ficha del punto { $src }.
+} { $src_count ->
+    [0] El punto { $src } queda vacío.
+    *[other] { $src_count } restantes en el punto { $src }.
+}
+
 # Doblaje
 backgammon-doubles = { $player } dobla a { $value }.
 backgammon-accepts = { $player } acepta.
@@ -51,6 +84,7 @@ backgammon-selected-point = Seleccionado punto { $point }, { $count } fichas.
 backgammon-selected-bar = Barra seleccionada.
 backgammon-deselected = Deseleccionado.
 backgammon-no-checkers-there = No hay fichas ahí.
+backgammon-not-your-checkers = Esas no son tus fichas.
 backgammon-no-moves-from-here = No hay movimientos legales desde aquí.
 backgammon-must-enter-from-bar = Primero debes entrar desde la barra.
 backgammon-illegal-move = Movimiento ilegal.

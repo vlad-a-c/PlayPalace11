@@ -23,6 +23,39 @@ backgammon-move-bar = Bar to { $dest }, { $count }.
 backgammon-move-bar-hit = Bar to capture on { $dest }, { $count }.
 backgammon-move-bearoff = Bearing off from { $src }, { $remain }.
 
+# Verbose move commentary
+backgammon-verbose-move-normal = { $is_self ->
+    [yes] You move a checker from point { $src } to point { $dest }.
+    *[no] { $player } moves a checker from point { $src } to point { $dest }.
+} { $src_count ->
+    [0] Point { $src } is now empty, { $dest_count } on point { $dest }.
+    *[other] { $src_count } now on point { $src }, { $dest_count } on point { $dest }.
+}
+backgammon-verbose-move-hit = { $is_self ->
+    [yes] You move a checker from point { $src } to capture { $opponent }'s checker on point { $dest }.
+    [spectator] { $player } moves a checker from point { $src } to capture { $opponent }'s checker on point { $dest }.
+    *[no] { $player } moves a checker from point { $src } to capture your checker on point { $dest }.
+} { $src_count ->
+    [0] Point { $src } is now empty.
+    *[other] { $src_count } remaining on point { $src }.
+}
+backgammon-verbose-move-bar = { $is_self ->
+    [yes] You enter from the bar to point { $dest }.
+    *[no] { $player } enters from the bar to point { $dest }.
+} { $dest_count } now on point { $dest }.
+backgammon-verbose-move-bar-hit = { $is_self ->
+    [yes] You enter from the bar to capture { $opponent }'s checker on point { $dest }.
+    [spectator] { $player } enters from the bar to capture { $opponent }'s checker on point { $dest }.
+    *[no] { $player } enters from the bar to capture your checker on point { $dest }.
+}
+backgammon-verbose-move-bearoff = { $is_self ->
+    [yes] You bear off from point { $src }.
+    *[no] { $player } bears off from point { $src }.
+} { $src_count ->
+    [0] Point { $src } is now empty.
+    *[other] { $src_count } remaining on point { $src }.
+}
+
 # Doubling
 backgammon-doubles = { $player } doubles to { $value }.
 backgammon-accepts = { $player } accepts.
@@ -51,6 +84,7 @@ backgammon-selected-point = Selected point { $point }, { $count } checkers.
 backgammon-selected-bar = Selected bar.
 backgammon-deselected = Deselected.
 backgammon-no-checkers-there = No checkers there.
+backgammon-not-your-checkers = Those are not your checkers.
 backgammon-no-moves-from-here = No legal moves from here.
 backgammon-must-enter-from-bar = Must enter from bar first.
 backgammon-illegal-move = Illegal move.
