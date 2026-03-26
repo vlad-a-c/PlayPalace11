@@ -238,8 +238,7 @@ class TestGameInit:
         game, players = _make_game(4)
         game.on_start()
         assert game.status == "playing"
-        assert game.round == 0
-        assert game.intro_wait_ticks == 140
+        assert game.round == 1
 
     def test_start_resets_state(self):
         game, players = _make_game(4)
@@ -259,24 +258,21 @@ class TestDealing:
     def test_4_players_13_cards_each(self):
         game, players = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         for p in game._playing_players():
             assert len(p.hand) == 13
 
     def test_2_players_26_cards_each(self):
         game, players = _make_game(2)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         for p in game._playing_players():
             assert len(p.hand) == 26
 
     def test_3_players_17_cards_each(self):
         game, players = _make_game(3)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         for p in game._playing_players():
             assert len(p.hand) == 17
 
@@ -284,8 +280,7 @@ class TestDealing:
         """With 3 players, 3 of Spades is removed so deck is 51 cards."""
         game, players = _make_game(3)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         all_cards = []
         for p in game._playing_players():
             all_cards.extend(p.hand)
@@ -298,8 +293,7 @@ class TestFirstTurn:
     def test_3_of_clubs_goes_first(self):
         game, players = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
 
         current = game.current_player
         assert current is not None
@@ -308,8 +302,7 @@ class TestFirstTurn:
     def test_must_include_3_of_clubs(self):
         game, players = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
 
         current = game.current_player
         # Give current player known cards
@@ -331,8 +324,7 @@ class TestPlayValidation:
     def _setup_mid_game(self):
         game, players = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         game.is_first_turn = False
         return game, players
 
@@ -387,8 +379,6 @@ class TestEliminationMode:
     def test_game_ends_when_one_remains(self):
         game, players = _make_game(4, game_mode="elimination", rounds_to_win=1)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
 
         active = game._playing_players()
         # Eliminate all but one
@@ -454,7 +444,6 @@ class TestInstantWinGame:
     def test_instant_win_ends_round(self):
         game, players = _make_game(4, instant_wins=True, card_passing="off")
         game.on_start()
-        game.intro_wait_ticks = 0
 
         # Manually set up a dragon hand for player 0
         active = game._playing_players()
@@ -478,8 +467,7 @@ class TestCardPassing:
     def test_setup_exchange_moves_cards(self):
         game, players = _make_game(4, card_passing="simple")
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
 
         p1, p4 = game._playing_players()[0], game._playing_players()[3]
         p1_hand_before = len(p1.hand)
@@ -514,8 +502,7 @@ class TestBot:
     def test_bot_plays_first_turn(self):
         game, _ = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
 
         current = game.current_player
         ids = bot_think(game, current)
@@ -527,8 +514,7 @@ class TestBot:
     def test_bot_passes_when_cannot_beat(self):
         game, _ = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
         game.is_first_turn = False
 
         current = game.current_player
@@ -555,8 +541,7 @@ class TestSerialization:
     def test_round_trip(self):
         game, players = _make_game(4)
         game.on_start()
-        game.intro_wait_ticks = 1
-        game.on_tick()
+
 
         # Serialize
         data = game.to_dict()

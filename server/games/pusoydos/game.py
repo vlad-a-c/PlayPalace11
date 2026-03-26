@@ -40,10 +40,12 @@ TURN_TIMER_LABELS = {
     "90": "pusoydos-timer-90", "0": "pusoydos-timer-unlimited",
 }
 
-GAME_MODE_CHOICES = ["elimination", "points"]
+GAME_MODE_CHOICES = ["elimination", "losses", "points", "points_elimination"]
 GAME_MODE_LABELS = {
     "elimination": "pusoydos-mode-elimination",
+    "losses": "pusoydos-mode-losses",
     "points": "pusoydos-mode-points",
+    "points_elimination": "pusoydos-mode-points-elimination",
 }
 
 CARD_PASSING_CHOICES = ["off", "simple", "full"]
@@ -62,21 +64,15 @@ PENALTY_TIER_LABELS = {
 
 # Sounds
 SOUND_MUSIC = "game_ninetynine/mus.ogg"
-SOUND_INTRO = "game_crazyeights/intro.ogg"
-SOUND_NEW_HAND = "game_crazyeights/newhand.ogg"
 SOUND_PLAY_SINGLE = ["game_cards/discard1.ogg", "game_cards/discard2.ogg", "game_cards/discard3.ogg"]
 SOUND_PLAY_MULTI = ["game_cards/play1.ogg", "game_cards/play2.ogg", "game_cards/play3.ogg", "game_cards/play4.ogg"]
 SOUND_SHUFFLE = ["game_cards/shuffle1.ogg", "game_cards/shuffle2.ogg", "game_cards/shuffle3.ogg"]
 SOUND_DEAL = ["game_cards/draw1.ogg", "game_cards/draw2.ogg", "game_cards/draw3.ogg", "game_cards/draw4.ogg"]
-SOUND_PASS = "game_crazyeights/pass.ogg"
-SOUND_BIG_COMBO = "game_crazyeights/hitmark.ogg"
-SOUND_ONE_CARD = "game_crazyeights/onecard.ogg"
 SOUND_WIN_ROUND = "game_uno/winround.ogg"
 SOUND_LOSE_ROUND = "game_uno/loseround.ogg"
 SOUND_WIN_GAME = "game_uno/wingame.ogg"
 SOUND_INSTANT_WIN = "game_coup/challengesuccess.ogg"
 SOUND_YOUR_TURN = "turn.ogg"
-SOUND_EXPIRED = "game_crazyeights/expired.ogg"
 SOUND_ELIMINATED = "game_uno/winround.ogg"
 
 
@@ -104,6 +100,15 @@ class PusoyDosOptions(GameOptions):
         ),
         visible_when=("game_mode", lambda v: v == "elimination"),
     )
+    losses_to_lose: int = option_field(
+        IntOption(
+            default=3, min_val=1, max_val=10, value_key="count",
+            label="pusoydos-set-losses-to-lose", prompt="pusoydos-enter-losses-to-lose",
+            change_msg="pusoydos-option-changed-losses-to-lose",
+            description="pusoydos-desc-losses-to-lose",
+        ),
+        visible_when=("game_mode", lambda v: v == "losses"),
+    )
     target_score: int = option_field(
         IntOption(
             default=100, min_val=10, max_val=10000, value_key="score",
@@ -111,7 +116,7 @@ class PusoyDosOptions(GameOptions):
             change_msg="pusoydos-option-changed-target-score",
             description="pusoydos-desc-target-score",
         ),
-        visible_when=("game_mode", lambda v: v == "points"),
+        visible_when=("game_mode", lambda v: v in ("points", "points_elimination")),
     )
     turn_timer: str = option_field(
         MenuOption(
@@ -155,7 +160,7 @@ class PusoyDosOptions(GameOptions):
             change_msg="pusoydos-option-changed-penalty-tier",
             description="pusoydos-desc-penalty-tier",
         ),
-        visible_when=("game_mode", lambda v: v == "points"),
+        visible_when=("game_mode", lambda v: v in ("points", "points_elimination")),
     )
     penalty_per_two: bool = option_field(
         BoolOption(
@@ -164,7 +169,7 @@ class PusoyDosOptions(GameOptions):
             change_msg="pusoydos-option-changed-penalty-per-two",
             description="pusoydos-desc-penalty-per-two",
         ),
-        visible_when=("game_mode", lambda v: v == "points"),
+        visible_when=("game_mode", lambda v: v in ("points", "points_elimination")),
     )
 
 
@@ -179,6 +184,7 @@ class PusoyDosPlayer(Player):
     passed_this_trick: bool = False
     # Scoring / tracking
     round_wins: int = 0
+    round_losses: int = 0
     score: int = 0
     eliminated: bool = False
     # Card passing state
@@ -203,7 +209,6 @@ class PusoyDosGame(Game, TurnTimerMixin):
 
     is_first_turn: bool = True
     hand_wait_ticks: int = 0
-    intro_wait_ticks: int = 0
     round: int = 0
 
     timer: PokerTurnTimer = field(default_factory=PokerTurnTimer)
@@ -252,6 +257,13 @@ class PusoyDosGame(Game, TurnTimerMixin):
     def create_player(self, player_id: str, name: str, is_bot: bool = False) -> PusoyDosPlayer:
         return PusoyDosPlayer(id=player_id, name=name, is_bot=is_bot)
 
+    def prestart_validate(self) -> list:
+        errors = super().prestart_validate()
+        active_count = len([p for p in self.players if not p.is_spectator])
+        if self.options.card_passing == "full" and active_count not in (2, 4):
+            errors.append("pusoydos-error-full-passing-players")
+        return errors
+
     # ==========================================================================
     # Game start
     # ==========================================================================
@@ -266,6 +278,7 @@ class PusoyDosGame(Game, TurnTimerMixin):
 
         for p in self._playing_players():
             p.round_wins = 0
+            p.round_losses = 0
             p.score = 0
             p.eliminated = False
 
@@ -273,8 +286,7 @@ class PusoyDosGame(Game, TurnTimerMixin):
         self._team_manager.setup_teams([p.name for p in self._playing_players()])
 
         self.play_music(SOUND_MUSIC)
-        self.play_sound(SOUND_INTRO)
-        self.intro_wait_ticks = 7 * 20
+        self._start_new_hand()
 
 
     # ==========================================================================
@@ -326,7 +338,6 @@ class PusoyDosGame(Game, TurnTimerMixin):
         for p in active:
             p.hand = sort_cards(p.hand)
 
-        self.play_sound(SOUND_NEW_HAND)
         self.schedule_sound(random.choice(SOUND_SHUFFLE), 10, volume=100)
         self.schedule_sound(random.choice(SOUND_DEAL), 20, volume=100)
         self.schedule_sound(random.choice(SOUND_DEAL), 25, volume=100)
@@ -413,12 +424,20 @@ class PusoyDosGame(Game, TurnTimerMixin):
             loser.hand.remove(card)
             winner.hand.append(card)
 
+        # Announce the automatic transfer
+        self.broadcast_l("pusoydos-loser-gives", loser=loser.name, winner=winner.name, count=count)
+
+        # Tell the winner what they received
+        winner_user = self.get_user(winner)
+        if winner_user:
+            cards_str = read_cards(loser_highest, winner_user.locale)
+            winner_user.speak_l("pusoydos-received-cards", buffer="table",
+                                cards=cards_str, sender=loser.name)
+
         # Winner must give N cards back — set up the choice
         winner.cards_to_give = count
         winner.give_to_id = loser_id
         winner.giving_cards = True
-
-        self.broadcast_l("pusoydos-give-cards", player=loser.name, count=count, recipient=winner.name)
 
     def _auto_give_loser_cards(self, active: list[PusoyDosPlayer]) -> None:
         """Notify players about the automatic loser card transfers."""
@@ -456,6 +475,11 @@ class PusoyDosGame(Game, TurnTimerMixin):
             giver.hand.remove(card)
             recipient.hand.append(card)
 
+        # Broadcast the return
+        self.broadcast_l("pusoydos-winner-gives-back",
+                         winner=giver.name, loser=recipient.name, count=len(given_cards))
+
+        # Tell each player what was exchanged
         giver_user = self.get_user(giver)
         recipient_user = self.get_user(recipient)
 
@@ -520,6 +544,8 @@ class PusoyDosGame(Game, TurnTimerMixin):
 
         if self.trick_winner_id == player.id:
             # I won the trick — start a new one
+            if self.current_combo is not None:
+                self.broadcast_l("pusoydos-trick-won", player=player.name)
             self.current_combo = None
             self.trick_cards = []
             self.trick_winner_id = None
@@ -534,7 +560,12 @@ class PusoyDosGame(Game, TurnTimerMixin):
                 if p.id != self.trick_winner_id and p.id in self.turn_player_ids
             )
             if all_passed:
-                self.trick_winner_id = player.id
+                winner = self.get_player_by_id(self.trick_winner_id)
+                if winner and winner.id in self.turn_player_ids:
+                    self.current_player = winner
+                else:
+                    # Trick winner left the hand; current player inherits
+                    self.trick_winner_id = player.id
                 self._start_turn()
                 return
 
@@ -556,12 +587,6 @@ class PusoyDosGame(Game, TurnTimerMixin):
         if not self.game_active:
             return
 
-        if self.intro_wait_ticks > 0:
-            self.intro_wait_ticks -= 1
-            if self.intro_wait_ticks == 0:
-                self._start_new_hand()
-            return
-
         if self.hand_wait_ticks > 0:
             self.hand_wait_ticks -= 1
             if self.hand_wait_ticks == 0:
@@ -572,7 +597,7 @@ class PusoyDosGame(Game, TurnTimerMixin):
         BotHelper.on_tick(self)
 
     def bot_think(self, player: PusoyDosPlayer) -> str | None:
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return None
 
         # Card passing — bot gives cards
@@ -732,7 +757,7 @@ class PusoyDosGame(Game, TurnTimerMixin):
         if self.status != "playing" or player.is_spectator or player.eliminated:
             return
 
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return
 
         # Card passing phase: show give selection
@@ -857,13 +882,9 @@ class PusoyDosGame(Game, TurnTimerMixin):
         else:
             self.play_sound(random.choice(SOUND_PLAY_SINGLE))
 
-        if combo.type_name in ("full_house", "four_of_a_kind", "straight_flush"):
-            self.play_sound(SOUND_BIG_COMBO)
-
         self._broadcast_play(p, combo)
 
         if len(p.hand) == 1:
-            self.play_sound(SOUND_ONE_CARD)
             self.broadcast_l("pusoydos-one-card", player=p.name)
 
         if len(p.hand) == 0:
@@ -883,7 +904,6 @@ class PusoyDosGame(Game, TurnTimerMixin):
             return
 
         p.passed_this_trick = True
-        self.play_sound(SOUND_PASS)
         self._broadcast_pass(p)
         p.selected_cards.clear()
 
@@ -960,34 +980,27 @@ class PusoyDosGame(Game, TurnTimerMixin):
     # ==========================================================================
 
     def _player_finishes(self, player: PusoyDosPlayer) -> None:
-        """A player emptied their hand."""
+        """A player emptied their hand — round ends immediately."""
         self.finishing_order.append(player.id)
         self._player_wins_round(player)
 
-        # Remove from turn rotation
-        if player.id in self.turn_player_ids:
-            was_current = self.current_player == player
-            self.turn_player_ids = [pid for pid in self.turn_player_ids if pid != player.id]
-            if was_current and self.turn_player_ids:
-                self.turn_index = self.turn_index % len(self.turn_player_ids)
+        # Rank remaining players: fewer cards = better, ties broken by lower highest card
+        remaining = [p for p in self._playing_players()
+                     if p.id not in self.finishing_order and p.id in self.turn_player_ids]
+        remaining.sort(key=lambda p: (len(p.hand), max((card_value(c) for c in p.hand), default=0)))
+        for p in remaining:
+            self.finishing_order.append(p.id)
 
-        remaining_in_hand = [p for p in self._playing_players()
-                             if p.id in self.turn_player_ids and len(p.hand) > 0]
-
-        if len(remaining_in_hand) <= 1:
-            # Round over — everyone remaining hasn't finished
-            for p in remaining_in_hand:
-                if p.id not in self.finishing_order:
-                    self.finishing_order.append(p.id)
-            self._end_round()
-        else:
-            self._start_turn()
+        self._end_round()
 
     def _player_wins_round(self, player: PusoyDosPlayer) -> None:
         """Record a round win for the player."""
         player.round_wins += 1
         self.play_sound(SOUND_WIN_ROUND)
-        self.broadcast_l("pusoydos-round-winner", player=player.name)
+        if self.options.game_mode in ("elimination", "points_elimination"):
+            self.broadcast_l("pusoydos-round-winner", player=player.name)
+        else:
+            self.broadcast_l("pusoydos-player-goes-out", player=player.name)
 
     def _end_round(self) -> None:
         """Process end of round for either game mode."""
@@ -995,6 +1008,10 @@ class PusoyDosGame(Game, TurnTimerMixin):
 
         if self.options.game_mode == "points":
             self._end_round_points()
+        elif self.options.game_mode == "losses":
+            self._end_round_losses()
+        elif self.options.game_mode == "points_elimination":
+            self._end_round_points_elimination()
         else:
             self._end_round_elimination()
 
@@ -1003,25 +1020,25 @@ class PusoyDosGame(Game, TurnTimerMixin):
         winner_id = self.finishing_order[0] if self.finishing_order else None
         winner = self._get_pusoy_player(winner_id) if winner_id else None
 
+        entries = []
+        total = 0
         for p in self._playing_players():
             if p.id == winner_id:
                 continue
             penalty = self._calculate_penalty(p)
             if winner:
                 winner.score += penalty
-            self.broadcast_l("pusoydos-penalty-report", player=p.name,
-                             cards_left=len(p.hand), points=penalty)
+            total += penalty
+            entries.append((p.name, penalty))
 
-            # Per-2 penalty announcement
-            if self.options.penalty_per_two:
-                twos_held = sum(1 for c in p.hand if c.rank == 2)
-                if twos_held > 0:
-                    self.broadcast_l("pusoydos-penalty-doubled-twos", player=p.name, count=twos_held)
+        if winner and entries:
+            gained = sum(pts for _, pts in entries)
+            breakdown = ", ".join(f"{pts} from {name}" for name, pts in entries)
+            self.broadcast_l("pusoydos-penalty-summary",
+                             player=winner.name, breakdown=breakdown,
+                             gained=gained, total=winner.score)
 
-        # Announce scores
         self._sync_team_scores()
-        for p in self._playing_players():
-            self.broadcast_l("pusoydos-score-update", player=p.name, score=p.score)
 
         # Check for winner
         if winner and winner.score >= self.options.target_score:
@@ -1030,6 +1047,69 @@ class PusoyDosGame(Game, TurnTimerMixin):
             self.finish_game()
             return
 
+        self.hand_wait_ticks = 5 * 20
+        self.rebuild_all_menus()
+
+    def _end_round_losses(self) -> None:
+        """Losses mode: last-place player takes a loss. First to target losses loses the game."""
+        if not self.finishing_order:
+            self.hand_wait_ticks = 5 * 20
+            self.rebuild_all_menus()
+            return
+
+        loser_id = self.finishing_order[-1]
+        loser = self._get_pusoy_player(loser_id)
+        if loser:
+            loser.round_losses += 1
+            self.play_sound(SOUND_LOSE_ROUND)
+            self.broadcast_l("pusoydos-round-loser", player=loser.name, count=loser.round_losses)
+
+            if loser.round_losses >= self.options.losses_to_lose:
+                self.broadcast_l("pusoydos-losses-game-over", player=loser.name, count=loser.round_losses)
+                self.finish_game()
+                return
+
+        self._sync_team_scores()
+        self.hand_wait_ticks = 5 * 20
+        self.rebuild_all_menus()
+
+    def _end_round_points_elimination(self) -> None:
+        """Points elimination: losers get points, reaching target eliminates you, last standing wins."""
+        winner_id = self.finishing_order[0] if self.finishing_order else None
+
+        for p in self._playing_players():
+            if p.id == winner_id:
+                continue
+            penalty = self._calculate_penalty(p)
+            p.score += penalty
+            self.broadcast_l("pusoydos-points-elim-penalty",
+                             player=p.name, points=penalty, total=p.score)
+
+        # Check for newly eliminated players
+        newly_eliminated = []
+        for p in self._playing_players():
+            if p.score >= self.options.target_score and not p.eliminated:
+                p.eliminated = True
+                newly_eliminated.append(p)
+
+        for p in newly_eliminated:
+            self.play_sound(SOUND_ELIMINATED)
+            self.broadcast_l("pusoydos-points-elim-eliminated",
+                             player=p.name, score=p.score)
+
+        remaining = self._playing_players()
+        if newly_eliminated:
+            self.broadcast_l("pusoydos-players-remaining", count=len(remaining))
+
+        if len(remaining) <= 1:
+            winner = remaining[0] if remaining else None
+            if winner:
+                self.play_sound(SOUND_WIN_GAME)
+                self.broadcast_l("pusoydos-points-elim-winner", player=winner.name)
+            self.finish_game()
+            return
+
+        self._sync_team_scores()
         self.hand_wait_ticks = 5 * 20
         self.rebuild_all_menus()
 
@@ -1046,7 +1126,8 @@ class PusoyDosGame(Game, TurnTimerMixin):
             self.broadcast_l("pusoydos-player-eliminated", player=p.name, count=p.round_wins)
 
         remaining = self._playing_players()
-        self.broadcast_l("pusoydos-players-remaining", count=len(remaining))
+        if newly_eliminated:
+            self.broadcast_l("pusoydos-players-remaining", count=len(remaining))
 
         if len(remaining) <= 1:
             # Game over — last player is the loser
@@ -1205,14 +1286,14 @@ class PusoyDosGame(Game, TurnTimerMixin):
             return "action-spectator"
         if self.current_player != player:
             return "action-not-your-turn"
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return "action-wait"
         return None
 
     def _is_turn_action_hidden(self, player: Player) -> Visibility:
         if self.status != "playing" or player.is_spectator:
             return Visibility.HIDDEN
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return Visibility.HIDDEN
         if self.current_player != player:
             return Visibility.HIDDEN
@@ -1223,14 +1304,14 @@ class PusoyDosGame(Game, TurnTimerMixin):
             return "action-not-playing"
         if player.is_spectator:
             return "action-spectator"
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return "action-wait"
         return None
 
     def _is_card_toggle_hidden(self, player: Player, *, action_id: str | None = None) -> Visibility:
         if self.status != "playing" or player.is_spectator:
             return Visibility.HIDDEN
-        if self.hand_wait_ticks > 0 or self.intro_wait_ticks > 0:
+        if self.hand_wait_ticks > 0:
             return Visibility.HIDDEN
         if not isinstance(player, PusoyDosPlayer):
             return Visibility.HIDDEN
@@ -1334,6 +1415,9 @@ class PusoyDosGame(Game, TurnTimerMixin):
         if self.options.game_mode == "elimination":
             for p in self._playing_players():
                 lines.append(f"{p.name}: {p.round_wins} wins")
+        elif self.options.game_mode == "losses":
+            for p in self._playing_players():
+                lines.append(f"{p.name}: {p.round_losses} losses")
         else:
             for p in self._playing_players():
                 lines.append(f"{p.name}: {p.score} points")
@@ -1350,6 +1434,8 @@ class PusoyDosGame(Game, TurnTimerMixin):
             if team and isinstance(p, PusoyDosPlayer):
                 if self.options.game_mode == "elimination":
                     team.total_score = p.round_wins
+                elif self.options.game_mode == "losses":
+                    team.total_score = p.round_losses
                 else:
                     team.total_score = p.score
 
@@ -1364,6 +1450,15 @@ class PusoyDosGame(Game, TurnTimerMixin):
             # In elimination, the last player is the loser
             # Sort: eliminated players by round_wins (desc), then remaining (loser) last
             sorted_players = sorted(active, key=lambda p: (not p.eliminated, -p.round_wins))
+            winner = sorted_players[0] if sorted_players else None
+        elif self.options.game_mode == "losses":
+            # In losses, the player who hit the loss target is the loser
+            # Sort: fewest losses first (best), most losses last (worst)
+            sorted_players = sorted(active, key=lambda p: p.round_losses)
+            winner = sorted_players[0] if sorted_players else None
+        elif self.options.game_mode == "points_elimination":
+            # Points elim: lowest score is best (last standing), eliminated sorted by score
+            sorted_players = sorted(active, key=lambda p: (p.eliminated, p.score))
             winner = sorted_players[0] if sorted_players else None
         else:
             sorted_players = sorted(active, key=lambda p: -p.score)
@@ -1387,6 +1482,7 @@ class PusoyDosGame(Game, TurnTimerMixin):
                 "winner_ids": [winner.id] if winner else [],
                 "final_scores": {p.name: p.score for p in active},
                 "final_wins": {p.name: p.round_wins for p in active},
+                "final_losses": {p.name: p.round_losses for p in active},
             },
         )
 
@@ -1400,6 +1496,18 @@ class PusoyDosGame(Game, TurnTimerMixin):
             for i, (name, wins) in enumerate(sorted_players, 1):
                 lines.append(Localization.get(locale, "pusoydos-line-format-wins",
                                               rank=i, player=name, wins=wins))
+        elif mode == "losses":
+            final_losses = result.custom_data.get("final_losses", {})
+            sorted_players = sorted(final_losses.items(), key=lambda item: item[1])
+            for i, (name, losses) in enumerate(sorted_players, 1):
+                lines.append(Localization.get(locale, "pusoydos-line-format-losses",
+                                              rank=i, player=name, losses=losses))
+        elif mode == "points_elimination":
+            final_scores = result.custom_data.get("final_scores", {})
+            sorted_scores = sorted(final_scores.items(), key=lambda item: item[1])
+            for i, (name, score) in enumerate(sorted_scores, 1):
+                lines.append(Localization.get(locale, "pusoydos-line-format",
+                                              rank=i, player=name, score=score))
         else:
             final_scores = result.custom_data.get("final_scores", {})
             sorted_scores = sorted(final_scores.items(), key=lambda item: item[1], reverse=True)
