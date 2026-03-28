@@ -4,7 +4,7 @@ For example, display a message when the user logs in, or when they try to access
 An alert is a container consisting of an existing document via id, a single event type, an event index (internalized), a dismiss behavior type, and a list of uuids for users who have chosen to dismiss the alert. Depending on the event type, additional fields may be present.
 
 # Backend
-Alerts will be apart of the documents system metadata file (server/documents/_metadata.json).
+Alerts will be apart of the documents system metadata file (server/documents/shared/_metadata.json).
 
 ## Alerts section structure
 The alerts section would be a json object with each event type being a key, and the value being an array of alerts. Alerts do not have an id or name.
@@ -100,3 +100,10 @@ event type = ""
 event index = last (current +1)
 dismiss behavior = "manditory"
 If the user presses back without a document id, consider the operation canceled. If the document id is set but the event type field is empty, require it before saving.
+
+# Edge cases
+
+## Renaming documents
+If a document id changes, this will break alerts. Currently there is no way to change a document id from the interface, it has to be renamed on the backend via a file system.
+I think this should be addressed later, as it is very unlikely for a document id to change.
+I suppose if a document id can't be found when listing alerts, it would warn the user, and ask them to select a new document, but again this isn't immediately important.
