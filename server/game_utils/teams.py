@@ -420,18 +420,20 @@ class TeamManager(DataClassJSONMixin):
 
     def format_scores_detailed(self, locale: str = "en") -> list[str]:
         """
-        Format scores as a list of lines for a status box.
+        Format localized scores as a list of lines for a status box.
 
-        Returns something like:
+        Returns something like (English):
         ["Alice: 5 points", "Bob: 3 points", ...]
 
+        The points label is localized via the "game-points" Fluent key.
         No header needed - screen readers speak list items directly.
         """
         sorted_teams = self.get_sorted_teams(by_score=True, descending=True)
         lines = []
         for team in sorted_teams:
             name = self.get_team_name(team, locale)
-            lines.append(f"{name}: {team.total_score} points")
+            points = Localization.get(locale, "game-points", count=team.total_score)
+            lines.append(f"{name}: {points}")
         return lines
 
 
