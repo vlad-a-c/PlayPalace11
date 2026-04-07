@@ -129,8 +129,6 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
         ssl_key: str | Path | None = None,
         config_path: str | Path | None = None,
         preload_locales: bool = False,
-        auto_approve_new_accounts: bool = False,
-        block_new_accounts: bool = False,
     ):
         """Initialize the server and core managers.
 
@@ -143,8 +141,6 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
             ssl_key: Optional SSL private key path for TLS.
             config_path: Optional config.toml path override.
             preload_locales: Whether to block startup while compiling all locales.
-            block_new_accounts: block new accounts from being registered
-            auto_approve_new_accounts: Auto-approve new accounts (skip admin approval step)
         """
         self.host = host
         self.port = port
@@ -187,8 +183,8 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
         self._ws_max_message_size = DEFAULT_WS_MAX_MESSAGE_BYTES
         self._config_path = Path(config_path) if config_path else get_default_config_path()
         self._allow_insecure_ws = False
-        self._block_new_accounts = block_new_accounts
-        self._auto_approve_new_accounts = auto_approve_new_accounts
+        self._block_new_accounts = False
+        self._auto_approve_new_accounts = False
         self._preload_locales = preload_locales
         self._login_ip_limit = DEFAULT_LOGIN_ATTEMPTS_PER_MINUTE
         self._login_user_limit = DEFAULT_LOGIN_FAILURES_PER_MINUTE
@@ -1377,18 +1373,9 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                 needs_approval = not self._auto_approve_new_accounts and self._db.get_user_count() > 0
                 # Try to register if accounts are not blocked
                 if self._block_new_accounts:
-                    error_message = Localization.get(locale, "accounts-blocked")
-                    await client.send({"type": "play_sound", "name": "accounterror.ogg"})
-                    await client.send({"type": "speak", "text": error_message, "buffer": "activity"})
-                    await client.send({
-                        "type": "disconnect",
-                        "reconnect": False,
-                        "show_message": True,
-                        "return_to_login": True,
-                        "message": error_message,
-                    })
+                    await self._send_accounts_blocked(client, locale)
                     return
-                if not self._auth.register(username, password, block_new_accounts=self._block_new_accounts, approval=self._auto_approve_new_accounts, locale=locale):
+                if not self._auth.register(username, password, approved=self._auto_approve_new_accounts, locale=locale):
                     self._record_login_failure(username)
                     # Registration failed (shouldn't happen if user not found, but handle anyway)
                     error_message = Localization.get(locale, "incorrect-username")
@@ -1459,18 +1446,9 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
         needs_approval = not self._auto_approve_new_accounts and self._db.get_user_count() > 0
         # Try to register the user
         if self._block_new_accounts:
-            error_message = Localization.get(locale, "accounts-blocked")
-            await client.send({"type": "play_sound", "name": "accounterror.ogg"})
-            await client.send({"type": "speak", "text": error_message, "buffer": "activity"})
-            await client.send({
-                "type": "disconnect",
-                "reconnect": False,
-                "show_message": True,
-                "return_to_login": True,
-                "message": error_message,
-                })
+            await self._send_accounts_blocked(client, locale)
             return
-        if self._auth.register(username, password, approval=self._auto_approve_new_accounts, block_new_accounts=self._block_new_accounts, locale=locale):
+        if self._auth.register(username, password, approved=self._auto_approve_new_accounts, locale=locale):
             await client.send({
                 "type": "speak",
                 "text": Localization.get(locale, "registration-success"),
@@ -1487,6 +1465,20 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                     "buffer": "activity",
                 }
             )
+
+    @staticmethod
+    async def _send_accounts_blocked(client: ClientConnection, locale: str) -> None:
+        """Inform the client that new account registration is disabled and disconnect."""
+        error_message = Localization.get(locale, "accounts-blocked")
+        await client.send({"type": "play_sound", "name": "accounterror.ogg"})
+        await client.send({"type": "speak", "text": error_message, "buffer": "activity"})
+        await client.send({
+            "type": "disconnect",
+            "reconnect": False,
+            "show_message": True,
+            "return_to_login": True,
+            "message": error_message,
+        })
 
     @staticmethod
     async def _send_refresh_failure(client: ClientConnection, reason: str, locale: str) -> None:
