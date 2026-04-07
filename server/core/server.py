@@ -1469,7 +1469,7 @@ class Server(AdministrationMixin, DocumentBrowsingMixin, TranscriberRoleMixin):
                 "return_to_login": True,
                 "message": error_message,
                 })
-                return
+            return
         if self._auth.register(username, password, approval=self._auto_approve_new_accounts, block_new_accounts=self._block_new_accounts, locale=locale):
             await client.send({
                 "type": "speak",
