@@ -15,6 +15,7 @@ dependencies = [
     "pydantic>=2.0",
     "jsonschema>=4.21",
     "markdown>=3.5",
+    "nh3>=0.2.15",
 ]
 
 [project.scripts]

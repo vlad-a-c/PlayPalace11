@@ -3,6 +3,7 @@
 import wx
 import wx.html2
 import markdown
+import nh3
 
 
 def _sys_color_hex(color_id):
@@ -17,6 +18,35 @@ _MD_EXTENSIONS = [
     "sane_lists",
     "nl2br",
 ]
+
+# Tags that python-markdown legitimately produces.  Everything else
+# (script, iframe, object, form, style, etc.) is stripped.
+_ALLOWED_TAGS = {
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "p", "br", "hr",
+    "ul", "ol", "li",
+    "blockquote",
+    "pre", "code",
+    "em", "strong", "del", "s",
+    "a",
+    "img",
+    "table", "thead", "tbody", "tr", "th", "td",
+    "div", "span",
+    "sub", "sup",
+    "dl", "dt", "dd",
+    "abbr",
+}
+
+_ALLOWED_ATTRIBUTES = {
+    "a": {"href", "title"},
+    "img": {"src", "alt", "title", "width", "height"},
+    "abbr": {"title"},
+    "td": {"align"},
+    "th": {"align"},
+}
+
+# Block javascript: URIs on href / src.
+_ALLOWED_URL_SCHEMES = {"http", "https", "mailto"}
 
 _HTML_TEMPLATE = """\
 <!DOCTYPE html>
@@ -124,10 +154,19 @@ class MarkdownViewerDialog(wx.Dialog):
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # Convert markdown to HTML
+        # Convert markdown to HTML, then sanitize to prevent XSS.
+        # Documents are user-editable and transmitted over the network;
+        # python-markdown passes raw HTML through by default.
         html_body = markdown.markdown(
             markdown_content,
             extensions=_MD_EXTENSIONS,
+        )
+        html_body = nh3.clean(
+            html_body,
+            tags=_ALLOWED_TAGS,
+            attributes=_ALLOWED_ATTRIBUTES,
+            url_schemes=_ALLOWED_URL_SCHEMES,
+            link_rel="noopener noreferrer",
         )
 
         # Build full HTML page with system colours
