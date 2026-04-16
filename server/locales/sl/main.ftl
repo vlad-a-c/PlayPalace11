@@ -36,6 +36,7 @@ whos-at-table = Kdo je pri mizi
 check-scores = Preveri rezultate
 check-scores-detailed = Podrobni rezultati
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } je preskočen.

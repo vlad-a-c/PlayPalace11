@@ -36,6 +36,7 @@ whos-at-table = Cine e la masă
 check-scores = Verifică scorurile
 check-scores-detailed = Scoruri detaliate
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } este sărit.

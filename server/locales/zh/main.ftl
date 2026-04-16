@@ -34,6 +34,7 @@ whos-at-table = 桌上都有谁
 check-scores = 查看分数
 check-scores-detailed = 详细分数
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # 桌台消息
 table-created = { $host } 创建了一个新的 { $game } 桌台。

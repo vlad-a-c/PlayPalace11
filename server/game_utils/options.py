@@ -1046,7 +1046,10 @@ class OptionsHandlerMixin:
 
     def _action_check_game_options(self, player: "Player", action_id: str) -> None:
         """Open the read-only in-game game options viewer."""
+        user = self.get_user(player)
         if not hasattr(self, "options"):
+            if user:
+                user.speak_l("no-game-options")
             return
         if not hasattr(self, "_game_options_view_path"):
             self._game_options_view_path = {}

@@ -36,6 +36,7 @@ whos-at-table = Quién está en la mesa
 check-scores = Ver puntuaciones
 check-scores-detailed = Puntuaciones detalladas
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } es saltado.

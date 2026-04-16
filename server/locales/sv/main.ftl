@@ -36,6 +36,7 @@ whos-at-table = Vem är vid bordet
 check-scores = Kontrollera poäng
 check-scores-detailed = Detaljerad poäng
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } hoppas över.

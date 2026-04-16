@@ -895,3 +895,20 @@ def test_game_options_view_back_closes_at_root(monkeypatch):
     assert user.removed_menus == ["game_options_view"]
     assert player.id not in game._game_options_view_path
     assert game.rebuilt_players == [player.id]
+
+
+def test_check_game_options_without_options_speaks_message(monkeypatch):
+    monkeypatch.setattr(
+        "server.game_utils.options.Localization.get",
+        lambda locale, key, **kw: key,
+    )
+
+    user = OptionsUser()
+    game = ReadonlyOptionsGame(user, GroupedOptions())
+    del game.options
+    player = Player(id="p1", name="Alice")
+    game.players = [player]
+
+    game._action_check_game_options(player, "check_game_options")
+
+    assert user._last_speak == ("no-game-options", {})

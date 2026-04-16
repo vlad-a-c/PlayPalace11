@@ -36,6 +36,7 @@ whos-at-table = Ширээнд хэн байна
 check-scores = Оноо шалгах
 check-scores-detailed = Дэлгэрэнгүй оноо
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } алгасав.

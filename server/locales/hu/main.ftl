@@ -36,6 +36,7 @@ whos-at-table = Ki van az asztalnál
 check-scores = Eredmények ellenőrzése
 check-scores-detailed = Részletes eredmények
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } ki van hagyva.

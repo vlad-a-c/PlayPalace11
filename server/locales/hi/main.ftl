@@ -36,6 +36,7 @@ whos-at-table = टेबल पर कौन है
 check-scores = स्कोर देखें
 check-scores-detailed = विस्तृत स्कोर
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } को छोड़ दिया गया है।

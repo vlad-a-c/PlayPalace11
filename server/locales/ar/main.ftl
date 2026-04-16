@@ -36,6 +36,7 @@ whos-at-table = من على الطاولة
 check-scores = تحقق من النتائج
 check-scores-detailed = نتائج مفصلة
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # رسائل الدور
 game-player-skipped = تم تخطي { $player }.

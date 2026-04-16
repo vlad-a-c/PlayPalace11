@@ -36,6 +36,7 @@ whos-at-table = Ngubani osethafeni
 check-scores = Bheka amaphuzu
 check-scores-detailed = Amaphuzu anemininingwane
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = U-{ $player } uyeqiwa.

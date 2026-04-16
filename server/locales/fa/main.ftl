@@ -36,6 +36,7 @@ whos-at-table = چه کسانی پشت میز هستند
 check-scores = بررسی امتیازها
 check-scores-detailed = امتیازهای تفصیلی
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } رد شد.

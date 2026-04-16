@@ -36,6 +36,7 @@ whos-at-table = Хто за столом
 check-scores = Перевірити рахунок
 check-scores-detailed = Детальний рахунок
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } пропущений.

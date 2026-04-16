@@ -39,6 +39,7 @@ whos-at-table = Who's at the table
 check-scores = Check scores
 check-scores-detailed = Detailed scores
 check-game-options = Check Game Options
+no-game-options = No Game Options
 
 # Turn messages
 game-player-skipped = { $player } is skipped.
