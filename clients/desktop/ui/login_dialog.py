@@ -320,7 +320,7 @@ class LoginDialog(wx.Dialog):
 
         if new_server_id:
             prompt = wx.MessageBox(
-                "Server added. Would you like to add an account for it now?",
+                "Server added. Would you like to add an account for it now?\nBy default, a server will accept new created accounts by users.",
                 "Add Account?",
                 wx.YES_NO | wx.ICON_QUESTION,
             )
@@ -353,7 +353,7 @@ class LoginDialog(wx.Dialog):
 
         if new_account_id:
             prompt = wx.MessageBox(
-                "Account added. Would you like to log in with this account now?",
+                "Account added. Would you like to log in with this account now?\nBy default, a server will accept new created accounts by users.",
                 "Log In Now?",
                 wx.YES_NO | wx.ICON_QUESTION,
             )
