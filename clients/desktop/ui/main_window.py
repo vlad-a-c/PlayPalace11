@@ -1222,7 +1222,7 @@ class MainWindow(wx.Frame):
         """Auto-connect to server using login credentials."""
         username = self.credentials.get("username", "Guest")
         password = self.credentials.get("password", "")
-        refresh_token = self.credentials.get("refresh_token", "")
+        refresh_token = self.credentials.get("refresh_token")
         refresh_expires_at = self.credentials.get("refresh_expires_at")
         server_url = self.credentials.get("server_url", "ws://localhost:8000")
 
@@ -1367,7 +1367,7 @@ class MainWindow(wx.Frame):
         self.add_history(f"Reconnecting as {username}... (attempt {self.reconnect_attempts})")
         self.network.disconnect()
 
-        refresh_token = self.credentials.get("refresh_token", "")
+        refresh_token = self.credentials.get("refresh_token")
         refresh_expires_at = self.credentials.get("refresh_expires_at")
         if self.network.connect(server_url, username, password, refresh_token, refresh_expires_at):
             # Wait 3 seconds then check again
@@ -1449,7 +1449,7 @@ class MainWindow(wx.Frame):
             server_url = new_credentials.get("server_url")
             username = new_credentials.get("username")
             password = new_credentials.get("password", "")
-            refresh_token = new_credentials.get("refresh_token", "")
+            refresh_token = new_credentials.get("refresh_token")
             refresh_expires_at = new_credentials.get("refresh_expires_at")
 
             self.add_history(f"Connecting to {server_url} as {username}...", "activity")
