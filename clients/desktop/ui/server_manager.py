@@ -623,20 +623,24 @@ class ServerEditorDialog(wx.Dialog):
 
         return True
 
-    def _save_if_needed(self):
-        """Save server data if there are changes."""
+    def _save_if_needed(self) -> bool:
+        """Save server data if there are changes.
+
+        Returns:
+            True if saved successfully or no save needed, False if validation failed
+        """
         name = self.name_input.GetValue().strip()
         host = self.host_input.GetValue().strip()
         port = self.port_input.GetValue().strip()
         notes = self.notes_input.GetValue().strip()
 
         if not name:
-            return  # Don't save without a name
+            return True  # Don't save without a name
 
         try:
             port_num = int(port)
         except ValueError:
-            return  # Don't save with an invalid port
+            return False  # Validation failed
 
         if self.server_id:
             # Update existing server
@@ -658,12 +662,14 @@ class ServerEditorDialog(wx.Dialog):
             # Reload server data
             self.server_data = self.config_manager.get_server_by_id(self.server_id)
 
+        return True
+
     def on_save(self, event):
         """Handle save button click."""
         if not self._validate_for_close():
             return
-        self._save_if_needed()
-        self.EndModal(wx.ID_OK)
+        if self._save_if_needed():
+            self.EndModal(wx.ID_OK)
 
     def on_cancel(self, event):
         """Handle cancel button click."""
