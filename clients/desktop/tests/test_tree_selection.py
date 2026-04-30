@@ -69,6 +69,7 @@ def test_managed_tree_ctrl_select_after_delete_prefers_configured_neighbor(wx_ap
         frame.Destroy()
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS TreeListCtrl shim only")
 def test_managed_tree_ctrl_delete_all_items_resets_bookkeeping(wx_app):
     frame = wx.Frame(None)
     panel = wx.Panel(frame)
