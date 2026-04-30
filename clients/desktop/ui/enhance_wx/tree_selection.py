@@ -128,7 +128,7 @@ if sys.platform == "darwin":
         ) -> None:
             # TreeCtrl style flags do not apply to TreeListCtrl, so they are ignored here.
             super().__init__(parent, id=id, pos=pos, size=size, **kwargs)
-            self.AppendColumn("Name", width=wx.COL_WIDTH_AUTOSIZE)
+            self.AppendColumn("", width=wx.COL_WIDTH_AUTOSIZE)
             self.focus_after_delete = focus_after_delete
             self._compat_root = super().GetRootItem()
             self._item_data: dict[object, object] = {}
