@@ -620,8 +620,8 @@ class AdministrationMixin:
             return
 
         password = text or ""
-        min_length = getattr(self, "_password_min_length", 8)
-        max_length = getattr(self, "_password_max_length", 128)
+        min_length = self._password_min_length
+        max_length = self._password_max_length
         if not (min_length <= len(password) <= max_length):
             admin.speak_l(
                 "credential-password-length",
