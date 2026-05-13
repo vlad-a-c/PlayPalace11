@@ -41,6 +41,13 @@ def make_manager(tmp_path):
     return manager
 
 
+def test_default_sounds_folder_is_absolute():
+    manager = SoundManager()
+
+    assert manager.sounds_folder.endswith("sounds")
+    assert manager.sounds_folder.startswith("/")
+
+
 def test_play_passes_full_path(tmp_path):
     (tmp_path / "click.ogg").write_bytes(b"123")
     manager = make_manager(tmp_path)
